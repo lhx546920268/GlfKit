@@ -18,18 +18,20 @@ class Popover extends StatelessWidget {
     Key key,
     ArrowDirection arrowDirection, //null 将自动计算方向
     double arrowMargin = 5,
-    Color backgroundColor = Colors.white,
+    Color popoverColor = Colors.white,
     BoxShadow shadow,
     double cornerRadius = 10,
     Size arrowSize = const Size(18, 12),
     EdgeInsets margin =
         const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
+    Color barrierColor = const Color(0x01000000),
+    bool barrierDismissible = true,
   }) {
     assert(context != null && child != null);
     showGeneralDialog(
         context: context,
-        barrierDismissible: true,
-        barrierColor: Color(0x01000000),
+        barrierDismissible: barrierDismissible,
+        barrierColor: barrierColor,
         transitionDuration: Duration(milliseconds: 200),
         barrierLabel:
             MaterialLocalizations.of(context).modalBarrierDismissLabel,
@@ -48,7 +50,7 @@ class Popover extends StatelessWidget {
             key: key,
             arrowDirection: arrowDirection,
             arrowMargin: arrowMargin,
-            backgroundColor: backgroundColor,
+            popoverColor: popoverColor,
             shadow: shadow,
             margin: margin,
             arrowSize: arrowSize,
@@ -64,7 +66,7 @@ class Popover extends StatelessWidget {
     Rect relatedRect,
     ArrowDirection arrowDirection,
     double arrowMargin = 5,
-    Color backgroundColor = Colors.white,
+    Color popoverColor = Colors.white,
     BoxShadow shadow,
     double cornerRadius = 10,
     Size arrowSize = const Size(18, 12),
@@ -75,7 +77,7 @@ class Popover extends StatelessWidget {
 
     assert(clickWidgetKey != null || relatedRect != null);
     assert(arrowMargin != null);
-    assert(backgroundColor != null);
+    assert(popoverColor != null);
     assert(cornerRadius != null);
     assert(arrowSize != null);
     assert(margin != null);
@@ -95,7 +97,7 @@ class Popover extends StatelessWidget {
         margin: margin);
 
     _style = _PopoverStyle(
-        backgroundColor: backgroundColor,
+        backgroundColor: popoverColor,
         shadow: shadow,
         cornerRadius: cornerRadius,
         arrowSize: arrowSize
@@ -410,7 +412,7 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
   set scale(double scale){
     if(_scale != scale){
       _scale = scale;
-      markNeedsLayout();
+      markNeedsPaint();
     }
   }
 

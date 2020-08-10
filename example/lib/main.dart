@@ -2,6 +2,7 @@ import 'package:GlfKit/interaction/popover.dart';
 import 'package:GlfKit/interaction/toast.dart';
 import 'package:example/grid_demo.dart';
 import 'package:example/list_demo.dart';
+import 'package:example/menu_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -40,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text('GliKitDemo'),
         ),
         body: ListView(
-          children: List.generate(4, (index) => _getListItem(index)),
+          children: List.generate(5, (index) => _getListItem(index)),
         ));
   }
 
@@ -59,6 +60,9 @@ class _MyHomePageState extends State<MyHomePage> {
         break;
       case 3 :
         title = "Popover";
+        break;
+      case 4 :
+        title = "MenuPage";
         break;
     }
 
@@ -80,6 +84,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       }
                       case 1 : {
                         return SectionGridViewDemo();
+                      }
+                      case 4 : {
+                        return MenuPage();
                       }
                     }
 
