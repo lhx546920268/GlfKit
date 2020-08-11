@@ -81,6 +81,7 @@ class Toast{
     //移除已存在的
     _entry?.remove();
     _timer?.cancel();
+    _animationController?.dispose();
 
     //n秒后消失
     _timer = Timer(duration, (){
@@ -110,6 +111,8 @@ class Toast{
       _animationController.forward();
       await Future.delayed(_toastDismissDuration);
       _entry?.remove();
+      _animationController?.dispose();
+      _animationController = null;
       _timer = null;
       _entry = null;
     }

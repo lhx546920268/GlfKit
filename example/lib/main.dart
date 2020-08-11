@@ -1,8 +1,9 @@
 import 'package:GlfKit/interaction/popover.dart';
 import 'package:GlfKit/interaction/toast.dart';
+import 'package:example/drop_down_menu_demo.dart';
 import 'package:example/grid_demo.dart';
 import 'package:example/list_demo.dart';
-import 'package:example/menu_page.dart';
+import 'package:example/menu_bar_demo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -41,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text('GliKitDemo'),
         ),
         body: ListView(
-          children: List.generate(5, (index) => _getListItem(index)),
+          children: List.generate(6, (index) => _getListItem(index)),
         ));
   }
 
@@ -62,7 +63,10 @@ class _MyHomePageState extends State<MyHomePage> {
         title = "Popover";
         break;
       case 4 :
-        title = "MenuPage";
+        title = "MenuBar";
+        break;
+      case 5 :
+        title = "DropDownMenuDemo";
         break;
     }
 
@@ -86,7 +90,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         return SectionGridViewDemo();
                       }
                       case 4 : {
-                        return MenuPage();
+                        return MenuBarDemo();
+                      }
+                      case 5 : {
+                        return DropDownMenuDemo();
                       }
                     }
 

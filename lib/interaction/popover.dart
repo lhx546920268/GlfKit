@@ -138,32 +138,6 @@ class Popover extends StatelessWidget {
   }
 }
 
-class TransparentRoute extends PageRouteBuilder {
-  TransparentRoute({
-    RouteSettings settings,
-    @required RoutePageBuilder pageBuilder,
-    RouteTransitionsBuilder transitionsBuilder,
-    Duration transitionDuration = const Duration(milliseconds: 300),
-    bool barrierDismissible = false,
-    String barrierLabel,
-    bool maintainState = true,
-    bool fullscreenDialog = false,
-  }) : super(
-            settings: settings,
-            pageBuilder: pageBuilder,
-            transitionsBuilder: transitionsBuilder ??
-                (_, Widget child) {
-                  return child;
-                },
-            transitionDuration: transitionDuration,
-            opaque: false,
-            barrierColor: Color(0x00000001),
-            barrierDismissible: barrierDismissible,
-            barrierLabel: barrierLabel,
-            maintainState: maintainState,
-            fullscreenDialog: fullscreenDialog);
-}
-
 ///弹窗位置
 class _PopoverPosition {
   ///点击按钮的位置

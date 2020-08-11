@@ -3,15 +3,15 @@ import 'package:GlfKit/menu/menu_bar.dart';
 import 'package:flutter/material.dart';
 
 
-class MenuPage extends StatefulWidget{
+class MenuBarDemo extends StatefulWidget{
 
   @override
   State<StatefulWidget> createState() {
-    return _MenuPageState();
+    return _MenuBarDemoState();
   }
 }
 
-class _MenuPageState extends State<MenuPage>{
+class _MenuBarDemoState extends State<MenuBarDemo>{
 
   PageScrollNotification scrollNotification = PageScrollNotification(null);
   List<String> titles = ['零食', '粮油', '生活用品', '家具', '家电', '移动设备', '五金', '生鲜', '衣服', '百货'];
@@ -24,7 +24,7 @@ class _MenuPageState extends State<MenuPage>{
     if(pageController == null){
       pageController = PageController();
     }
-
+    
     return Scaffold(
       appBar: AppBar(title: Text('MenuPage'),),
       body: Column(
