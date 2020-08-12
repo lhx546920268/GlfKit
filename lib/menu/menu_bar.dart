@@ -4,7 +4,7 @@ import 'package:flutter/rendering.dart';
 
 /**
  * 和PageView 一起使用
- * PageScrollNotification scrollNotification = PageScrollNotification(null);
+ *   PageScrollNotification scrollNotification = PageScrollNotification(null);
     List<String> titles = ['零食', '粮油', '生活用品', '家具', '家电', '移动设备', '五金', '生鲜', '衣服', '百货'];
     PageController pageController;
 
@@ -30,13 +30,14 @@ import 'package:flutter/rendering.dart';
     },
     ),
     Expanded(
-    child: NotificationListener(
+    child: NotificationListener<ScrollNotification>(
     onNotification: _onPageNotification,
     child: PageView(
     controller: pageController,
-    children: List.generate(titles.length, (index) => Container(
-    alignment: Alignment.center,
-    child: Text('$index'),
+    children: List.generate(titles.length, (page) => ListView(
+    children: List.generate(30, (index) => ListTile(
+    title: Text('Page $page, index $index'),
+    )),
     )),
     ),
     ),
@@ -46,9 +47,9 @@ import 'package:flutter/rendering.dart';
     );
     }
 
-    bool _onPageNotification(Notification notification){
+    bool _onPageNotification(ScrollNotification notification){
 
-    if(notification is ScrollNotification){
+    if(notification.depth == 0){
     scrollNotification.value = notification;
     }
 

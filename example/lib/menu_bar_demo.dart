@@ -39,13 +39,14 @@ class _MenuBarDemoState extends State<MenuBarDemo>{
               },
           ),
           Expanded(
-            child: NotificationListener(
+            child: NotificationListener<ScrollNotification>(
               onNotification: _onPageNotification,
               child: PageView(
                 controller: pageController,
-                children: List.generate(titles.length, (index) => Container(
-                  alignment: Alignment.center,
-                  child: Text('$index'),
+                children: List.generate(titles.length, (page) => ListView(
+                  children: List.generate(30, (index) => ListTile(
+                    title: Text('Page $page, index $index'),
+                  )),
                 )),
               ),
             ),
@@ -55,9 +56,9 @@ class _MenuBarDemoState extends State<MenuBarDemo>{
     );
   }
 
-  bool _onPageNotification(Notification notification){
+  bool _onPageNotification(ScrollNotification notification){
 
-    if(notification is ScrollNotification){
+    if(notification.depth == 0){
       scrollNotification.value = notification;
     }
 
