@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 
 class TextUtils {
@@ -28,5 +30,13 @@ class TextUtils {
     painter.layout(maxWidth: maxWidth);
     //文字的宽度:painter.width
     return painter.height;
+  }
+
+  ///判断是否为空
+  static bool isEmpty(String str, {bool replaceSpace = true}){
+    if(str == null || str is! String || str.isEmpty) return true;
+    if(replaceSpace && str.replaceAll(RegExp('\s'), '').isEmpty) return true;
+
+    return false;
   }
 }

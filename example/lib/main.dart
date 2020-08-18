@@ -1,5 +1,6 @@
 import 'package:GlfKit/interaction/popover.dart';
 import 'package:GlfKit/interaction/toast.dart';
+import 'package:GlfKit/event/event_bus.dart';
 import 'package:example/drop_down_menu_demo.dart';
 import 'package:example/grid_demo.dart';
 import 'package:example/list_demo.dart';
@@ -34,6 +35,25 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   
   GlobalKey key = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+
+    EventBus.defaultBus().subscribe('onLogin', _onValueChange);
+    EventBus.defaultBus().subscribe('onLogout', _onValueChange);
+  }
+
+  @override
+  void dispose() {
+    EventBus.defaultBus().cancel('onLogin', _onValueChange);
+    EventBus.defaultBus().cancel('onLogout', _onValueChange);
+    super.dispose();
+  }
+
+  void _onValueChange(dynamic name){
+    print('value $name');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +101,8 @@ class _MyHomePageState extends State<MyHomePage> {
             }
             if(index != 2){
               Navigator.of(context).push(MaterialPageRoute(
+                fullscreenDialog: true,
+                  maintainState: false,
                   builder: (BuildContext context){
                     switch(index){
                       case 0 : {
@@ -112,6 +134,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _showPopover(){
+
+    onTap(){
+      Navigator.of(context).pop();
+    }
+
     Popover.show(
         context: context,
         shadow: BoxShadow(color: Colors.grey, blurRadius: 5),
@@ -123,18 +150,10 @@ class _MyHomePageState extends State<MyHomePage> {
             padding: EdgeInsets.zero,
             shrinkWrap: true,
             children: <Widget>[
-              ListTile(title: Text('首页'), leading: Icon(CupertinoIcons.home), onTap: (){
-
-              },),
-              ListTile(title: Text('购物车'), leading: Icon(CupertinoIcons.shopping_cart), onTap: (){
-
-              }),
-              ListTile(title: Text('个人中心'), leading: Icon(CupertinoIcons.profile_circled), onTap: (){
-
-              }),
-              ListTile(title: Text('位置'), leading: Icon(CupertinoIcons.location), onTap: (){
-
-              })
+              ListTile(title: Text('首页'), leading: Icon(CupertinoIcons.home), onTap: onTap,),
+              ListTile(title: Text('购物车'), leading: Icon(CupertinoIcons.shopping_cart), onTap: onTap),
+              ListTile(title: Text('个人中心'), leading: Icon(CupertinoIcons.profile_circled), onTap: onTap),
+              ListTile(title: Text('位置'), leading: Icon(CupertinoIcons.location), onTap: onTap)
             ],
           ),
         ));

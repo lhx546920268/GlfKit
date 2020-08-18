@@ -37,12 +37,10 @@ class Popover extends StatelessWidget {
             MaterialLocalizations.of(context).modalBarrierDismissLabel,
         pageBuilder: (BuildContext context, Animation<double> animation,
             Animation<double> secondaryAnimation) {
-          return Builder(builder: (BuildContext context) {
-            return Container();
-          });
+          return child;
         },
         transitionBuilder: (BuildContext context, Animation<double> animation,
-            Animation<double> secondaryAnimation, _) {
+            Animation<double> secondaryAnimation, Widget child) {
           return Popover(
             relatedRect: relatedRect,
             clickWidgetKey: clickWidgetKey,

@@ -47,10 +47,10 @@ import 'package:flutter/rendering.dart';
     );
     }
 
-    bool _onPageNotification(ScrollNotification notification){
+    bool _onPageNotification(ScrollNotification event){
 
-    if(notification.depth == 0){
-    scrollNotification.value = notification;
+    if(event.depth == 0){
+    scrollNotification.value = event;
     }
 
     return false;

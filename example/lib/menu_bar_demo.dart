@@ -60,6 +60,7 @@ class _MenuBarDemoState extends State<MenuBarDemo>{
 
     if(notification.depth == 0){
       scrollNotification.value = notification;
+      return true;
     }
 
     return false;

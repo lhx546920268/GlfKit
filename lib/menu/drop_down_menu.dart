@@ -1,3 +1,4 @@
+import 'package:GlfKit/base/def.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -62,7 +63,7 @@ class _DropDownMenuState extends State<DropDownMenu> {
   @override
   void dispose() {
     _dismissList(false);
-    _animationController.dispose();
+    _animationController?.dispose();
     super.dispose();
   }
 
@@ -167,8 +168,8 @@ class _DropDownMenuState extends State<DropDownMenu> {
       return DropDownMenuList(
         item: item,
         relatedRect: relatedRect,
-        onSelect: (int index) {
-          widget.delegate?.onDropDownMenuSelectCondition(widget.items[index]);
+        onSelect: (){
+          widget.delegate?.onDropDownMenuSelectCondition(widget.items[widget._selectedPosition]);
         },
         onDismiss: (bool animate) {
           _dismissList(animate);
@@ -197,8 +198,6 @@ class _DropDownMenuState extends State<DropDownMenu> {
   }
 }
 
-typedef ValueCallback<T> = void Function(T value);
-
 ///下拉菜单列表
 class DropDownMenuList extends AnimatedWidget {
   ///菜单信息
@@ -211,7 +210,7 @@ class DropDownMenuList extends AnimatedWidget {
   final ValueCallback<bool> onDismiss;
 
   ///点击某个item回调
-  final ValueCallback<int> onSelect;
+  final VoidCallback onSelect;
 
   DropDownMenuList({
     Key key,
@@ -310,7 +309,7 @@ class DropDownMenuList extends AnimatedWidget {
         onPressed: () {
           item.selectedIndex = i;
           if (onSelect != null) {
-            onSelect(i);
+            onSelect();
           }
           onDismiss(true);
         },
