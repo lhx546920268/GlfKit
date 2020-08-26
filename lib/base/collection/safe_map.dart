@@ -44,9 +44,13 @@ extension on Map {
 ///安全的map
 class SafeMap{
 
+  ///当前的值
   Map<String, dynamic> value;
 
-  SafeMap(Map<String, dynamic> value){
+  ///当值为空是 返回默认值，只对 int, double, bool 有效
+  final bool toDefaultValue;
+
+  SafeMap(Map<String, dynamic> value, {this.toDefaultValue = true}){
     if(value is Map<String, dynamic>){
       this.value = value;
     }
@@ -60,10 +64,12 @@ class SafeMap{
       }
     }
 
-    if(T == int || T == double){
-      return 0 as T;
-    }else if(T == bool){
-      return false as T;
+    if(toDefaultValue){
+      if(T == int || T == double){
+        return 0 as T;
+      }else if(T == bool){
+        return false as T;
+      }
     }
 
     return null;

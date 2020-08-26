@@ -37,7 +37,7 @@ class EventBus {
   }
 
   ///取消订阅
-  void cancel(String name, EventCallback callback){
+  void unsubscribe(String name, EventCallback callback){
     if(name != null && callback != null){
       Set set = _subscribers[name];
       if(set != null && set.isNotEmpty){
