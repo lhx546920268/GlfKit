@@ -29,22 +29,13 @@ class MyApp extends StatelessWidget {
         MediaQueryData.fromWindow(WidgetsBinding.instance.window);
     kStatusBarHeight = data.padding.top;
 
-    var text = Text('txt');
     return MaterialApp(
       title: 'GliKitDemo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Scaffold(
-        appBar: AppBar(title: text,),
-        body: Column(
-          children: [
-            text,
-            text,
-          ],
-        ),
-      )
+      home: MyHomePage()
     );
   }
 }
