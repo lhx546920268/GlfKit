@@ -103,7 +103,7 @@ class SectionRenderSliverList extends SectionRenderSliverMultiBoxAdaptor {
   }
 
   ///清除缓存
-  void clearCache(SectionGridAdapter adapter){
+  void clearCache(SectionAdapter adapter){
     _adapter = adapter;
     _itemGeometries.clear();
     _currentStickChild = null;

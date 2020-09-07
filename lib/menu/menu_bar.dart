@@ -107,12 +107,14 @@ class MenuBar extends StatefulWidget {
     double indicatorHeight = 2,
     Color indicatorColor = Colors.blue,
     double spacing = 20,
+    bool equalWidth = false,
     EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 20),
   })  : assert(height != null),
         assert(selectedPosition != null),
         assert(fontSize != null),
         super(key: key) {
     _style = MenuBarStyle(
+      equalWidth: equalWidth,
       indicatorWidth: indicatorWidth,
       indicatorHeight: indicatorHeight,
       indicatorColor: indicatorColor,
@@ -245,6 +247,10 @@ class MenuBarState extends State<MenuBar> with SingleTickerProviderStateMixin {
 
 ///菜单样式
 class MenuBarStyle {
+
+  ///是否每个按钮的宽度一样
+  final bool equalWidth;
+
   ///下划线宽度，如果为空或者<=0，则使用选中的item宽度
   final double indicatorWidth;
 
@@ -261,7 +267,8 @@ class MenuBarStyle {
   final EdgeInsets padding;
 
   MenuBarStyle(
-      {this.indicatorWidth,
+      {this.equalWidth,
+        this.indicatorWidth,
       this.indicatorHeight,
       this.indicatorColor,
       this.spacing,
@@ -327,7 +334,10 @@ class _MenuBarFlex extends MultiChildRenderObjectWidget {
 
   @override
   RenderBox createRenderObject(BuildContext context) {
+
+
     return MenuBarRenderBox(
+        windowWidth: MediaQuery.of(context).size.width,
         selectedPosition: selectedPosition,
         animatedValue: animatedValue,
         style: style,
@@ -339,6 +349,7 @@ class _MenuBarFlex extends MultiChildRenderObjectWidget {
   void updateRenderObject(
       BuildContext context, covariant MenuBarRenderBox renderObject) {
     renderObject
+      ..windowWidth = MediaQuery.of(context).size.width
       ..selectedPosition = selectedPosition
       ..animatedValue = animatedValue
       ..style = style
@@ -356,6 +367,9 @@ class MenuBarRenderBox extends RenderBox
     with
         ContainerRenderObjectMixin<RenderBox, MenuBarParentData>,
         RenderBoxContainerDefaultsMixin<RenderBox, MenuBarParentData> {
+
+  double windowWidth;
+
   ///当前选中的子视图
   RenderBox _selectedChild;
 
@@ -401,6 +415,7 @@ class MenuBarRenderBox extends RenderBox
   }
 
   MenuBarRenderBox({
+    this.windowWidth,
     List<RenderBox> children,
     int selectedPosition = 0,
     double animatedValue,
@@ -442,6 +457,20 @@ class MenuBarRenderBox extends RenderBox
         minHeight: 0,
         maxHeight: constraints.maxHeight);
 
+    double minWidth = constraints.minWidth;
+    double maxWidth = constraints.maxWidth;
+    if(_style.equalWidth){
+      double width = constraints.hasBoundedWidth ? constraints.maxWidth : windowWidth;
+      minWidth = (width - _style.padding.left - _style.padding.right - _style.spacing * (childCount - 1)) / childCount;
+      maxWidth = minWidth;
+    }
+
+    final otherConstraints = BoxConstraints(
+        minWidth: minWidth,
+        maxWidth: maxWidth,
+        minHeight: constraints.minHeight,
+        maxHeight: constraints.maxHeight);
+
     RenderBox child = firstChild;
     double dx = _style.padding?.left ?? 0;
     double height = constraints.maxHeight;
@@ -454,7 +483,7 @@ class MenuBarRenderBox extends RenderBox
       parentData.size = child.size;
 
       //把item高度改成和parent一样高，扩大点击范围
-      child.layout(constraints, parentUsesSize: true);
+      child.layout(otherConstraints, parentUsesSize: true);
 
       dx += child.size.width;
       child = parentData.nextSibling;
@@ -514,11 +543,11 @@ class MenuBarRenderBox extends RenderBox
       }
 
       MenuBarParentData parentData = child.parentData as MenuBarParentData;
-      double dx = parentData.offset.dx + (parentData.size.width - _style.indicatorWidthFor(child)) / 2;
-      double dy = parentData.offset.dy + parentData.size.height + 5;
+      double dx = parentData.offset.dx + (child.size.width - parentData.size.width) / 2 + (parentData.size.width - _style.indicatorWidthFor(child)) / 2;
+      double dy = size.height - _style.indicatorHeight;
 
       MenuBarParentData oldParentData = oldChild.parentData as MenuBarParentData;
-      double oldDx = oldParentData.offset.dx + (oldParentData.size.width - _style.indicatorWidthFor(oldChild)) / 2;
+      double oldDx = oldParentData.offset.dx + (child.size.width - parentData.size.width) / 2 + (oldParentData.size.width - _style.indicatorWidthFor(oldChild)) / 2;
 
       double indicatorWidth = _style.indicatorWidthFor(oldChild) +
           (_style.indicatorWidthFor(child) - _style.indicatorWidthFor(oldChild)) * value;

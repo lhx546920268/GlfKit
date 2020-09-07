@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:isolate';
 
+import 'package:GlfKit/base/collection/safe_map.dart';
 import 'package:GlfKit/interaction/popover.dart';
 import 'package:GlfKit/interaction/toast.dart';
 import 'package:GlfKit/event/event_bus.dart';
@@ -19,66 +20,81 @@ void main() {
   runApp(MyApp());
 }
 
+/// This Widget is the main application widget.
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  static const String _title = 'Flutter Code Sample';
 
   @override
   Widget build(BuildContext context) {
-
-    MediaQueryData data =
-        MediaQueryData.fromWindow(WidgetsBinding.instance.window);
-    kStatusBarHeight = data.padding.top;
-
     return MaterialApp(
-      title: 'GliKitDemo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+      title: _title,
+      home: Scaffold(
+        appBar: AppBar(title: const Text(_title)),
+        body: Center(
+          child: MyStatefulWidget(),
+        ),
       ),
-      home: MyHomePage()
     );
   }
 }
 
+class MyStatefulWidget extends StatefulWidget {
+  MyStatefulWidget({Key key}) : super(key: key);
+
+  @override
+  _MyStatefulWidgetState createState() => _MyStatefulWidgetState();
+}
+
+class _MyStatefulWidgetState extends State<MyStatefulWidget>
+    with SingleTickerProviderStateMixin {
+  double _size = 50.0;
+  bool _large = false;
+
+  void _updateSize() {
+    setState(() {
+      _size = _large ? 250.0 : 100.0;
+      _large = !_large;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _updateSize(),
+      child: AnimatedContainer(
+        curve: Curves.easeIn,
+        width: _size,
+        height: _size,
+        color: Colors.red,
+        duration: Duration(seconds: 1),
+        child: Icon(Icons.shopping_cart, color: Colors.black54, size: 25,),
+      ),
+    );
+  }
+}
+
+// class MyApp extends StatelessWidget {
+//   // This widget is the root of your application.
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     MediaQueryData data =
+//         MediaQueryData.fromWindow(WidgetsBinding.instance.window);
+//     kStatusBarHeight = data.padding.top;
+//
+//     return MaterialApp(
+//         title: 'GliKitDemo',
+//         theme: ThemeData(
+//           primarySwatch: Colors.blue,
+//           visualDensity: VisualDensity.adaptivePlatformDensity,
+//         ),
+//         home: MyHomePage());
+//   }
+// }
+
 class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
-}
-
-class MyScrollPhysics extends BouncingScrollPhysics{
-
-  const MyScrollPhysics({ ScrollPhysics parent }) : super(parent: parent);
-
-  @override
-  MyScrollPhysics applyTo(ScrollPhysics ancestor) {
-    // TODO: implement applyTo
-    return MyScrollPhysics(parent: buildParent(ancestor));
-  }
-
-  @override
-  double applyPhysicsToUserOffset(ScrollMetrics position, double offset) {
-    // TODO: implement applyPhysicsToUserOffset
-    double result = super.applyPhysicsToUserOffset(position, offset);
-
-
-    if(position.pixels <= 0 && offset > 0){
-      return 0;
-    }else if(position.pixels >= position.maxScrollExtent && offset < 0){
-      return 0;
-    }
-
-    return result;
-  }
-
-  @override
-  Simulation createBallisticSimulation(ScrollMetrics position, double velocity) {
-
-    Simulation result = super.createBallisticSimulation(position, velocity);
-
-    print('${position.pixels}; $velocity; $result');
-
-    return result;
-  }
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -132,7 +148,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     var appBar = AppBar(
       title: Text('GliKitDemo'),
     );
@@ -143,82 +158,14 @@ class _MyHomePageState extends State<MyHomePage> {
           initialData: 'init',
           // ignore: missing_return
           builder: (BuildContext context, AsyncSnapshot snapshot) {
-
             switch (snapshot.connectionState) {
               case ConnectionState.none:
               case ConnectionState.done:
                 {
-                  List<Widget> children = List.generate(
-                      6, (index) => _getListItem(index, context),
-                      growable: true);
-                  children.add(SizedBox(
-                    height: MediaQuery.of(context).size.height -
-                        appBar.preferredSize.height -
-                        kStatusBarHeight -
-                        MediaQuery.of(context).padding.bottom,
-                    child: DefaultTabController(
-                      length: 3,
-                      child: Column(
-                        children: [
-                          TabBar(
-                            labelColor: Colors.blue,
-                            unselectedLabelColor: Colors.black45,
-                            tabs: [
-                              Tab(
-                                text: '店铺',
-                                icon: Icon(Icons.shop),
-                              ),
-                              Tab(
-                                text: '收藏',
-                                icon: Icon(Icons.star),
-                              ),
-                              Tab(
-                                text: '地址',
-                                icon: Icon(Icons.location_on),
-                              ),
-                            ],
-                          ),
-                          Divider(
-                            height: 0.5,
-                          ),
-                          Expanded(
-                            child: TabBarView(
-                              children: [
-                                ListView.builder(
-                                  itemBuilder:
-                                      (BuildContext context, int index) =>
-                                          ListTile(title: Text('店铺 $index')),
-                                  itemCount: 100,
-
-                                ),
-                                ListView.builder(
-                                  itemBuilder:
-                                      (BuildContext context, int index) =>
-                                          ListTile(title: Text('收藏 $index')),
-                                  itemCount: 100,
-                                  physics: MyScrollPhysics(),
-                                ),
-                                ListView.builder(
-                                  itemBuilder:
-                                      (BuildContext context, int index) =>
-                                          ListTile(title: Text('地址 $index')),
-                                  itemCount: 100,
-                                  physics: MyScrollPhysics(),
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ));
                   return ListView(
-                    physics: MyScrollPhysics(),
-                    children: children,
+                    children: List.generate(
+                        6, (index) => _getListItem(index, context)),
                   );
-//             return ListView(
-//              children: List.generate(6, (index) => _getListItem(index, context)),
-//           );
                 }
               case ConnectionState.waiting:
               case ConnectionState.active:

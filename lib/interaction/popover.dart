@@ -18,6 +18,7 @@ class Popover extends StatelessWidget {
     Key key,
     ArrowDirection arrowDirection, //null 将自动计算方向
     double arrowMargin = 5,
+    double arrowMinPadding = 10,
     Color popoverColor = Colors.white,
     BoxShadow shadow,
     double cornerRadius = 10,
@@ -33,8 +34,7 @@ class Popover extends StatelessWidget {
         barrierDismissible: barrierDismissible,
         barrierColor: barrierColor,
         transitionDuration: Duration(milliseconds: 200),
-        barrierLabel:
-            MaterialLocalizations.of(context).modalBarrierDismissLabel,
+        barrierLabel: "Dismiss",
         pageBuilder: (BuildContext context, Animation<double> animation,
             Animation<double> secondaryAnimation) {
           return child;
@@ -64,6 +64,7 @@ class Popover extends StatelessWidget {
     Rect relatedRect,
     ArrowDirection arrowDirection,
     double arrowMargin = 5,
+    double arrowMinPadding = 10,
     Color popoverColor = Colors.white,
     BoxShadow shadow,
     double cornerRadius = 10,
@@ -92,6 +93,7 @@ class Popover extends StatelessWidget {
         relatedRect: relatedRect,
         arrowDirection: arrowDirection,
         arrowMargin: arrowMargin,
+        arrowMinPadding: arrowMinPadding,
         margin: margin);
 
     _style = _PopoverStyle(
@@ -147,11 +149,14 @@ class _PopoverPosition {
   ///箭头和点击位置的间距
   final double arrowMargin;
 
+  ///箭头和弹窗的最小间距
+  final double arrowMinPadding;
+
   ///外边距
   final EdgeInsets margin;
 
   _PopoverPosition(
-      {this.relatedRect, this.arrowDirection, this.arrowMargin, this.margin});
+      {this.relatedRect, this.arrowDirection, this.arrowMargin, this.margin, this.arrowMinPadding});
 
   @override
   bool operator ==(dynamic other) {
@@ -162,12 +167,13 @@ class _PopoverPosition {
         other.relatedRect == relatedRect &&
         other.arrowDirection == arrowDirection &&
         other.arrowMargin == arrowMargin &&
+        other.arrowMinPadding == arrowMinPadding &&
         other.margin == margin;
   }
 
   @override
   int get hashCode =>
-      hashValues(relatedRect, arrowDirection, arrowMargin, margin);
+      hashValues(relatedRect, arrowDirection, arrowMargin, arrowMinPadding, margin);
 }
 
 ///弹窗样式
@@ -271,6 +277,7 @@ class _PopoverPositionedRenderBox extends RenderShiftedBox {
       case ArrowDirection.bottom:
         {
           dx = _position.relatedRect.center.dx - child.size.width / 2;
+
           if(dx < _position.margin.left){
             dx = _position.margin.left;
           }
@@ -450,8 +457,11 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
 
     ArrowDirection direction = _calcArrowDirection(_position, childSize, constraints);
 
+    //箭头位置
+    Offset arrowOffset = _calcArrowOffset(direction, _position, offset, childSize, style);
+
     //绘制背景
-    Path path = _getBackgroundPath(direction, offset);
+    Path path = _getBackgroundPath(direction, offset, arrowOffset);
     Paint paint = Paint();
     paint.color = _style.backgroundColor;
 
@@ -465,24 +475,8 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
     Matrix4 transform = Matrix4.identity();
     transform.scale(scale, scale, 1.0);
 
-    //计算缩放锚点
-    Offset transformOffset;
-    switch(direction){
-      case ArrowDirection.top :
-        transformOffset = Offset(dx + width / 2, dy);
-        break;
-      case ArrowDirection.bottom :
-        transformOffset = Offset(dx + width / 2, dy + childSize.height + _style.arrowSize.height);
-        break;
-      case ArrowDirection.left :
-        transformOffset = Offset(dx, dy + childSize.height / 2);
-        break;
-      case ArrowDirection.right :
-        transformOffset = Offset(dx + childSize.width + _style.arrowSize.height, dy + childSize.height / 2);
-        break;
-    }
-
-    context.pushTransform(needsCompositing, transformOffset, transform, (context, _) {
+    //缩放点
+    context.pushTransform(needsCompositing, arrowOffset, transform, (context, _) {
 
       if(shadowPaint != null){
         context.canvas.drawPath(path, shadowPaint);
@@ -494,7 +488,7 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
   }
 
   ///获取弹窗背景路径
-  Path _getBackgroundPath(ArrowDirection direction, Offset offset){
+  Path _getBackgroundPath(ArrowDirection direction, Offset offset, Offset arrowOffset){
 
     double dx = offset.dx;
     double dy = offset.dy;
@@ -505,6 +499,11 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
     double cornerRadius = _style.cornerRadius;
     Radius radius = Radius.circular(cornerRadius);
 
+
+    //箭头位置
+    double arrowDx = arrowOffset.dx;
+    double arrowDy = arrowOffset.dy;
+
     Path path = new Path();
     switch(direction){
       case ArrowDirection.top : {
@@ -514,8 +513,8 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
         double bottom = top + height;
 
         //从箭头开始 向右边绘制
-        path.moveTo(dx + width / 2, dy);
-        path.lineTo(dx + width / 2 + arrowWidth / 2, top);
+        path.moveTo(arrowDx, arrowDy);
+        path.lineTo(arrowDx + arrowWidth / 2, top);
 
         //右上角
         path.lineTo(right - cornerRadius, top);
@@ -534,8 +533,8 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
         path.arcToPoint(Offset(dx + cornerRadius, top), radius: radius);
 
         //回到箭头
-        path.lineTo(dx + width / 2 - arrowWidth / 2, top);
-        path.lineTo(dx + width / 2, dy);
+        path.lineTo(arrowDx - arrowWidth / 2, top);
+        path.lineTo(arrowDx, arrowDy);
       }
       break;
       case ArrowDirection.bottom : {
@@ -660,4 +659,46 @@ ArrowDirection _calcArrowDirection(_PopoverPosition position, Size childSize, Bo
   }
 
   return position.arrowDirection;
+}
+
+///获取箭头位置
+Offset _calcArrowOffset(ArrowDirection direction, _PopoverPosition position, Offset offset, Size childSize, _PopoverStyle style) {
+  double dx;
+  double dy;
+  switch (direction) {
+    case ArrowDirection.top :
+    case ArrowDirection.bottom : {
+        double edge = offset.dx + childSize.width;
+        double arrowSize = style.arrowSize.width / 2;
+
+        dx = position.relatedRect.center.dx;
+        if (dx + arrowSize + position.arrowMinPadding > edge) {
+          dx = edge - position.arrowMinPadding - arrowSize;
+        }
+
+        dy = offset.dy;
+        if(direction == ArrowDirection.bottom){
+          dy += childSize.height;
+        }
+      }
+      break;
+    case ArrowDirection.left :
+    case ArrowDirection.right : {
+      double edge = offset.dy + childSize.height;
+      double arrowSize = style.arrowSize.width / 2;
+
+      dy = position.relatedRect.center.dy;
+      if (dy + arrowSize + position.arrowMinPadding > edge) {
+        dy = edge - position.arrowMinPadding - arrowSize;
+      }
+
+      dx = offset.dx;
+      if(direction == ArrowDirection.right){
+        dx += childSize.width;
+      }
+    }
+    break;
+  }
+
+  return Offset(dx, dy);
 }

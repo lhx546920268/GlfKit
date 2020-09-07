@@ -32,8 +32,6 @@ class Toast{
 
   //全局的，用来防止出现多个toast
   static OverlayEntry _entry;
-  static Timer _timer;
-  static AnimationController _animationController;
 
   static void showText(
       BuildContext context,
@@ -80,16 +78,8 @@ class Toast{
 
     //移除已存在的
     _entry?.remove();
-    _timer?.cancel();
-    _animationController?.dispose();
-
-    //n秒后消失
-    _timer = Timer(duration, (){
-      dismiss();
-    });
 
     OverlayState overlayState = Overlay.of(context);
-    _animationController = AnimationController(duration: _toastDismissDuration, vsync: overlayState);
     _entry = OverlayEntry(builder: (BuildContext context){
 
       return _ToastWidget(
@@ -99,28 +89,19 @@ class Toast{
         gravity: gravity,
         padding: padding,
         margin: margin,
-        opacityAnimation: Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut)),
+        showDuration: duration,
+        onDismiss: () {
+          _entry?.remove();
+          _entry = null;
+        },
       );
     }, opaque: false);
     overlayState.insert(_entry);
   }
-
-  static void dismiss() async{
-    if(_entry != null){
-
-      _animationController.forward();
-      await Future.delayed(_toastDismissDuration);
-      _entry?.remove();
-      _animationController?.dispose();
-      _animationController = null;
-      _timer = null;
-      _entry = null;
-    }
-  }
 }
 
 ///toast 组件
-class _ToastWidget extends StatelessWidget{
+class _ToastWidget extends StatefulWidget{
 
   final Widget child;
   final Color backgroundColor;
@@ -129,6 +110,9 @@ class _ToastWidget extends StatelessWidget{
   final EdgeInsets padding;
   final EdgeInsets margin;
   final Animation<double> opacityAnimation;
+  final VoidCallback onDismiss;
+  final Duration showDuration;
+
 
   _ToastWidget({
     this.child,
@@ -137,40 +121,68 @@ class _ToastWidget extends StatelessWidget{
     this.gravity,
     this.padding,
     this.margin,
-    this.opacityAnimation
+    this.opacityAnimation,
+    this.onDismiss,
+    this.showDuration
   });
+
+  @override
+  State<StatefulWidget> createState() {
+    return _ToastState();
+  }
+}
+
+class _ToastState extends State<_ToastWidget> {
+
+  double _opacity = 1.0;
+  Timer _timer;
+
+  @override
+  void initState() {
+    _timer = Timer(widget.showDuration, () {
+      if(mounted){
+        setState(() {
+          _opacity = 0;
+        });
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
 
-    var widget = Center(
+    var child = Center(
       child: Material(
         type: MaterialType.transparency,
         child: Container(
-          padding: padding,
+          padding: widget.padding,
           decoration: BoxDecoration(
-            borderRadius: borderRadius,
-            color: backgroundColor,
+            borderRadius: widget.borderRadius,
+            color: widget.backgroundColor,
           ),
-          child: child,
+          child: widget.child,
         ),
       ),
     );
 
     return Positioned(
-      left: margin.left,
-      right: margin.right,
-      top: gravity == ToastGravity.top ? margin.top : null,
-      bottom: gravity == ToastGravity.bottom ? margin.bottom : null,
-      child: AnimatedBuilder(
-        animation: opacityAnimation,
-        child: widget,
-        builder: (BuildContext context, Widget child){
-          return Opacity(
-            opacity: opacityAnimation.value,
-            child: widget,
-          );
-        },
+      left: widget.margin.left,
+      right: widget.margin.right,
+      top: widget.gravity == ToastGravity.top ? widget.margin.top : null,
+      bottom: widget.gravity == ToastGravity.bottom ? widget.margin.bottom : null,
+      child: AnimatedOpacity(
+        opacity: _opacity,
+        curve: Curves.easeOut,
+        duration: _toastDismissDuration,
+        onEnd: widget.onDismiss,
+        child: child,
       ),
     );
   }

@@ -13,23 +13,22 @@ class AppBanner extends StatefulWidget {
   ///轮播动画间隔
   final Duration animationInterval;
 
+  ///item数量
+  final int count;
+
+  ///组件构造
+  final IndexedWidgetBuilder builder;
+
   AppBanner({
     Key key,
-    this.animationInterval = _defaultAnimationInterval
-  }) : super(key: key);
+    this.animationInterval = _defaultAnimationInterval,
+    @required this.count,
+    @required this.builder,
+  }) : assert(count != null && builder != null), super(key: key);
 
   @override
   State<StatefulWidget> createState() {
     return _AppBanner();
-  }
-
-  int getCount(){
-    return 0;
-  }
-
-  Widget getWidget(BuildContext context, int index){
-
-    return null;
   }
 }
 
@@ -42,8 +41,8 @@ class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
 
   @override
   void initState() {
-    // TODO: implement initState
-    int count = widget.getCount();
+
+    int count = widget.count;
     if(count > 1){
       _timer = Timer.periodic(widget.animationInterval, (Timer timer){
         if(_pageController != null){
@@ -62,22 +61,16 @@ class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
 
   @override
   void dispose() {
-    // TODO: implement dispose
-    if(_timer != null){
-      _timer.cancel();
-    }
-
-    if(_tabController != null){
-      _tabController.dispose();
-    }
+    _timer?.cancel();
     super.dispose();
+
+    _tabController?.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
 
-    int realCount = widget.getCount();
+    int realCount = widget.count;
     bool isInfinite = realCount > 1;
     _pageController = CustomPageController(
       initialPage: isInfinite ? 1 : 0
@@ -100,16 +93,24 @@ class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
       count += 2;
     }
 
-    Widget tabPageSelector;
+    List<Widget> children = [];
+    children.add(CustomPageView(
+      controller: _pageController,
+      onPageChanged: onPageChanged,
+      children: List.generate(count, (index){
+        return widget.builder(context, _getRealIndex(index, realCount));
+      }).toList(),
+    ));
+
     if(realCount > 1){
-      tabPageSelector = Padding(
+      children.add(Padding(
         padding: EdgeInsetsDirectional.only(bottom: 15),
         child: TabPageSelector(
           controller: _tabController,
           color: Colors.grey[400],
           selectedColor: Colors.white,
         ),
-      );
+      ));
     }
 
     if(count == 0){
@@ -117,16 +118,7 @@ class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
     }else{
       return Stack(
         alignment: AlignmentDirectional.bottomCenter,
-        children: <Widget>[
-          CustomPageView(
-            controller: _pageController,
-            onPageChanged: onPageChanged,
-            children: List.generate(count, (index){
-              return widget.getWidget(context, _getRealIndex(index, realCount));
-            }).toList(),
-          ),
-          tabPageSelector
-        ],
+        children: children,
       );
     }
   }

@@ -1,9 +1,11 @@
 import 'dart:math';
 
+import 'package:GlfKit/loading/page_fail.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:GlfKit/loading/page_loading.dart';
+import 'package:provider/provider.dart';
 
 class NavigationBarParameters {
   final String leadingTitle;
@@ -82,7 +84,8 @@ class NavigationBarParameters {
       String icon,
       EdgeInsetsGeometry padding,
       VoidCallback onPressed}) {
-    if (title == null && icon == null) {
+
+    if(title == null && icon == null){
       return null;
     }
 
@@ -97,6 +100,17 @@ class NavigationBarParameters {
       child = Image.asset(icon);
     }
 
+    return _createNavigationItemWidget(child: child, padding: padding, onPressed: onPressed);
+  }
+
+  Widget _createNavigationItemWidget(
+      {Widget child,
+        EdgeInsetsGeometry padding,
+        VoidCallback onPressed}) {
+    if (child == null) {
+      return null;
+    }
+
     return CupertinoButton(
       padding: padding,
       child: child,
@@ -105,14 +119,27 @@ class NavigationBarParameters {
   }
 }
 
-mixin StateFulPageState<T extends StatefulWidget> on State<T> {
-  bool showPageLoading = false;
-  bool refreshEnable = false;
-  bool loadMoreEnable = false;
-  Color backgroundColor = Colors.white;
-  EasyRefreshController _easyRefreshController;
+///页面状态
+enum PageStatus {normal, loading, fail, empty}
 
-  int curPage = 1;
+mixin StateSafe<T extends StatefulWidget> on State<T> {
+
+  setStateSafe(VoidCallback fn){
+    if(mounted){
+      setState(fn);
+    }else{
+      fn();
+    }
+  }
+}
+
+mixin StatefulPageState<T extends StatefulWidget> on State<T> {
+
+  ///页面状态
+  PageStatus pageStatus = PageStatus.normal;
+
+  ///背景颜色
+  Color backgroundColor = Colors.white;
 
   Widget build(BuildContext context) {
     var topWidget = getTopWidget(context);
@@ -123,21 +150,23 @@ mixin StateFulPageState<T extends StatefulWidget> on State<T> {
       children.add(topWidget);
     }
 
-    var contentWidget =
-        showPageLoading ? PageLoadingWidget() : getContentWidget(context);
-
-    if ((refreshEnable || loadMoreEnable) && !showPageLoading) {
-
-      if(_easyRefreshController == null){
-        _easyRefreshController = EasyRefreshController();
-      }
-      contentWidget = EasyRefresh(
-        child: contentWidget,
-        controller: _easyRefreshController,
-        onRefresh: refreshEnable ? onRefresh : null,
-        onLoad: loadMoreEnable ? onLoadMore : null,
-      );
+    Widget contentWidget;
+    switch(pageStatus){
+      case PageStatus.normal :
+        contentWidget = getContentWidget(context);
+        break;
+      case PageStatus.loading :
+        contentWidget = getPageLoadingWidget(context);
+        break;
+      case PageStatus.fail :
+        contentWidget = getPageFailWidget(context);
+        break;
+      case PageStatus.empty :
+        contentWidget = getEmptyWidget(context);
+        break;
     }
+
+    contentWidget = wrapContentWidget(context, contentWidget);
 
     if (contentWidget != null) {
       children.add(Expanded(
@@ -150,10 +179,11 @@ mixin StateFulPageState<T extends StatefulWidget> on State<T> {
     }
 
     var navigationBar = getNavigationBar(context, getNavigationBarParameters());
-    var child = Column(children: children);
+    var child = wrapContainer(context, Column(children: children));
 
     if (navigationBar != null) {
       return CupertinoPageScaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: backgroundColor,
         navigationBar: navigationBar,
         child: child,
@@ -165,27 +195,6 @@ mixin StateFulPageState<T extends StatefulWidget> on State<T> {
       );
     }
   }
-
-  Future<void> onRefresh() async {}
-
-  void startRefresh(){
-    _easyRefreshController?.callRefresh();
-  }
-
-  void stopRefresh(){
-    _easyRefreshController?.finishRefresh();
-  }
-
-  Future<void> onLoadMore() async {}
-
-  void startLoadMore(){
-    _easyRefreshController?.callLoad();
-  }
-
-  void stopLoadMore(bool hasMore){
-    _easyRefreshController?.finishLoad(noMore: !hasMore);
-  }
-
 
   Widget getTopWidget(BuildContext context) {
     return null;
@@ -199,6 +208,34 @@ mixin StateFulPageState<T extends StatefulWidget> on State<T> {
     return null;
   }
 
+  @mustCallSuper
+  Widget wrapContentWidget(BuildContext context, Widget content) {
+    return content;
+  }
+
+  @mustCallSuper
+  Widget wrapContainer(BuildContext context, Widget container) {
+    return container;
+  }
+
+  Widget getPageLoadingWidget(BuildContext context) {
+    return PageLoadingWidget();
+  }
+
+  Widget getPageFailWidget(BuildContext context) {
+    return PageFailWidget(
+      onRefresh: onReloadData,
+    );
+  }
+
+  Widget getEmptyWidget(BuildContext context) {
+    return null;
+  }
+
+  void onReloadData(){
+
+  }
+
   NavigationBarParameters getNavigationBarParameters() {
     return NavigationBarParameters();
   }
@@ -209,12 +246,133 @@ mixin StateFulPageState<T extends StatefulWidget> on State<T> {
       return null;
     }
 
+    var route = ModalRoute.of(context);
+    Widget leading = parameters.getLeadingWidget();
+    if(leading == null && route != null){
+      if(route.canPop){
+        var theme = CupertinoTheme.of(context);
+        leading = parameters._createNavigationItemWidget(
+            child: Icon(
+              CupertinoIcons.back,
+              color: theme.primaryContrastingColor,
+              size: 32,
+            ),
+            padding: EdgeInsetsDirectional.only(start: 0),
+            onPressed: (){
+              goBack();
+        });
+      }
+    }
+
     return CupertinoNavigationBar(
-      brightness: Brightness.dark,
+      brightness: CupertinoTheme.of(context).brightness,
       padding: EdgeInsetsDirectional.zero,
-      leading: parameters.getLeadingWidget(),
+      leading: leading,
       trailing: parameters.getTrailingWidget(),
       middle: parameters.getMiddleWidget(),
+      transitionBetweenRoutes: false,
     );
   }
+
+  //返回
+  void goBack(){
+    Navigator.of(context).pop();
+  }
+
+  setStateSafe(VoidCallback fn){
+    if(mounted){
+      setState(fn);
+    }else{
+      fn();
+    }
+  }
+}
+
+///可加载更多和下拉刷新的
+mixin RefreshPageState<T extends StatefulWidget> on StatefulPageState<T> {
+
+  ///是否可以刷新
+  bool refreshEnable = false;
+
+  ///是否正在下拉刷新
+  bool get isRefreshing => _isRefreshing;
+  bool _isRefreshing = false;
+
+  ///是否可以加载更多
+  bool loadMoreEnable = false;
+
+  ///是否正在加载更多
+  bool get isLoadingMore => _isLoadingMore;
+  bool _isLoadingMore = false;
+
+  ///刷新控制器
+  EasyRefreshController easyRefreshController;
+
+  ///分页当前页码
+  int curPage = 1;
+
+  @override
+  Widget wrapContentWidget(BuildContext context, Widget content){
+    var widget = super.wrapContentWidget(context, content);
+    if ((refreshEnable || loadMoreEnable) && pageStatus == PageStatus.normal) {
+
+      if(easyRefreshController == null){
+        easyRefreshController = EasyRefreshController();
+      }
+      return EasyRefresh(
+        child: widget,
+        controller: easyRefreshController,
+        onRefresh: refreshEnable ? _onRefresh : null,
+        onLoad: loadMoreEnable ? _onLoadMore : null,
+      );
+    }
+
+    return widget;
+  }
+
+  Future<void> _onRefresh() async {
+    _isRefreshing = true;
+    await onRefresh();
+  }
+  Future<void> onRefresh() async {}
+
+  void startRefresh(){
+    easyRefreshController?.callRefresh();
+  }
+
+  void stopRefresh(){
+    easyRefreshController?.finishRefresh();
+    _isRefreshing = false;
+  }
+
+  Future<void> _onLoadMore() async {
+    _isLoadingMore = true;
+    await onLoadMore();
+  }
+  Future<void> onLoadMore() async {}
+
+  void startLoadMore(){
+    easyRefreshController?.callLoad();
+  }
+
+  void stopLoadMore(bool hasMore){
+    easyRefreshController?.finishLoad(noMore: !hasMore);
+    _isLoadingMore = false;
+  }
+}
+
+mixin ProviderPageState<T extends StatefulWidget> on StatefulPageState<T> {
+
+  @override
+  Widget wrapContainer(BuildContext context, Widget container) {
+    var widget = super.wrapContainer(context, container);
+    var provider = wrapProviderIfNeeded(context, widget);
+    if(provider != null){
+      return provider;
+    }
+
+    return widget;
+  }
+
+  Widget wrapProviderIfNeeded(BuildContext context, Widget child);
 }

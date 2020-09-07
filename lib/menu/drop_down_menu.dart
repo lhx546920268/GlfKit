@@ -62,9 +62,9 @@ class DropDownMenu extends StatefulWidget {
 class _DropDownMenuState extends State<DropDownMenu> {
   @override
   void dispose() {
+    super.dispose();
     _dismissList(false);
     _animationController?.dispose();
-    super.dispose();
   }
 
   @override
