@@ -62,9 +62,8 @@ class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
   @override
   void dispose() {
     _timer?.cancel();
-    super.dispose();
-
     _tabController?.dispose();
+    super.dispose();
   }
 
   @override

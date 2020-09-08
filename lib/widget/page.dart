@@ -229,7 +229,20 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
   }
 
   Widget getEmptyWidget(BuildContext context) {
-    return null;
+    var color = Color.fromRGBO(200, 200, 200, 1.0);
+    return Container(
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(bottom: 10),
+            child: Icon(Icons.cloud_done, color: color, size: 100,),
+          ),
+          Text('暂无数据', style: TextStyle(fontSize: 16, color: color,))
+        ],
+      ),
+    );
   }
 
   void onReloadData(){

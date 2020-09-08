@@ -2,6 +2,7 @@ import 'package:GlfKit/base/def.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:GlfKit/base/collection/collection_utils.dart';
 
 ///下拉菜单按钮信息
 class DropDownMenuItem {
@@ -49,8 +50,28 @@ class DropDownMenu extends StatefulWidget {
   ///代理
   final DropDownMenuDelegate delegate;
 
-  DropDownMenu({Key key, this.items, this.relatedRect, this.delegate})
-      : assert(items != null && items.isNotEmpty),
+  ///选中颜色
+  final Color selectedColor;
+
+  ///正常颜色
+  final Color normalColor;
+
+  ///是否平均分
+  final bool itemEqualWidth;
+
+  ///item内边距
+  final EdgeInsetsGeometry itemPadding;
+
+  DropDownMenu({
+    Key key,
+    this.items,
+    this.relatedRect,
+    this.delegate,
+    this.selectedColor = Colors.blue,
+    this.normalColor = Colors.black,
+    this.itemEqualWidth = true,
+    this.itemPadding = EdgeInsets.zero,
+  }): assert(!isEmpty(items) && selectedColor != null && normalColor != null && itemEqualWidth != null),
         super(key: key);
 
   @override
@@ -60,6 +81,7 @@ class DropDownMenu extends StatefulWidget {
 }
 
 class _DropDownMenuState extends State<DropDownMenu> {
+
   @override
   void dispose() {
     super.dispose();
@@ -98,47 +120,42 @@ class _DropDownMenuState extends State<DropDownMenu> {
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
           fontSize: 14,
-          color: tick ? Colors.blue : Colors.black,
+          color: tick ? widget.selectedColor : widget.normalColor,
         ),
       ));
       if (item.conditions != null && item.conditions.isNotEmpty) {
         children.add(
           Icon(
             tick ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-            color: tick ? Colors.blue : Colors.black,
+            color: tick ? widget.selectedColor : widget.normalColor,
           ),
         );
       }
 
-      widgets.add(
-        Expanded(
-          child: RaisedButton(
-            onPressed: () {
-              if (widget._selectedPosition == i) {
-                _dismissList(true);
-              } else {
-                _dismissList(false);
-                setState(() {
-                  widget._selectedPosition = i;
-                });
-                _showList(item);
-              }
-            },
-            color: Colors.white,
-            splashColor: Colors.transparent,
-            elevation: 0,
-            hoverElevation: 0,
-            focusElevation: 0,
-            highlightElevation: 0,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: children,
-            ),
-          ),
+      Widget child = CupertinoButton(
+        padding: widget.itemPadding,
+        onPressed: () {
+          if (widget._selectedPosition == i) {
+            _dismissList(true);
+          } else {
+            _dismissList(false);
+            setState(() {
+              widget._selectedPosition = i;
+            });
+            _showList(item);
+          }
+        },
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: children,
         ),
       );
+      if(widget.itemEqualWidth){
+        child = Expanded(
+          child: child,
+        );
+      }
+      widgets.add(child);
     }
 
     return widgets;
@@ -175,6 +192,8 @@ class _DropDownMenuState extends State<DropDownMenu> {
           _dismissList(animate);
         },
         listenable: Tween(begin: 0.0, end: 1.0).animate(_animationController),
+        selectedColor: widget.selectedColor,
+        normalColor: widget.normalColor,
       );
     });
 
@@ -200,6 +219,7 @@ class _DropDownMenuState extends State<DropDownMenu> {
 
 ///下拉菜单列表
 class DropDownMenuList extends AnimatedWidget {
+
   ///菜单信息
   final DropDownMenuItem item;
 
@@ -212,14 +232,22 @@ class DropDownMenuList extends AnimatedWidget {
   ///点击某个item回调
   final VoidCallback onSelect;
 
+  ///选中颜色
+  final Color selectedColor;
+
+  ///正常颜色
+  final Color normalColor;
+
   DropDownMenuList({
     Key key,
     @required this.item,
     @required this.relatedRect,
     @required this.onDismiss,
     this.onSelect,
+    this.selectedColor = Colors.blue,
+    this.normalColor = Colors.black,
     @required Listenable listenable,
-  })  : assert(item != null && relatedRect != null && onDismiss != null),
+  })  : assert(item != null && relatedRect != null && onDismiss != null && selectedColor != null && normalColor != null),
         super(key: key, listenable: listenable);
 
   @override
@@ -294,14 +322,14 @@ class DropDownMenuList extends AnimatedWidget {
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
           fontSize: 14,
-          color: tick ? Colors.blue : Colors.black,
+          color: tick ? selectedColor : normalColor,
         ),
       ));
 
       if (tick) {
         children.add(Icon(
           Icons.check,
-          color: Colors.blue,
+          color: selectedColor,
         ));
       }
 

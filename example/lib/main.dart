@@ -20,77 +20,26 @@ void main() {
   runApp(MyApp());
 }
 
-/// This Widget is the main application widget.
+
+
 class MyApp extends StatelessWidget {
-  static const String _title = 'Flutter Code Sample';
+  // This widget is the root of your application.
 
   @override
   Widget build(BuildContext context) {
+    MediaQueryData data =
+        MediaQueryData.fromWindow(WidgetsBinding.instance.window);
+    kStatusBarHeight = data.padding.top;
+
     return MaterialApp(
-      title: _title,
-      home: Scaffold(
-        appBar: AppBar(title: const Text(_title)),
-        body: Center(
-          child: MyStatefulWidget(),
+        title: 'GliKitDemo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-      ),
-    );
+        home: MyHomePage());
   }
 }
-
-class MyStatefulWidget extends StatefulWidget {
-  MyStatefulWidget({Key key}) : super(key: key);
-
-  @override
-  _MyStatefulWidgetState createState() => _MyStatefulWidgetState();
-}
-
-class _MyStatefulWidgetState extends State<MyStatefulWidget>
-    with SingleTickerProviderStateMixin {
-  double _size = 50.0;
-  bool _large = false;
-
-  void _updateSize() {
-    setState(() {
-      _size = _large ? 250.0 : 100.0;
-      _large = !_large;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _updateSize(),
-      child: AnimatedContainer(
-        curve: Curves.easeIn,
-        width: _size,
-        height: _size,
-        color: Colors.red,
-        duration: Duration(seconds: 1),
-        child: Icon(Icons.shopping_cart, color: Colors.black54, size: 25,),
-      ),
-    );
-  }
-}
-
-// class MyApp extends StatelessWidget {
-//   // This widget is the root of your application.
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     MediaQueryData data =
-//         MediaQueryData.fromWindow(WidgetsBinding.instance.window);
-//     kStatusBarHeight = data.padding.top;
-//
-//     return MaterialApp(
-//         title: 'GliKitDemo',
-//         theme: ThemeData(
-//           primarySwatch: Colors.blue,
-//           visualDensity: VisualDensity.adaptivePlatformDensity,
-//         ),
-//         home: MyHomePage());
-//   }
-// }
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -260,7 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     Popover.show(
         context: context,
-        shadow: BoxShadow(color: Colors.grey, blurRadius: 5),
+        shadow: BoxShadow(color: Colors.grey, blurRadius: 10),
         clickWidgetKey: key,
         child: Container(
           width: 180,

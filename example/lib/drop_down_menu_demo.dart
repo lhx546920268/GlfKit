@@ -13,6 +13,7 @@ class DropDownMenuDemo extends StatelessWidget implements DropDownMenuDelegate {
       body: Container(
         child: DropDownMenu(
           delegate: this,
+          itemEqualWidth: true,
           items: [
             DropDownMenuItem(
                 title: '排序', conditions: ['销量', '价格从高到低', '价格从低到高']),

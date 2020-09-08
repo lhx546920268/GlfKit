@@ -63,6 +63,21 @@ class PageScrollNotification extends ValueNotifier<ScrollNotification>{
   PageScrollNotification(ScrollNotification notification) : super(notification);
 }
 
+///菜单条控制器
+class MenuBarController extends ChangeNotifier {
+
+  int _position = 0;
+  int get position => _position;
+
+  ///滑动到某个位置
+  void animateTo(int position) {
+    if(_position != position){
+      _position = position;
+      notifyListeners();
+    }
+  }
+}
+
 ///条形菜单
 // ignore: must_be_immutable
 class MenuBar extends StatefulWidget {
@@ -73,7 +88,7 @@ class MenuBar extends StatefulWidget {
   final List<String> titles;
 
   ///选中的下标
-  int _selectedPosition;
+  final int selectedPosition;
 
   ///字体大小
   final double fontSize;
@@ -90,6 +105,9 @@ class MenuBar extends StatefulWidget {
   ///关联的page滑动通知
   final PageScrollNotification scrollNotification;
 
+  ///控制器
+  MenuBarController _controller;
+
   ///样式
   MenuBarStyle _style;
 
@@ -97,12 +115,13 @@ class MenuBar extends StatefulWidget {
     Key key,
     this.height = 45,
     this.titles,
-    int selectedPosition = 0,
+    this.selectedPosition = 0,
     this.fontSize = 14,
     this.textColor = Colors.black,
     this.selectedTextColor = Colors.blue,
     this.onChange,
     this.scrollNotification,
+    MenuBarController controller,
     double indicatorWidth,
     double indicatorHeight = 2,
     Color indicatorColor = Colors.blue,
@@ -121,7 +140,9 @@ class MenuBar extends StatefulWidget {
       spacing: spacing,
       padding: padding,
     );
-    _selectedPosition = selectedPosition;
+
+    _controller = controller ?? MenuBarController();
+    _controller._position = selectedPosition;
   }
 
   @override
@@ -151,11 +172,12 @@ class MenuBarState extends State<MenuBar> with SingleTickerProviderStateMixin {
         setState(() {});
       });
 
-    widget.scrollNotification?.addListener(onPageScrollNotification);
+    widget.scrollNotification?.addListener(_onPageScrollNotification);
+    widget._controller.addListener(_onAnimateTo);
   }
 
   ///page滑动改变
-  void onPageScrollNotification(){
+  void _onPageScrollNotification(){
     ScrollNotification scrollNotification = widget.scrollNotification.value;
     int position;
 
@@ -172,7 +194,7 @@ class MenuBarState extends State<MenuBar> with SingleTickerProviderStateMixin {
     setState(() {
       _scrollNotification = scrollNotification;
       if(position != null){
-        widget._selectedPosition = position;
+        widget._controller._position = position;
       }
     });
     if(position != null){
@@ -180,10 +202,16 @@ class MenuBarState extends State<MenuBar> with SingleTickerProviderStateMixin {
     }
   }
 
+  ///监听要滑动了
+  void _onAnimateTo(){
+    _select(widget._controller.position, false);
+  }
+
   @override
   void dispose() {
+    widget.scrollNotification?.removeListener(_onPageScrollNotification);
+    widget._controller.removeListener(_onAnimateTo);
     super.dispose();
-    widget.scrollNotification?.removeListener(onPageScrollNotification);
   }
 
   @override
@@ -199,24 +227,16 @@ class MenuBarState extends State<MenuBar> with SingleTickerProviderStateMixin {
       children.add(GestureDetector(
         key: keys[i],
         onTap: () {
-          if (i != widget._selectedPosition) {
-            setState(() {
-              widget._selectedPosition = i;
-            });
-            animationController.reset();
-            animationController.forward();
-            if(widget.onChange != null){
-              widget.onChange(i);
-            }
+          if (i != widget._controller.position) {
+            _select(i, true);
           }
-          _animateTo(i);
         },
         child: Text(
           titles[i],
           textAlign: TextAlign.center,
           style: TextStyle(
               fontSize: widget.fontSize,
-              color: widget._selectedPosition != i
+              color: widget._controller.position != i
                   ? widget.textColor
                   : widget.selectedTextColor),
         ),
@@ -228,7 +248,7 @@ class MenuBarState extends State<MenuBar> with SingleTickerProviderStateMixin {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: _MenuBarFlex(
-          selectedPosition: widget._selectedPosition,
+          selectedPosition: widget._controller.position,
           animatedValue: animationController.isAnimating ? animation.value : 1.0,
           children: children,
           style: widget._style,
@@ -236,6 +256,19 @@ class MenuBarState extends State<MenuBar> with SingleTickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  ///选中某个
+  void _select(int position, bool callback){
+    setState(() {
+      widget._controller._position = position;
+    });
+    animationController.reset();
+    animationController.forward();
+    if(callback && widget.onChange != null){
+      widget.onChange(position);
+    }
+   // _animateTo(position);
   }
 
   ///滑动到某个位置
@@ -334,7 +367,6 @@ class _MenuBarFlex extends MultiChildRenderObjectWidget {
 
   @override
   RenderBox createRenderObject(BuildContext context) {
-
 
     return MenuBarRenderBox(
         windowWidth: MediaQuery.of(context).size.width,

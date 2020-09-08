@@ -451,9 +451,6 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
   void paint(PaintingContext context, Offset offset) {
 
     Size childSize = child.size;
-    double dx = offset.dx;
-    double dy = offset.dy;
-    double width = childSize.width;
 
     ArrowDirection direction = _calcArrowDirection(_position, childSize, constraints);
 
@@ -482,6 +479,9 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
         context.canvas.drawPath(path, shadowPaint);
       }
       context.canvas.drawPath(path, paint);
+
+      //先绘制阴影，不然会被切掉， 防止子视图的背景、点击效果超出弹窗位置
+      context.canvas.clipPath(path);
 
       super.paint(context, offset);
     });
