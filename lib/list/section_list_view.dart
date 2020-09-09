@@ -17,6 +17,7 @@ class SectionListView extends BoxScrollView {
 
   final SectionAdapter adapter;
   final SliverChildDelegate childrenDelegate;
+  final bool dataChange;
 
   SectionListView.builder({
     Key key,
@@ -33,7 +34,7 @@ class SectionListView extends BoxScrollView {
     bool addSemanticIndexes = true,
     double cacheExtent,
     DragStartBehavior dragStartBehavior = DragStartBehavior.start,
-  }): assert(adapter != null),
+  }): assert(adapter != null), dataChange = adapter.notifyDataChange(),
         childrenDelegate = SliverChildBuilderDelegate(
         (BuildContext context, int position) {
       return adapter.buildItem(context, position);

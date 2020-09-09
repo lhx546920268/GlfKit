@@ -1,28 +1,50 @@
-
 import 'package:GlfKit/list/section.dart';
 import 'package:flutter/widgets.dart';
 
 /// 列表分区适配器
 abstract class SectionAdapter {
 
-  ///要刷新了
-  VoidCallback onReload;
-  void reloadData() {
-    if (onReload != null) {
-      _totalCount = null;
-      _sectionInfos.clear();
-      onReload();
-    }
-  }
-
   ///列表交叉轴大小
   double crossAxisExtent;
 
-  ///Item总数
+  ///数据变了
+  bool notifyDataChange();
+
+  ///构建item 组件，内部使用，通常情况下子类不需要重写这个
+  Widget buildItem(BuildContext context, int position);
+
+  ///item总数，内部使用，通常情况下子类不需要重写这个
+  int getItemCount();
+
+  ///通过position获取对应的sectionInfo
+  SectionInfo sectionInfoForPosition(int position);
+
+  ///获取对应section
+  SectionInfo sectionInfoForSection(int section);
+
+  ///创建sectionInfo
+  SectionInfo createSection(int section, int numberOfItems, int position);
+}
+
+mixin SectionAdapterMixin implements SectionAdapter {
+
+  ///列表交叉轴大小
+  @override
+  double crossAxisExtent;
+
+  @override
+  bool notifyDataChange(){
+    _totalCount = null;
+    _sectionInfos.clear();
+    return true;
+  }
+
+  ///item总数
   int _totalCount;
   final List<SectionInfo> _sectionInfos = List();
 
   ///构建item 组件，内部使用，通常情况下子类不需要重写这个
+  @override
   Widget buildItem(BuildContext context, int position) {
     SectionInfo info = sectionInfoForPosition(position);
     if (info.isHeader(position)) {
@@ -38,9 +60,10 @@ abstract class SectionAdapter {
   }
 
   ///item总数，内部使用，通常情况下子类不需要重写这个
+  @override
   int getItemCount() {
-    if (_totalCount == null) {
-      ///计算列表行数量
+    //计算列表行数量
+    if(_totalCount == null){
       int numberOfSection = numberOfSections();
       int count = 0;
 
@@ -52,7 +75,7 @@ abstract class SectionAdapter {
         int numberOfItem = numberOfItems(i);
 
         ///保存section信息
-        SectionInfo sectionInfo = _createSection(i, numberOfItem, count);
+        SectionInfo sectionInfo = createSection(i, numberOfItem, count);
         _sectionInfos.add(sectionInfo);
 
         count += numberOfItem;
@@ -69,7 +92,8 @@ abstract class SectionAdapter {
   }
 
   ///创建sectionInfo
-  SectionInfo _createSection(int section, int numberOfItems, int position) {
+  @override
+  SectionInfo createSection(int section, int numberOfItems, int position) {
     SectionInfo sectionInfo = SectionInfo(
         section: section,
         numberItems: numberOfItems,
@@ -82,8 +106,9 @@ abstract class SectionAdapter {
   }
 
   ///通过position获取对应的sectionInfo
+  @override
   SectionInfo sectionInfoForPosition(int position) {
-    if (_totalCount == null || _totalCount == 0) return null;
+    if (_sectionInfos.length == 0) return null;
 
     var info = _sectionInfos[0];
     for (int i = 1; i < _sectionInfos.length; i++) {
@@ -98,8 +123,9 @@ abstract class SectionAdapter {
   }
 
   ///获取对应section
+  @override
   SectionInfo sectionInfoForSection(int section) {
-    if (section >= 0 && section < _sectionInfos.length){
+    if (section >= 0 && section < _sectionInfos.length) {
       return _sectionInfos[section];
     }
     return null;
@@ -161,6 +187,15 @@ abstract class SectionAdapter {
 ///section 网格适配器
 abstract class SectionGridAdapter extends SectionAdapter {
 
+  @override
+  GridSectionInfo sectionInfoForPosition(int position);
+
+  @override
+  GridSectionInfo sectionInfoForSection(int section);
+}
+
+mixin SectionGridAdapterMixin on SectionAdapterMixin implements SectionGridAdapter {
+
   /// 滑动方向的 item间隔
   double getMainAxisSpacing(int section) {
     return 0;
@@ -187,17 +222,17 @@ abstract class SectionGridAdapter extends SectionAdapter {
   }
 
   @override
-  GridSectionInfo sectionInfoForPosition(int position) {
+  GridSectionInfo sectionInfoForPosition(int position){
     return super.sectionInfoForPosition(position);
   }
 
   @override
-  GridSectionInfo sectionInfoForSection(int section) {
+  GridSectionInfo sectionInfoForSection(int section){
     return super.sectionInfoForSection(section);
   }
 
   @override
-  GridSectionInfo _createSection(int section, int numberOfItems, int position) {
+  GridSectionInfo createSection(int section, int numberOfItems, int position) {
     GridSectionInfo sectionInfo = GridSectionInfo(
         section: section,
         numberItems: numberOfItems,

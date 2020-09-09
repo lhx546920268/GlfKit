@@ -142,6 +142,7 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
   Color backgroundColor = Colors.white;
 
   Widget build(BuildContext context) {
+
     var topWidget = getTopWidget(context);
     var bottomWidget = getBottomWidget(context);
 

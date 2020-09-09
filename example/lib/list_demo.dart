@@ -9,40 +9,32 @@ class SectionListDemo extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return _SectionListDemoState();
   }
 }
 
-class _SectionListDemoState extends State<SectionListDemo>{
+class _SectionListDemoState extends State<SectionListDemo> with SectionAdapterMixin{
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       appBar: AppBar(title: Text('SectionListDemo'),),
-      body: SectionListView.builder(adapter: _MyAdapter()),
+      body: SectionListView.builder(adapter: this),
     );
   }
-}
-
-class _MyAdapter extends SectionAdapter {
 
   @override
   int numberOfSections() {
-    // TODO: implement numberOfSections
     return 10;
   }
 
   @override
   int numberOfItems(int section) {
-    // TODO: implement numberOfItems
     return 30;
   }
 
   @override
   Widget getItem(BuildContext context, IndexPath indexPath) {
-    // TODO: implement getItemCount
     return Stack(
       alignment: AlignmentDirectional.bottomCenter,
       children: <Widget>[
@@ -56,19 +48,16 @@ class _MyAdapter extends SectionAdapter {
 
   @override
   bool shouldExistSectionHeader(int section) {
-    // TODO: implement shouldExistSectionHeader
     return true;
   }
 
   @override
   bool shouldSectionHeaderStick(int section) {
-    // TODO: implement shouldSectionHeaderStick
     return true;
   }
 
   @override
   bool shouldExistSectionFooter(int section) {
-    // TODO: implement shouldExistSectionFooter
     return section % 2 != 0;
   }
 
@@ -86,7 +75,6 @@ class _MyAdapter extends SectionAdapter {
 
   @override
   Widget getSectionFooter(BuildContext context, int section) {
-    // TODO: implement getSectionFooter
     return Container(
       key: GlobalKey(debugLabel: 'footer $section'),
       height: 45,
@@ -96,5 +84,5 @@ class _MyAdapter extends SectionAdapter {
       ),
     );
   }
-
 }
+

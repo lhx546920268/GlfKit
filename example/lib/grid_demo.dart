@@ -13,21 +13,10 @@ class SectionGridViewDemo extends StatefulWidget{
   }
 }
 
-class _SectionGridViewState extends State<SectionGridViewDemo> {
-
-  MyAdapter _adapter;
+class _SectionGridViewState extends State<SectionGridViewDemo> with SectionAdapterMixin, SectionGridAdapterMixin {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    if(_adapter == null){
-      _adapter = MyAdapter();
-      _adapter.onReload = (){
-        setState(() {
-          _changeCount();
-        });
-      };
-    }
 
     return Scaffold(
       appBar: AppBar(
@@ -36,18 +25,15 @@ class _SectionGridViewState extends State<SectionGridViewDemo> {
       body: Container(
         child: SizedBox(
           width: 300,
-          child: SectionGridView.builder(adapter: _adapter),
+          child: SectionGridView.builder(adapter: this),
         ),
       ),
     );
   }
 
   void _changeCount(){
-    _adapter.count = _adapter.count == 20 ? 30 : 20;
+    count = count == 20 ? 30 : 20;
   }
-}
-
-class MyAdapter extends SectionGridAdapter{
 
   int count = 30;
 
@@ -78,7 +64,7 @@ class MyAdapter extends SectionGridAdapter{
     return GestureDetector(
       key: GlobalKey(debugLabel: 'item ${indexPath.section}, ${indexPath.item}'),
       onTap: (){
-        reloadData();
+        _changeCount();
       },
       child: Container(
         width: width,
@@ -98,7 +84,6 @@ class MyAdapter extends SectionGridAdapter{
 
   @override
   int numberOfSections() {
-    // TODO: implement numberOfSections
     return 10;
   }
 
@@ -119,31 +104,26 @@ class MyAdapter extends SectionGridAdapter{
 
   @override
   bool shouldExistSectionHeader(int section) {
-    // TODO: implement shouldExistSectionHeader
     return true;
   }
 
   @override
   bool shouldSectionHeaderStick(int section) {
-    // TODO: implement shouldSectionHeaderStick
     return true;
   }
 
   @override
   bool shouldExistSectionFooter(int section) {
-    // TODO: implement shouldExistSectionFooter
     return section % 2 != 0;
   }
 
   @override
   double getFooterItemSpacing(int section) {
-    // TODO: implement getFooterItemSpacing
     return 5;
   }
 
   @override
   double getHeaderItemSpacing(int section) {
-    // TODO: implement getHeaderItemSpacing
     return 5;
   }
 
@@ -161,7 +141,6 @@ class MyAdapter extends SectionGridAdapter{
 
   @override
   Widget getSectionFooter(BuildContext context, int section) {
-    // TODO: implement getSectionFooter
     return Container(
       key: GlobalKey(debugLabel: 'footer $section'),
       height: 45,
