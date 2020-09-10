@@ -77,7 +77,6 @@ mixin SectionAdapterMixin implements SectionAdapter {
         ///保存section信息
         SectionInfo sectionInfo = createSection(i, numberOfItem, count);
         _sectionInfos.add(sectionInfo);
-
         count += numberOfItem;
         if (sectionInfo.isExistHeader) count++;
         if (sectionInfo.isExistFooter) count++;
@@ -88,6 +87,7 @@ mixin SectionAdapterMixin implements SectionAdapter {
       }
       _totalCount = count;
     }
+
     return _totalCount;
   }
 
@@ -207,8 +207,8 @@ mixin SectionGridAdapterMixin on SectionAdapterMixin implements SectionGridAdapt
   }
 
   ///section边距
-  EdgeInsetsDirectional getSectionInsets(int section) {
-    return EdgeInsetsDirectional.zero;
+  EdgeInsets getSectionInsets(int section) {
+    return EdgeInsets.zero;
   }
 
   ///header和item的间距

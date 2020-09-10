@@ -218,7 +218,7 @@ class PageGridGeometry{
       return;
     }
 
-    if(itemGridGeometry.crossAxisExtent + _sectionInfo.sectionInsets.end + _sectionInfo.crossAxisSpacing + rowGridGeometry.crossAxisOffset > constraints.crossAxisExtent){
+    if(itemGridGeometry.crossAxisExtent + _sectionInfo.sectionInsets.right + _sectionInfo.crossAxisSpacing + rowGridGeometry.crossAxisOffset > constraints.crossAxisExtent){
       //这一行已经没有位置可以放item了
       if(rowGridGeometry.outermostItemGeometries.length < 2){
         rowGridGeometry.newLine(_sectionInfo, sectionInfo, index);
@@ -274,7 +274,7 @@ class PageGridGeometry{
 
   void _newLine(ItemGridGeometry itemGridGeometry, SliverConstraints constraints, int index){
     itemGridGeometry.scrollOffset = rowGridGeometry.scrollOffset;
-    itemGridGeometry.crossAxisOffset = _sectionInfo.isItem(index) ? _sectionInfo.sectionInsets.start : 0;
+    itemGridGeometry.crossAxisOffset = _sectionInfo.isItem(index) ? _sectionInfo.sectionInsets.left : 0;
     rowGridGeometry.crossAxisOffset = itemGridGeometry.crossEnd;
 
     rowGridGeometry.outermostItemGeometries.add(itemGridGeometry.copyWith());

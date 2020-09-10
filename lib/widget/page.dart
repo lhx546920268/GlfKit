@@ -1,123 +1,12 @@
-import 'dart:math';
+
 
 import 'package:GlfKit/loading/page_fail.dart';
+import 'package:GlfKit/theme/color_theme.dart';
+import 'package:GlfKit/widget/navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:GlfKit/loading/page_loading.dart';
-import 'package:provider/provider.dart';
-
-class NavigationBarParameters {
-  final String leadingTitle;
-  final String leadingIcon;
-  final Widget leadingWidget;
-  final VoidCallback leadingOnPressed;
-  final String middleTitle;
-  final Widget middleWidget;
-  final String trailingTitle;
-  final String trailingIcon;
-  final Widget trailingWidget;
-  final VoidCallback trailingOnPressed;
-
-  const NavigationBarParameters({
-    this.leadingTitle,
-    this.leadingIcon,
-    this.leadingWidget,
-    this.leadingOnPressed,
-    this.middleTitle,
-    this.middleWidget,
-    this.trailingIcon,
-    this.trailingTitle,
-    this.trailingWidget,
-    this.trailingOnPressed,
-  });
-
-  Widget getMiddleWidget() {
-    if (middleTitle != null) {
-      return Text(
-        middleTitle,
-        style: TextStyle(
-            fontSize: 18, fontWeight: FontWeight.normal, color: Colors.white),
-      );
-    }
-    return middleWidget;
-  }
-
-  Widget getLeadingWidget() {
-    if (leadingWidget != null) {
-      return leadingWidget;
-    }
-
-    return _getLeadingWidget(
-        title: leadingTitle, icon: leadingIcon, onPressed: leadingOnPressed);
-  }
-
-  Widget getTrailingWidget() {
-    if (trailingWidget != null) {
-      return trailingWidget;
-    }
-
-    return _getTrailingWidget(
-        title: trailingTitle, icon: trailingIcon, onPressed: trailingOnPressed);
-  }
-
-  Widget _getLeadingWidget(
-      {String title, String icon, VoidCallback onPressed}) {
-    return _getNavigationItemWidget(
-        title: title,
-        icon: icon,
-        padding: EdgeInsetsDirectional.only(start: 7),
-        onPressed: onPressed);
-  }
-
-  Widget _getTrailingWidget(
-      {String title, String icon, VoidCallback onPressed}) {
-    return _getNavigationItemWidget(
-        title: title,
-        icon: icon,
-        padding: EdgeInsetsDirectional.only(end: 7),
-        onPressed: onPressed);
-  }
-
-  Widget _getNavigationItemWidget(
-      {String title,
-      String icon,
-      EdgeInsetsGeometry padding,
-      VoidCallback onPressed}) {
-
-    if(title == null && icon == null){
-      return null;
-    }
-
-    Widget child;
-    if (title != null) {
-      child = Text(
-        title,
-        style: TextStyle(
-            fontSize: 14, fontWeight: FontWeight.normal, color: Colors.white),
-      );
-    } else {
-      child = Image.asset(icon);
-    }
-
-    return _createNavigationItemWidget(child: child, padding: padding, onPressed: onPressed);
-  }
-
-  Widget _createNavigationItemWidget(
-      {Widget child,
-        EdgeInsetsGeometry padding,
-        VoidCallback onPressed}) {
-    if (child == null) {
-      return null;
-    }
-
-    return CupertinoButton(
-      padding: padding,
-      child: child,
-      onPressed: onPressed,
-    );
-  }
-}
 
 ///页面状态
 enum PageStatus {normal, loading, fail, empty}
@@ -140,6 +29,10 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
 
   ///背景颜色
   Color backgroundColor = Colors.white;
+
+  ///导航栏控制器
+  NavigationBarController get navigationBarController => _navigationBarController;
+  NavigationBarController _navigationBarController;
 
   Widget build(BuildContext context) {
 
@@ -179,7 +72,7 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
       children.add(bottomWidget);
     }
 
-    var navigationBar = getNavigationBar(context, getNavigationBarParameters());
+    var navigationBar = getNavigationBar(context);
     var child = wrapContainer(context, Column(children: children));
 
     if (navigationBar != null) {
@@ -250,41 +143,21 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
 
   }
 
-  NavigationBarParameters getNavigationBarParameters() {
-    return NavigationBarParameters();
+  NavigationBarController configNavigationBar(BuildContext context){
+    return null;
   }
 
-  CupertinoNavigationBar getNavigationBar(
-      BuildContext context, NavigationBarParameters parameters) {
-    if (parameters == null) {
+  NavigationBar getNavigationBar(
+      BuildContext context) {
+
+    NavigationBarController controller = configNavigationBar(context);
+    if(controller == null){
       return null;
     }
 
-    var route = ModalRoute.of(context);
-    Widget leading = parameters.getLeadingWidget();
-    if(leading == null && route != null){
-      if(route.canPop){
-        var theme = CupertinoTheme.of(context);
-        leading = parameters._createNavigationItemWidget(
-            child: Icon(
-              CupertinoIcons.back,
-              color: theme.primaryContrastingColor,
-              size: 32,
-            ),
-            padding: EdgeInsetsDirectional.only(start: 0),
-            onPressed: (){
-              goBack();
-        });
-      }
-    }
-
-    return CupertinoNavigationBar(
-      brightness: CupertinoTheme.of(context).brightness,
-      padding: EdgeInsetsDirectional.zero,
-      leading: leading,
-      trailing: parameters.getTrailingWidget(),
-      middle: parameters.getMiddleWidget(),
-      transitionBetweenRoutes: false,
+    _navigationBarController = controller;
+    return NavigationBar(
+      controller: controller,
     );
   }
 

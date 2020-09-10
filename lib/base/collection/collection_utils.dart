@@ -3,8 +3,17 @@
 import 'dart:convert';
 
 ///判断集合是否为空
-bool isEmpty(Iterable iterable){
-  return iterable == null || iterable.length == 0;
+bool isEmpty(dynamic obj){
+
+  if(obj is Iterable){
+    Iterable iterable = obj;
+    return iterable.length == 0;
+  }else if(obj is Map){
+    Map map = obj;
+    return map.length == 0;
+  }
+
+  return obj == null;
 }
 
 extension JsonUtils on JsonCodec {

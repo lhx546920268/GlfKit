@@ -8,7 +8,6 @@ class IndexPath {
 
   @override
   String toString() {
-    // TODO: implement toString
     return 'section = $section, item = $item';
   }
 }
@@ -101,7 +100,7 @@ class GridSectionInfo extends SectionInfo {
   double crossAxisSpacing;
 
   ///section边距
-  EdgeInsetsDirectional sectionInsets;
+  EdgeInsets sectionInsets;
 
   ///header和item的间距
   double headerItemSpacing;
@@ -118,7 +117,7 @@ class GridSectionInfo extends SectionInfo {
       bool isHeaderStick = false,
       this.mainAxisSpacing = 0,
       this.crossAxisSpacing = 0,
-      this.sectionInsets = EdgeInsetsDirectional.zero,
+      this.sectionInsets = EdgeInsets.zero,
       this.headerItemSpacing = 0,
       this.footerItemSpacing = 0})
       : assert(mainAxisSpacing != null),

@@ -3,6 +3,7 @@ import 'package:GlfKit/list/section.dart';
 import 'package:GlfKit/list/section_adapter.dart';
 import 'package:GlfKit/list/section_grid_view.dart';
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 class SectionGridViewDemo extends StatefulWidget{
 
@@ -15,6 +16,8 @@ class SectionGridViewDemo extends StatefulWidget{
 
 class _SectionGridViewState extends State<SectionGridViewDemo> with SectionAdapterMixin, SectionGridAdapterMixin {
 
+  final List<Color> colors = [Colors.red, Colors.orange, Colors.yellow, Colors.green, Colors.cyan, Colors.blue, Colors.purple,];
+
   @override
   Widget build(BuildContext context) {
 
@@ -22,12 +25,7 @@ class _SectionGridViewState extends State<SectionGridViewDemo> with SectionAdapt
       appBar: AppBar(
         title: Text("SectionGridView"),
       ),
-      body: Container(
-        child: SizedBox(
-          width: 300,
-          child: SectionGridView.builder(adapter: this),
-        ),
-      ),
+      body: SectionGridView.builder(adapter: this),
     );
   }
 
@@ -41,35 +39,31 @@ class _SectionGridViewState extends State<SectionGridViewDemo> with SectionAdapt
   Widget getItem(BuildContext context, IndexPath indexPath) {
     // TODO: implement getItem
 
-    EdgeInsetsDirectional inset = getSectionInsets(indexPath.section);
-    double totalWidth = crossAxisExtent - getCrossAxisSpacing(indexPath.section) - inset.start - inset.end;
+    EdgeInsets inset = getSectionInsets(indexPath.section);
+    double totalWidth = crossAxisExtent - getCrossAxisSpacing(indexPath.section) - inset.left - inset.right;
     double width;
     double height;
 
-    switch(indexPath.item % 3){
+    switch(indexPath.item % 6){
       case 0 :
+      case 4 :
         width = totalWidth / 3;
         height = 200;
         break;
-      case 1 :
+      default :
         width = totalWidth / 3 * 2;
-        height = 80;
-        break;
-      case 2 :
-        width = totalWidth / 3 * 2;
-        height = 200.0 - 80 - 5;
+        height = (200 - getMainAxisSpacing(indexPath.section)) / 2;
         break;
     }
 
     return GestureDetector(
-      key: GlobalKey(debugLabel: 'item ${indexPath.section}, ${indexPath.item}'),
       onTap: (){
         _changeCount();
       },
       child: Container(
         width: width,
         height: height,
-        color: Colors.red,
+        color: colors[Random().nextInt(colors.length - 1)],
         child: Center(
           child: Text('${indexPath.item}'),
         ),
@@ -98,8 +92,8 @@ class _SectionGridViewState extends State<SectionGridViewDemo> with SectionAdapt
   }
 
   @override
-  EdgeInsetsDirectional getSectionInsets(int section) {
-    return EdgeInsetsDirectional.fromSTEB(10, 8, 10, 8);
+  EdgeInsets getSectionInsets(int section) {
+    return EdgeInsets.fromLTRB(10, 8, 10, 8);
   }
 
   @override
@@ -130,7 +124,6 @@ class _SectionGridViewState extends State<SectionGridViewDemo> with SectionAdapt
   @override
   Widget getSectionHeader(BuildContext context, int section) {
     return Container(
-      key: GlobalKey(debugLabel: 'header $section'),
       height: 45,
       color: Colors.blue,
       child: Center(
@@ -142,7 +135,6 @@ class _SectionGridViewState extends State<SectionGridViewDemo> with SectionAdapt
   @override
   Widget getSectionFooter(BuildContext context, int section) {
     return Container(
-      key: GlobalKey(debugLabel: 'footer $section'),
       height: 45,
       color: Colors.green,
       child: Center(
