@@ -91,18 +91,12 @@ class _DropDownMenuState extends State<DropDownMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        SizedBox(
-          height: 45,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: _buildMenuItems(),
-          ),
-        ),
-        Divider(height: 0.5),
-      ],
+    return SizedBox(
+      height: 45,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: _buildMenuItems(),
+      ),
     );
   }
 

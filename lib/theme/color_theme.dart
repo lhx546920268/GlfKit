@@ -24,4 +24,7 @@ class ColorTheme{
 
   ///分割线颜色
   static Color dividerColor = Color(0xffdedede);
+
+  ///输入框
+  static Color placeholderColor = Color.fromRGBO(179, 179, 179, 0.7);
 }

@@ -158,6 +158,7 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
     _navigationBarController = controller;
     return NavigationBar(
       controller: controller,
+      goBack: goBack,
     );
   }
 
