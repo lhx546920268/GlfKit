@@ -253,6 +253,7 @@ class NavigationBarItem {
 
   Widget getWidget(double padding) {
     return CupertinoButton(
+      color: Colors.transparent,
       padding: EdgeInsets.only(left: padding, right: padding),
       child: child ?? Text(title, style: AppTheme.navigationBarItemStyle,),
       disabledColor: Colors.transparent,
@@ -289,7 +290,7 @@ class _NavigationBarState extends State<NavigationBar> {
                 Navigator.of(context).pop();
               }
             }
-        ).getWidget(5);
+        ).getWidget(7);
       }
     }
 
@@ -299,14 +300,6 @@ class _NavigationBarState extends State<NavigationBar> {
     }
 
     if (middle != null) {
-      if (leading == null || trailing == null) {
-        middle = Padding(
-          padding: EdgeInsets.only(
-              left: leading == null ? widget.controller.padding : 0,
-              right: trailing == null ? widget.controller.padding : 0),
-          child: middle,
-        );
-      }
       children.add(middle);
       types.add(_Type.middle);
     }
@@ -415,13 +408,21 @@ class _NavigationContentRenderBox extends RenderBox
     }
   }
 
+   @override
+   bool get sizedByParent => true;
+
+   @override
+   void performResize() {
+     size = constraints.smallest;
+   }
+
   @override
   void performLayout() {
     final BoxConstraints constraints = this.constraints;
     final childConstraints = BoxConstraints(
         minWidth: 0,
         maxWidth: constraints.maxWidth,
-        minHeight: 0,
+        minHeight: constraints.maxHeight,
         maxHeight: constraints.maxHeight);
 
     RenderBox child = firstChild;
@@ -459,6 +460,13 @@ class _NavigationContentRenderBox extends RenderBox
       child = parentData.nextSibling;
     }
 
+    if(leading == null){
+      remainingSpacing -= _controller.padding;
+    }
+    if(trailing == null){
+      remainingSpacing -= _controller.padding;
+    }
+
     if(middle != null){
       middle.layout(BoxConstraints(
           minWidth: 0,
@@ -469,11 +477,11 @@ class _NavigationContentRenderBox extends RenderBox
       double dx = (width - middle.size.width) / 2;
       if(leading != null && dx < leading.size.width){
         dx = leading.size.width;
+      }else if(trailing != null && dx + middle.size.width + trailing.size.width > width){
+        dx = width - trailing.size.width - middle.size.width;
       }
       parentData.offset = Offset(dx, (height - middle.size.height) / 2);
     }
-
-    size = Size(width, height);
   }
 
   @override

@@ -1,17 +1,16 @@
 import 'dart:async';
-import 'dart:collection';
-import 'dart:isolate';
 
-import 'package:GlfKit/base/collection/safe_map.dart';
 import 'package:GlfKit/interaction/popover.dart';
 import 'package:GlfKit/interaction/toast.dart';
 import 'package:GlfKit/event/event_bus.dart';
+import 'package:GlfKit/tab/tab_item.dart';
+import 'package:GlfKit/tab/tab_scaffold.dart';
+import 'package:GlfKit/widget/badge_value.dart';
 import 'package:example/drop_down_menu_demo.dart';
 import 'package:example/grid_demo.dart';
 import 'package:example/list_demo.dart';
 import 'package:example/menu_bar_demo.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 double kStatusBarHeight = 0;
@@ -25,6 +24,8 @@ void main() {
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
 
+  final TabBarController controller = TabBarController();
+
   @override
   Widget build(BuildContext context) {
     MediaQueryData data =
@@ -37,7 +38,47 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: MyHomePage());
+        home: TabBarScaffold(items: _tabBarItems(), tabBuilder: _tabBuilder, controller: controller,));
+  }
+
+  final List<Widget> tabs = [
+    MyHomePage(),
+    Scaffold(
+      appBar: AppBar(title: Text('发现'),),
+      body: Container(
+        child: ListView.builder(itemBuilder: (_, index) => ListTile(title: Text('index $index'),)),
+      ),
+    ),
+    Scaffold(
+      appBar: AppBar(title: Text('我的'),),
+      body: Container(
+        child: Center(
+          child: Text('是我啦'),
+        ),
+      ),
+    )
+  ];
+
+  Widget _tabBuilder(BuildContext context, int index){
+    return tabs[index];
+  }
+
+  List<TabItem> _tabBarItems(){
+    return [
+      _tabBarItem("首页", Icon(Icons.home, color: Colors.grey,), Icon(Icons.home, color: Colors.blue), null),
+      _tabBarItem("发现", Icon(Icons.search, color: Colors.grey,), Icon(Icons.search, color: Colors.blue), BadgeValue(child: Text('23', style: TextStyle(fontSize: 11, color: Colors.white),),)),
+      _tabBarItem("我的", Icon(Icons.person, color: Colors.grey,), Icon(Icons.person, color: Colors.blue), null),
+    ];
+  }
+
+  TabItem _tabBarItem(String title, Widget icon, Widget activeIcon, Widget badgeValue){
+
+    return TabItem(
+        title: Text(title),
+        icon: icon,
+        activeIcon: activeIcon,
+      badgeValue: badgeValue
+    );
   }
 }
 
@@ -53,14 +94,14 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    EventBus.defaultBus().subscribe('onLogin', _onValueChange);
-    EventBus.defaultBus().subscribe('onLogout', _onValueChange);
+    EventBus.defaultBus.subscribe('onLogin', _onValueChange);
+    EventBus.defaultBus.subscribe('onLogout', _onValueChange);
   }
 
   @override
   void dispose() {
-    EventBus.defaultBus().unsubscribe('onLogin', _onValueChange);
-    EventBus.defaultBus().unsubscribe('onLogout', _onValueChange);
+    EventBus.defaultBus.unsubscribe('onLogin', _onValueChange);
+    EventBus.defaultBus.unsubscribe('onLogout', _onValueChange);
     super.dispose();
   }
 
@@ -72,27 +113,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return Future.delayed(Duration(seconds: 1), () {
       return "first";
     });
-  }
-
-  @override
-  void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    super.didChangeDependencies();
-    print('didChangeDependencies');
-  }
-
-  @override
-  void deactivate() {
-    // TODO: implement deactivate
-    super.deactivate();
-    print('deactivate');
-  }
-
-  @override
-  void didUpdateWidget(MyHomePage oldWidget) {
-    // TODO: implement didUpdateWidget
-    super.didUpdateWidget(oldWidget);
-    print('didUpdateWidget');
   }
 
   @override
@@ -130,18 +150,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _getListItem(int index, BuildContext context) {
     String title;
+    Widget trailing;
     switch (index) {
       case 0:
         title = 'SectionListView';
+        trailing = BadgeValue(child: Text('1', style: TextStyle(color: Colors.white, fontSize: 12),),);
         break;
       case 1:
         title = 'SectionGridView';
+        trailing = BadgeValue(child: Text('15', style: TextStyle(color: Colors.white, fontSize: 12),),);
         break;
       case 2:
         title = 'Toast';
+        trailing = BadgeValue(child: Text('39', style: TextStyle(color: Colors.white, fontSize: 12),),);
         break;
       case 3:
         title = "Popover";
+        trailing = BadgeValue();
         break;
       case 4:
         title = "MenuBar";
@@ -162,7 +187,6 @@ class _MyHomePageState extends State<MyHomePage> {
             }
             if (index != 2) {
               Navigator.of(context).push(MaterialPageRoute(
-                  fullscreenDialog: true,
                   maintainState: false,
                   builder: (BuildContext context) {
                     switch (index) {
@@ -191,6 +215,7 @@ class _MyHomePageState extends State<MyHomePage> {
             }
           },
           title: Text(title, style: TextStyle(fontSize: 16)),
+          trailing: trailing,
         ),
         Positioned(
           child: Divider(height: 0.5),

@@ -201,24 +201,28 @@ mixin RefreshPageState<T extends StatefulWidget> on StatefulPageState<T> {
 
   @override
   Widget wrapContentWidget(BuildContext context, Widget content){
-    var widget = super.wrapContentWidget(context, content);
+    var child = super.wrapContentWidget(context, content);
     if ((refreshEnable || loadMoreEnable) && pageStatus == PageStatus.normal) {
 
       if(easyRefreshController == null){
         easyRefreshController = EasyRefreshController();
       }
-      return EasyRefresh(
-        child: widget,
-        controller: easyRefreshController,
-        onRefresh: refreshEnable ? _onRefresh : null,
-        onLoad: loadMoreEnable ? _onLoadMore : null,
-      );
+      return getEasyRefresh(child);
     }
 
-    return widget;
+    return child;
   }
 
-  Future<void> _onRefresh() async {
+  EasyRefresh getEasyRefresh(Widget child){
+    return EasyRefresh(
+      child: child,
+      controller: easyRefreshController,
+      onRefresh: refreshEnable ? willRefresh : null,
+      onLoad: loadMoreEnable ? willLoadMore : null,
+    );
+  }
+
+  Future<void> willRefresh() async {
     _isRefreshing = true;
     await onRefresh();
   }
@@ -233,7 +237,7 @@ mixin RefreshPageState<T extends StatefulWidget> on StatefulPageState<T> {
     _isRefreshing = false;
   }
 
-  Future<void> _onLoadMore() async {
+  Future<void> willLoadMore() async {
     _isLoadingMore = true;
     await onLoadMore();
   }

@@ -28,9 +28,9 @@ class DropDownMenuDemo extends StatelessWidget implements DropDownMenuDelegate {
   void onDropDownMenuSelectCondition(DropDownMenuItem item) {
 
     if(item.selectedIndex == 0){
-      EventBus.defaultBus().post('onLogin', value: '我登录了');
+      EventBus.defaultBus.post('onLogin', value: '我登录了');
     }else{
-      EventBus.defaultBus().post('onLogout', value: '我登出了');
+      EventBus.defaultBus.post('onLogout', value: '我登出了');
     }
   }
 }

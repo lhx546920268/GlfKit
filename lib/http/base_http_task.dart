@@ -1,5 +1,6 @@
 
 
+import 'package:GlfKit/interaction/toast.dart';
 import 'package:dio/dio.dart';
 import 'package:GlfKit/base/collection/safe_map.dart';
 import 'package:flutter/cupertino.dart';
@@ -61,6 +62,13 @@ mixin BaseHttpTask {
 
   bool get isNetworkError => code == null;
 
+  ///用来提示错误信息和loading的
+  BuildContext context;
+
+  ///是否提示错误信息
+  bool shouldShowErrorMessage = false;
+  bool shouldShowLoading = false;
+
   ///开始请求
   Future<void> start() async {
     if(_running){
@@ -88,6 +96,12 @@ mixin BaseHttpTask {
 
     if(!isCancelled && _response != null){
       await processResult();
+      if(isSuccess){
+        onSuccess();
+      }else{
+        onFail();
+      }
+      onComplete();
     }
   }
 
@@ -96,6 +110,7 @@ mixin BaseHttpTask {
       _running = false;
       _cancelled = true;
       _cancelToken.cancel('cancelled');
+      onComplete();
     }
   }
 
@@ -107,6 +122,21 @@ mixin BaseHttpTask {
 
   @protected
   void onSuccess();
+
+  @protected
+  void onFail() {
+    if(shouldShowErrorMessage && message != null){
+      assert(context != null);
+      Toast.showText(context, message);
+    }
+  }
+
+  @protected
+  void onComplete() {
+    if(shouldShowLoading){
+
+    }
+  }
 
   String get get => 'GET';
   String get post => 'POST';

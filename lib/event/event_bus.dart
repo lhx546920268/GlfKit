@@ -8,7 +8,7 @@ class EventBus {
 
   ///单例
   static EventBus _defaultBus;
-  factory EventBus.defaultBus() => _getInstance();
+  static EventBus get defaultBus => _getInstance();
 
   ///内部构造方法
   EventBus._();
