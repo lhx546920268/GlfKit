@@ -109,7 +109,6 @@ class _ToastWidget extends StatefulWidget{
   final ToastGravity gravity;
   final EdgeInsets padding;
   final EdgeInsets margin;
-  final Animation<double> opacityAnimation;
   final VoidCallback onDismiss;
   final Duration showDuration;
 
@@ -121,7 +120,6 @@ class _ToastWidget extends StatefulWidget{
     this.gravity,
     this.padding,
     this.margin,
-    this.opacityAnimation,
     this.onDismiss,
     this.showDuration
   });

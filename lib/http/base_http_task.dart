@@ -1,6 +1,7 @@
 
 
 import 'package:GlfKit/interaction/toast.dart';
+import 'package:GlfKit/loading/loading.dart';
 import 'package:dio/dio.dart';
 import 'package:GlfKit/base/collection/safe_map.dart';
 import 'package:flutter/cupertino.dart';
@@ -67,7 +68,15 @@ mixin BaseHttpTask {
 
   ///是否提示错误信息
   bool shouldShowErrorMessage = false;
+
+  ///是否显示loading
   bool shouldShowLoading = false;
+
+  ///loading 延迟显示
+  Duration loadingDelay;
+
+  ///loading 文字
+  String loadingText;
 
   ///开始请求
   Future<void> start() async {
@@ -79,6 +88,11 @@ mixin BaseHttpTask {
     if(_cancelled){
       print("$runtimeType is cancelled");
       return;
+    }
+
+    if(shouldShowLoading){
+      assert(context != null);
+      Loading.show(context, delay: loadingDelay, text: loadingText);
     }
 
     _running = true;
@@ -134,7 +148,7 @@ mixin BaseHttpTask {
   @protected
   void onComplete() {
     if(shouldShowLoading){
-
+      Loading.dismiss();
     }
   }
 

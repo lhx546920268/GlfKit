@@ -2,11 +2,14 @@
 import 'package:GlfKit/base/collection/collection_utils.dart';
 import 'package:GlfKit/tab/tab_bar.dart' as tabBar;
 import 'package:GlfKit/tab/tab_item.dart';
+import 'package:GlfKit/theme/color_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 ///标签栏控制器
 class TabBarController extends ChangeNotifier {
+
+  List<TabItem> _items;
 
   ///选中的下标
   int get selectedIndex => _selectedIndex ?? 0;
@@ -19,6 +22,12 @@ class TabBarController extends ChangeNotifier {
     }
   }
   int _selectedIndex;
+
+  void setBadgeValue(Widget value, int index){
+    assert(_items != null && index >= 0 && index < _items.length);
+    _items[index].badgeValue = value;
+    notifyListeners();
+  }
 }
 
 ///标签栏
@@ -56,10 +65,12 @@ class TabBarScaffold extends StatelessWidget {
       TabBarController controller})
       : this.style = style ?? TextStyle(fontSize: 11, color: Colors.grey),
         this.activeStyle =
-            activeStyle ?? TextStyle(fontSize: 11, color: Colors.blue),
+            activeStyle ?? TextStyle(fontSize: 11, color: ColorTheme.themeColor),
         this.controller = controller ?? TabBarController(),
   assert(!isEmpty(items) && tabBuilder != null),
-        super(key: key);
+        super(key: key) {
+    controller._items = items;
+  }
 
   @override
   Widget build(BuildContext context) {

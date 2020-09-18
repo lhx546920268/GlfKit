@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:GlfKit/interaction/popover.dart';
 import 'package:GlfKit/interaction/toast.dart';
 import 'package:GlfKit/event/event_bus.dart';
+import 'package:GlfKit/loading/loading.dart';
 import 'package:GlfKit/tab/tab_item.dart';
 import 'package:GlfKit/tab/tab_scaffold.dart';
 import 'package:GlfKit/widget/badge_value.dart';
@@ -18,8 +19,6 @@ double kStatusBarHeight = 0;
 void main() {
   runApp(MyApp());
 }
-
-
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -133,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 {
                   return ListView(
                     children: List.generate(
-                        6, (index) => _getListItem(index, context)),
+                        7, (index) => _getListItem(index, context)),
                   );
                 }
               case ConnectionState.waiting:
@@ -174,6 +173,9 @@ class _MyHomePageState extends State<MyHomePage> {
       case 5:
         title = "DropDownMenuDemo";
         break;
+      case 6 :
+        title = "Loading";
+        break;
     }
 
     return Stack(
@@ -185,6 +187,15 @@ class _MyHomePageState extends State<MyHomePage> {
               _showPopover();
               return;
             }
+
+            if(index == 6) {
+              Loading.show(context);
+              Timer(Duration(milliseconds: 2000), () {
+                Loading.dismiss();
+              });
+              return;
+            }
+
             if (index != 2) {
               Navigator.of(context).push(MaterialPageRoute(
                   maintainState: false,

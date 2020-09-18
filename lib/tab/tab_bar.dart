@@ -69,7 +69,22 @@ class _TabBarState extends State<TabBar> {
 
     Widget icon = selected ? item.activeIcon ?? item.icon : item.icon ?? item.activeIcon;
     if(icon != null){
-      children.add(icon);
+      if(item.activeIcon != null && item.icon != null){
+        children.add(Stack(
+          children: [
+            Offstage(
+              offstage: selected,
+              child: item.icon,
+            ),
+            Offstage(
+              offstage: !selected,
+              child: item.activeIcon,
+            ),
+          ],
+        ));
+      }else{
+        children.add(icon);
+      }
     }
 
     if(item.title != null){

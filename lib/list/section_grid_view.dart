@@ -120,7 +120,6 @@ class SectionRenderSliverGrid extends SectionRenderSliverMultiBoxAdaptor {
     _adapter = adapter;
     _pageGridGeometries.clear();
     _children.clear();
-    _currentStickChild = null;
   }
 
   @override
@@ -166,7 +165,7 @@ class SectionRenderSliverGrid extends SectionRenderSliverMultiBoxAdaptor {
     firstChild.layout(childConstraint, parentUsesSize: true);
 
     //当前section
-    SectionInfo currentSectionInfo;
+    GridSectionInfo currentSectionInfo;
 
     //需要布局的大小
     final double pageSize =
@@ -245,6 +244,7 @@ class SectionRenderSliverGrid extends SectionRenderSliverMultiBoxAdaptor {
           pageGridGeometry = previous;
         }
       }
+
 
       ItemGridGeometry geometry = pageGridGeometry.itemGeometries[index];
       if (geometry == null) {
@@ -344,7 +344,7 @@ class SectionRenderSliverGrid extends SectionRenderSliverMultiBoxAdaptor {
           SectionSliverMultiBoxAdaptorParentData parentData =
               child.parentData as SectionSliverMultiBoxAdaptorParentData;
           parentData.layoutOffset = math.min(constraints.scrollOffset,
-              currentSectionInfo.mainEnd - geometry.mainAxisExtent);
+              currentSectionInfo.mainEnd - geometry.mainAxisExtent + currentSectionInfo.sectionInsets.bottom);
           parentData.crossAxisOffset = geometry.crossAxisOffset;
           _currentStickChild = child;
           hasStick = true;

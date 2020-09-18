@@ -27,6 +27,7 @@ class ActivityIndicator extends StatefulWidget {
     Key key,
     this.animating = true,
     this.radius = _kDefaultIndicatorRadius,
+    this.activeColor,
   }) : assert(animating != null),
         assert(radius != null),
         assert(radius > 0),
@@ -41,6 +42,9 @@ class ActivityIndicator extends StatefulWidget {
   ///
   /// Defaults to 10px. Must be positive and cannot be null.
   final double radius;
+
+  ///
+  final Color activeColor;
 
   @override
   _ActivityIndicatorState createState() => _ActivityIndicatorState();
@@ -87,7 +91,7 @@ class _ActivityIndicatorState extends State<ActivityIndicator> with SingleTicker
       child: CustomPaint(
         painter: _ActivityIndicatorPainter(
           position: _controller,
-          activeColor: CupertinoDynamicColor.resolve(_kActiveTickColor, context),
+          activeColor: widget.activeColor ?? CupertinoDynamicColor.resolve(_kActiveTickColor, context),
           radius: widget.radius,
         ),
       ),
