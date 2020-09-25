@@ -1,5 +1,6 @@
 
 
+import 'package:GlfKit/base/def.dart';
 import 'package:GlfKit/interaction/toast.dart';
 import 'package:GlfKit/loading/loading.dart';
 import 'package:dio/dio.dart';
@@ -7,6 +8,13 @@ import 'package:GlfKit/base/collection/safe_map.dart';
 import 'package:flutter/cupertino.dart';
 
 mixin BaseHttpTask {
+
+  ///任务名称
+  String get name => _name ?? runtimeType.toString();
+  set name(String value){
+    _name = value;
+  }
+  String _name;
 
   ///http响应
   Response get response => _response;
@@ -95,6 +103,8 @@ mixin BaseHttpTask {
       Loading.show(context, delay: loadingDelay, text: loadingText);
     }
 
+    await beforeStart();
+
     _running = true;
     try {
       _cancelToken = CancelToken();
@@ -108,8 +118,10 @@ mixin BaseHttpTask {
       code = null;
     }
 
-    if(!isCancelled && _response != null){
-      await processResult();
+    if(!isCancelled){
+      if(_response != null){
+        await processResult();
+      }
       if(isSuccess){
         onSuccess();
       }else{
@@ -117,6 +129,11 @@ mixin BaseHttpTask {
       }
       onComplete();
     }
+  }
+
+  ///在开始请求前执行，主要是用于初始化一些需要异步获取的信息
+  Future<void> beforeStart() async {
+
   }
 
   void cancel() {
@@ -141,14 +158,39 @@ mixin BaseHttpTask {
   void onFail() {
     if(shouldShowErrorMessage && message != null){
       assert(context != null);
+      if(shouldShowLoading){
+        Loading.dismiss(animate: false);
+      }
       Toast.showText(context, message);
     }
+  }
+
+  List<ValueCallback<BaseHttpTask>> get completeCallbacks {
+    if(_completeCallbacks == null){
+      _completeCallbacks = [];
+    }
+    return _completeCallbacks;
+  }
+  List<ValueCallback<BaseHttpTask>> _completeCallbacks;
+  void addCompleteCallback(ValueCallback<BaseHttpTask> callback){
+    assert(callback != null);
+    completeCallbacks.add(callback);
+  }
+
+  void removeCompleteCallback(ValueCallback<BaseHttpTask> callback) {
+    assert(callback != null);
+    completeCallbacks.remove(callback);
   }
 
   @protected
   void onComplete() {
     if(shouldShowLoading){
       Loading.dismiss();
+    }
+    if(_completeCallbacks != null){
+      _completeCallbacks.forEach((callback) {
+        callback(this);
+      });
     }
   }
 

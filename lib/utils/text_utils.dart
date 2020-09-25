@@ -1,6 +1,6 @@
-import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:GlfKit/base/collection/collection_utils.dart' as collection_utils;
 
 class TextUtils {
 
@@ -35,6 +35,70 @@ class TextUtils {
         .isEmpty) return true;
 
     return false;
+  }
+
+  ///给url添加参数
+  static String addParams(String url, String params) {
+    assert(params != null);
+    if(TextUtils.isEmpty(url))
+      return url;
+
+    var uri = Uri.parse(url);
+    if(uri == null)
+      return url;
+
+    if(uri.fragment != null && uri.fragment.contains('?')){
+      uri = uri.replace(fragment: '${uri.fragment}&$params');
+    }else{
+      if(TextUtils.isEmpty(uri.query)){
+        uri = uri.replace(query: params);
+      }else{
+        uri = uri.replace(query: '${uri.query}&$params');
+      }
+    }
+    return uri.toString();
+  }
+
+  static String getQueryValue(String url, String key){
+    assert(key != null);
+    if(TextUtils.isEmpty(url))
+      return null;
+
+    var uri = Uri.parse(url);
+    if(uri == null)
+      return null;
+
+    String value;
+    if(uri.queryParameters != null){
+      value = uri.queryParameters[key];
+    }
+
+    //有些参数可能在fragment那里
+    var fragment = uri.fragment;
+    if(value == null && !TextUtils.isEmpty(fragment)){
+      int index = fragment.lastIndexOf('?');
+
+      if(index != -1){
+        var query = fragment.substring(index + 1);
+
+        if(!TextUtils.isEmpty(query)){
+          var params = query.split('&');
+
+          if(!collection_utils.isEmpty(params)){
+            for(var str in params){
+              var list = str.split('=');
+              if(list.length == 2){
+                if(list[0] == key){
+                  value = list[1];
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return value;
   }
 }
 

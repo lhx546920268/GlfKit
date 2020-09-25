@@ -20,9 +20,9 @@ class DateUtils {
     if(timeStamp == null){
       timeStamp = 0;
     }
-
-    var dateFormat = DateFormat(format);
+    
     try {
+      var dateFormat = DateFormat(format);
       if(timeStamp.toString().length >= 13){
         return dateFormat.format(DateTime.fromMicrosecondsSinceEpoch(timeStamp));
       }else{
@@ -31,6 +31,19 @@ class DateUtils {
     }catch(_){
       return null;
     }
+  }
+  
+  ///格式化dart时间对象
+  static String formatDateTime(DateTime dateTime, {String fromFormat = dateFormatYMdHms}) {
+    assert(fromFormat != null && dateTime != null);
+    try {
+      var dateFormat = DateFormat(fromFormat);
+      return dateFormat.format(dateTime);
+    }catch(_){
+
+    }
+    
+    return null;
   }
 
   ///获取时间戳
@@ -72,5 +85,19 @@ class DateUtils {
     }
 
     return time;
+  }
+  
+  ///获取dart 时间对象
+  static DateTime dateTimeFromTme(String time, {String fromFormat = dateFormatYMdHms}){
+    assert(fromFormat != null);
+    if(!TextUtils.isEmpty(time)){
+      try {
+        var dateFormat = DateFormat(fromFormat);
+        return dateFormat.parse(time);
+      }catch(_){
+
+      }
+    }
+    return null;
   }
 }

@@ -268,3 +268,26 @@ mixin ProviderPageState<T extends StatefulWidget> on StatefulPageState<T> {
 
   Widget wrapProviderIfNeeded(BuildContext context, Widget child);
 }
+
+mixin WillScrollKeyboardDismiss <T extends StatefulWidget> on StatefulPageState<T>{
+
+  @override
+  Widget wrapContentWidget(BuildContext context, Widget content) {
+
+    var child = super.wrapContentWidget(context, content);
+    if(pageStatus == PageStatus.normal){
+      child = NotificationListener(
+        onNotification: _willScroll,
+        child: child,
+      );
+    }
+    return child;
+  }
+
+  bool _willScroll(ScrollStartNotification notification){
+    if(notification.dragDetails != null){
+      FocusScope.of(context).requestFocus(new FocusNode());
+    }
+    return true;
+  }
+}

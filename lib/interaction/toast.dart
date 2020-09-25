@@ -170,11 +170,13 @@ class _ToastState extends State<_ToastWidget> {
       ),
     );
 
-    return Positioned(
+    return AnimatedPositioned(
+      duration: Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
       left: widget.margin.left,
       right: widget.margin.right,
       top: widget.gravity == ToastGravity.top ? widget.margin.top : null,
-      bottom: widget.gravity == ToastGravity.bottom ? widget.margin.bottom : null,
+      bottom: widget.gravity == ToastGravity.bottom ? widget.margin.bottom + MediaQuery.of(context).viewInsets.bottom : null,
       child: AnimatedOpacity(
         opacity: _opacity,
         curve: Curves.easeOut,

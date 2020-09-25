@@ -205,20 +205,20 @@ class _TabBarItemRenderObject extends RenderBox with
       double dy;
       if(icon != null){
         _TabBarItemParentData parentData = icon.parentData as _TabBarItemParentData;
-        dx = parentData.offset.dx + icon.size.width - badgeValue.size.width / 2;
-        dy = parentData.offset.dy - badgeValue.size.height / 2;
+        dx = parentData.offset.dx + icon.size.width - badgeValue.size.width / 3;
+        dy = parentData.offset.dy - badgeValue.size.height / 3;
 
         if(dx + badgeValue.size.width > width){
           dx = width - badgeValue.size.width;
         }
 
-        if(dy < 3){
-          dy = 3;
+        if(dy < 2){
+          dy = 2;
         }
 
       }else{
-        dx = width - badgeValue.size.width - 5;
-        dy = 3;
+        dx = width - badgeValue.size.width;
+        dy = 2;
       }
       parentData.offset = Offset(dx, dy);
     }

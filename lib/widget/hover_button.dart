@@ -3,10 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-
 // Measured against iOS 12 in Xcode.
 const EdgeInsets _kButtonPadding = EdgeInsets.all(0.0);
 const EdgeInsets _kBackgroundButtonPadding = EdgeInsets.all(0.0);
+const Color _kHoverColor = Color(0xfff2f2f2);
 
 /// An iOS-style button.
 ///
@@ -21,21 +21,20 @@ const EdgeInsets _kBackgroundButtonPadding = EdgeInsets.all(0.0);
 /// See also:
 ///
 ///  * <https://developer.apple.com/ios/human-interface-guidelines/controls/buttons/>
-class OpacityButton extends StatefulWidget {
+class HoverButton extends StatefulWidget {
   /// Creates an iOS-style button.
-  const OpacityButton({
+  const HoverButton({
     Key key,
     @required this.child,
     this.padding,
     this.color,
     this.disabledColor = CupertinoColors.quaternarySystemFill,
     this.minSize = 0,
-    this.pressedOpacity = 0.4,
-    this.borderRadius = const BorderRadius.all(Radius.circular(8.0)),
+    this.hoverColor = _kHoverColor,
+    this.borderRadius,
     @required this.onPressed,
     this.alignment = Alignment.center,
-  }) : assert(pressedOpacity == null || (pressedOpacity >= 0.0 && pressedOpacity <= 1.0)),
-        assert(disabledColor != null),
+  }) :  assert(disabledColor != null),
         _filled = false,
         super(key: key);
 
@@ -45,18 +44,17 @@ class OpacityButton extends StatefulWidget {
   ///
   /// To specify a custom background color, use the [color] argument of the
   /// default constructor.
-  const OpacityButton.filled({
+  const HoverButton.filled({
     Key key,
     @required this.child,
     this.padding,
     this.disabledColor = CupertinoColors.quaternarySystemFill,
     this.minSize = 0,
-    this.pressedOpacity = 0.4,
-    this.borderRadius = const BorderRadius.all(Radius.circular(8.0)),
+    this.hoverColor = _kHoverColor,
+    this.borderRadius,
     @required this.onPressed,
     this.alignment = Alignment.center,
-  }) : assert(pressedOpacity == null || (pressedOpacity >= 0.0 && pressedOpacity <= 1.0)),
-        assert(disabledColor != null),
+  }) :  assert(disabledColor != null),
         color = null,
         _filled = true,
         super(key: key);
@@ -105,7 +103,7 @@ class OpacityButton extends StatefulWidget {
   ///
   /// This defaults to 0.4. If null, opacity will not change on pressed if using
   /// your own custom effects is desired.
-  final double pressedOpacity;
+  final Color hoverColor;
 
   /// The radius of the button's corners when it has a background color.
   ///
@@ -119,7 +117,7 @@ class OpacityButton extends StatefulWidget {
   bool get enabled => onPressed != null;
 
   @override
-  _OpacityButtonState createState() => _OpacityButtonState();
+  _HoverButtonState createState() => _HoverButtonState();
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -128,80 +126,32 @@ class OpacityButton extends StatefulWidget {
   }
 }
 
-class _OpacityButtonState extends State<OpacityButton> with SingleTickerProviderStateMixin {
-  // Eyeballed values. Feel free to tweak.
-  static const Duration kFadeOutDuration = Duration(milliseconds: 10);
-  static const Duration kFadeInDuration = Duration(milliseconds: 100);
-  final Tween<double> _opacityTween = Tween<double>(begin: 1.0);
-
-  AnimationController _animationController;
-  Animation<double> _opacityAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      value: 0.0,
-      vsync: this,
-    );
-    _opacityAnimation = _animationController
-        .drive(CurveTween(curve: Curves.decelerate))
-        .drive(_opacityTween);
-    _setTween();
-  }
-
-  @override
-  void didUpdateWidget(OpacityButton old) {
-    super.didUpdateWidget(old);
-    _setTween();
-  }
-
-  void _setTween() {
-    _opacityTween.end = widget.pressedOpacity ?? 1.0;
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    _animationController = null;
-    super.dispose();
-  }
+class _HoverButtonState extends State<HoverButton> {
 
   bool _buttonHeldDown = false;
 
   void _handleTapDown(TapDownDetails event) {
     if (!_buttonHeldDown) {
-      _buttonHeldDown = true;
-      _animate();
+      setState(() {
+        _buttonHeldDown = true;
+      });
     }
   }
 
   void _handleTapUp(TapUpDetails event) {
     if (_buttonHeldDown) {
-      _buttonHeldDown = false;
-      _animate();
+      setState(() {
+        _buttonHeldDown = false;
+      });
     }
   }
 
   void _handleTapCancel() {
     if (_buttonHeldDown) {
-      _buttonHeldDown = false;
-      _animate();
+      setState(() {
+        _buttonHeldDown = false;
+      });
     }
-  }
-
-  void _animate() {
-    if (_animationController.isAnimating)
-      return;
-    final bool wasHeldDown = _buttonHeldDown;
-    final TickerFuture ticker = _buttonHeldDown
-        ? _animationController.animateTo(1.0, duration: kFadeOutDuration)
-        : _animationController.animateTo(0.0, duration: kFadeInDuration);
-    ticker.then<void>((void value) {
-      if (mounted && wasHeldDown != _buttonHeldDown)
-        _animate();
-    });
   }
 
   @override
@@ -209,9 +159,18 @@ class _OpacityButtonState extends State<OpacityButton> with SingleTickerProvider
     final bool enabled = widget.enabled;
     final CupertinoThemeData themeData = CupertinoTheme.of(context);
     final Color primaryColor = themeData.primaryColor;
-    final Color backgroundColor = widget.color == null
-        ? (widget._filled ? primaryColor : null)
-        : CupertinoDynamicColor.resolve(widget.color, context);
+    Color backgroundColor;
+    if(enabled){
+      if(_buttonHeldDown && widget.hoverColor != null){
+        backgroundColor = widget.hoverColor;
+      }else{
+        backgroundColor = widget.color == null
+            ? (widget._filled ? primaryColor : null)
+            : CupertinoDynamicColor.resolve(widget.color, context);
+      }
+    }else{
+      backgroundColor = CupertinoDynamicColor.resolve(widget.disabledColor, context);
+    }
 
     final Color foregroundColor = backgroundColor != null
         ? themeData.primaryContrastingColor
@@ -236,29 +195,24 @@ class _OpacityButtonState extends State<OpacityButton> with SingleTickerProvider
             minWidth: widget.minSize,
             minHeight: widget.minSize,
           ),
-          child: FadeTransition(
-            opacity: _opacityAnimation,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: widget.borderRadius,
-                color: backgroundColor != null && !enabled
-                    ? CupertinoDynamicColor.resolve(widget.disabledColor, context)
-                    : backgroundColor,
-              ),
-              child: Padding(
-                padding: widget.padding ?? (backgroundColor != null
-                    ? _kBackgroundButtonPadding
-                    : _kButtonPadding),
-                child: Align(
-                  alignment: widget.alignment ?? Alignment.center,
-                  widthFactor: 1.0,
-                  heightFactor: 1.0,
-                  child: DefaultTextStyle(
-                    style: textStyle,
-                    child: IconTheme(
-                      data: IconThemeData(color: foregroundColor),
-                      child: widget.child,
-                    ),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: widget.borderRadius,
+              color: backgroundColor,
+            ),
+            child: Padding(
+              padding: widget.padding ?? (backgroundColor != null
+                  ? _kBackgroundButtonPadding
+                  : _kButtonPadding),
+              child: Align(
+                alignment: widget.alignment ?? Alignment.center,
+                widthFactor: 1.0,
+                heightFactor: 1.0,
+                child: DefaultTextStyle(
+                  style: textStyle,
+                  child: IconTheme(
+                    data: IconThemeData(color: foregroundColor),
+                    child: widget.child,
                   ),
                 ),
               ),

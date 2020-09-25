@@ -72,9 +72,9 @@ class Loading{
     overlayState.insert(_entry);
   }
 
-  static void dismiss() {
+  static void dismiss({bool animate = true}) {
     if(_statusNotifier != null){
-      if(_statusNotifier.value == _Status.willShow){
+      if(_statusNotifier.value == _Status.willShow || !animate){
         _onDismiss();
       }else{
         _statusNotifier.value = _Status.dismiss;
@@ -124,17 +124,17 @@ class _LoadingWidgetState extends State<_LoadingWidget> {
   void initState() {
     if(widget.delay != null){
       _timer = Timer(widget.delay, () {
-        widget.statusNotifier.value = _Status.show;
+        widget.statusNotifier?.value = _Status.show;
       });
     }
-    widget.statusNotifier.addListener(_onStatusChange);
+    widget.statusNotifier?.addListener(_onStatusChange);
     super.initState();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
-    widget.statusNotifier.removeListener(_onStatusChange);
+    widget.statusNotifier?.removeListener(_onStatusChange);
     super.dispose();
   }
 
@@ -161,10 +161,12 @@ class _LoadingWidgetState extends State<_LoadingWidget> {
   @override
   Widget build(BuildContext context) {
 
+    var status = widget.statusNotifier?.value ?? _Status.show;
+
     var child = Center(
       child: Material(
         type: MaterialType.transparency,
-        child: Container(
+        child: status != _Status.willShow ? Container(
           width: widget.size.width,
           height: widget.size.height,
           alignment: Alignment.center,
@@ -173,7 +175,7 @@ class _LoadingWidgetState extends State<_LoadingWidget> {
             color: widget.backgroundColor,
           ),
           child: widget.child,
-        ),
+        ) : null,
       ),
     );
 

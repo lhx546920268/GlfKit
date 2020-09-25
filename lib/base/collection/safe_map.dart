@@ -1,5 +1,5 @@
 
-import 'dart:collection';
+import 'collection_utils.dart' as collection_utils;
 
 extension MapUtils on Map {
 
@@ -51,6 +51,9 @@ class SafeMap{
     return _value;
   }
   Map _value;
+  
+  ///是否为空
+  bool get isEmpty => collection_utils.isEmpty(_value);
 
   ///当值为空是 返回默认值，只对 int, double, bool 有效
   final bool toDefaultValue;
@@ -137,13 +140,14 @@ class SafeMap{
     return result;
   }
 
-  List<T> forEach<T>(dynamic key, SafeMapForEach<T> safeMapForEach, {bool useTempSafeMap = true, int max}){
+  List<T> forEach<T>(dynamic key, SafeMapForEach<T> safeMapForEach, {bool useTempSafeMap = true, bool map = true, int max}){
     List list = get(key);
-    return forEachList(list, safeMapForEach, useTempSafeMap: useTempSafeMap, max: max);
+    return forEachList(list, safeMapForEach, useTempSafeMap: useTempSafeMap, max: max, map: map);
   }
 
-  List<T> forEachList<T>(List list, SafeMapForEach<T> safeMapForEach, {bool useTempSafeMap = true, int max}){
-    List<T> result = [];
+  List<T> forEachList<T>(List list, SafeMapForEach<T> safeMapForEach, {bool useTempSafeMap = true, bool map = true, int max}){
+    List<T> result = map ? [] : null;
+    
     if(list is List && list != null && list.length > 0){
       int maxCount = list.length;
       if(max != null && max != 0){
@@ -151,7 +155,7 @@ class SafeMap{
       }
       for(int i = 0;i < maxCount; i ++){
         var value = safeMapForEach(useTempSafeMap ? _getTempSafeMap(list[i]) : SafeMap(list[i]), i);
-        if(value != null){
+        if(map && value != null){
           result.add(value);
         }
       }

@@ -16,6 +16,11 @@ bool isEmpty(dynamic obj){
   return obj == null;
 }
 
+extension ListUtils on List {
+
+  T get<T>(int index) => index < length ? this[index] : null;
+}
+
 extension JsonUtils on JsonCodec {
 
   ///解析返回数组
