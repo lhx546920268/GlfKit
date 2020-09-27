@@ -1,29 +1,46 @@
 
 import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 
 class RouteUtils {
 
-  static Future<T> push<T>(BuildContext context, Widget widget, {bool fullscreenDialog = false}) {
+  static Future<T> push<T>(BuildContext context, Widget widget, {bool fullscreenDialog = false, String routeName}) {
 
-    return Navigator.of(context).push(CupertinoPageRoute(
+    return Navigator.of(context).push(AppPageRoute(
         fullscreenDialog: fullscreenDialog,
+        routeName: routeName ?? widget.runtimeType.toString(),
         builder: (_) => widget)
     );
   }
 
-  static Future<T> pushAndRemoveUntil<T>(BuildContext context, Widget widget, String name, {bool fullscreenDialog = false}) {
-    return Navigator.of(context).pushAndRemoveUntil(CupertinoPageRoute(
-        fullscreenDialog: fullscreenDialog,
-        builder: (_) => widget),
-        (route) => route.settings.name == name,
+  static Future<T> pushAndRemoveUntil<T>(BuildContext context, Widget widget, String untilRouteName, {bool fullscreenDialog = false}) {
+    assert(untilRouteName != null);
+
+    bool enable = false;
+    return Navigator.of(context).pushAndRemoveUntil(
+      AppPageRoute(fullscreenDialog: fullscreenDialog, builder: (_) => widget),
+      (route) {
+        if(enable){
+          return true;
+        }
+        if (route is AppPageRoute) {
+          AppPageRoute appPageRoute = route;
+          if(appPageRoute.routeName == untilRouteName){
+            enable = true;
+          }
+        } else {
+          if(route.settings.name != untilRouteName){
+            enable = true;
+          }
+        }
+        return false;
+      },
     );
   }
 
   static Future<T> showDialogFromBottom<T>({
     @required BuildContext context,
-    @required WidgetBuilder builder,
+    @required Widget widget,
     ImageFilter filter,
     bool useRootNavigator = true,
     bool barrierDismissible = true,
@@ -34,13 +51,28 @@ class RouteUtils {
       _CupertinoModalPopupRoute<T>(
         barrierColor: barrierColor ?? CupertinoDynamicColor.resolve(_kModalBarrierColor, context),
         barrierLabel: 'Dismiss',
-        builder: builder,
+        builder: (_) => widget,
+        settings: RouteSettings(name: widget.runtimeType.toString()),
         filter: filter,
         semanticsDismissible: false,
         barrierDismissible: barrierDismissible
       ),
     );
   }
+}
+
+class AppPageRoute<T> extends CupertinoPageRoute<T> {
+
+  String routeName;
+
+  AppPageRoute({
+    @required WidgetBuilder builder,
+    String title,
+    RouteSettings settings,
+    bool maintainState = true,
+    bool fullscreenDialog = false,
+    this.routeName
+  }): super(builder: builder, title: title, settings: settings, maintainState: maintainState, fullscreenDialog: fullscreenDialog);
 }
 
 class _CupertinoModalPopupRoute<T> extends PopupRoute<T> {

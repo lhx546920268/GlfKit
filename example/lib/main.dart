@@ -1,19 +1,20 @@
 import 'dart:async';
 
-import 'package:GlfKit/interaction/popover.dart';
 import 'package:GlfKit/interaction/toast.dart';
 import 'package:GlfKit/event/event_bus.dart';
 import 'package:GlfKit/loading/loading.dart';
 import 'package:GlfKit/tab/tab_item.dart';
 import 'package:GlfKit/tab/tab_scaffold.dart';
+import 'package:GlfKit/utils/route_utils.dart';
 import 'package:GlfKit/widget/badge_value.dart';
+import 'package:GlfKit/widget/navigation_bar.dart';
+import 'package:GlfKit/widget/page.dart';
 import 'package:example/drop_down_menu_demo.dart';
 import 'package:example/grid_demo.dart';
 import 'package:example/list_demo.dart';
 import 'package:example/menu_bar_demo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 import 'package:device_info/device_info.dart';
 
 double kStatusBarHeight = 0;
@@ -33,26 +34,24 @@ class MyApp extends StatelessWidget {
         MediaQueryData.fromWindow(WidgetsBinding.instance.window);
     kStatusBarHeight = data.padding.top;
 
-    return MaterialApp(
+    return CupertinoApp(
         title: 'GliKitDemo',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
         home: TabBarScaffold(items: _tabBarItems(), tabBuilder: _tabBuilder, controller: controller,));
   }
 
   final List<Widget> tabs = [
     MyHomePage(),
-    Scaffold(
-      appBar: AppBar(title: Text('发现'),),
-      body: Container(
-        child: ListView.builder(itemBuilder: (_, index) => ListTile(title: Text('index $index'),)),
+    CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(middle: Text('发现'),),
+      child: Container(
+        child: Center(
+          child: Text('发现啦'),
+        ),
       ),
     ),
-    Scaffold(
-      appBar: AppBar(title: Text('我的'),),
-      body: Container(
+    CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(middle: Text('我的'),),
+      child: Container(
         child: Center(
           child: Text('是我啦'),
         ),
@@ -84,11 +83,17 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+enum Type {
+  me,
+  him
+}
+
+class _MyHomePageState extends State<MyHomePage> with StatefulPageState {
   GlobalKey key = GlobalKey();
 
   @override
@@ -98,6 +103,8 @@ class _MyHomePageState extends State<MyHomePage> {
     EventBus.defaultBus.subscribe('onLogin', _onValueChange);
     EventBus.defaultBus.subscribe('onLogout', _onValueChange);
   }
+
+
 
   @override
   void dispose() {
@@ -117,36 +124,36 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    var appBar = AppBar(
-      title: Text('GliKitDemo'),
-    );
-    return Scaffold(
-        appBar: appBar,
-        body: FutureBuilder(
-          future: _loadData(),
-          initialData: 'init',
-          // ignore: missing_return
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.none:
-              case ConnectionState.done:
-                {
-                  return ListView(
-                    children: List.generate(
-                        7, (index) => _getListItem(index, context)),
-                  );
-                }
-              case ConnectionState.waiting:
-              case ConnectionState.active:
-                {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
+  Widget getContentWidget(BuildContext context) {
+    return FutureBuilder(
+      future: _loadData(),
+      initialData: 'init',
+      // ignore: missing_return
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.done:
+            {
+              return ListView(
+                children: List.generate(
+                    7, (index) => _getListItem(index, context)),
+              );
             }
-          },
-        ));
+          case ConnectionState.waiting:
+          case ConnectionState.active:
+            {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+        }
+      },
+    );
+  }
+
+  @override
+  NavigationBarController configNavigationBar(BuildContext context) {
+    return NavigationBarController(title: 'GlfKitDemo');
   }
 
   Widget _getListItem(int index, BuildContext context) {
@@ -182,7 +189,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Stack(
       children: <Widget>[
-        ListTile(
+        GestureDetector(
           key: index == 3 ? key : null,
           onTap: () {
             if (index == 3) {
@@ -199,36 +206,39 @@ class _MyHomePageState extends State<MyHomePage> {
             }
 
             if (index != 2) {
-              Navigator.of(context).push(MaterialPageRoute(
-                  maintainState: false,
-                  builder: (BuildContext context) {
-                    switch (index) {
-                      case 0:
-                        {
-                          return SectionListDemo();
-                        }
-                      case 1:
-                        {
-                          return SectionGridViewDemo();
-                        }
-                      case 4:
-                        {
-                          return MenuBarDemo();
-                        }
-                      case 5:
-                        {
-                          return DropDownMenuDemo();
-                        }
-                    }
-
-                    return null;
-                  }));
+              Widget child;
+              switch (index) {
+                case 0:
+                  child = SectionListDemo();
+                  break;
+                case 1:
+                  child = SectionGridViewDemo();
+                  break;
+                case 4:
+                  child = MenuBarDemo();
+                  break;
+                case 5:
+                  child = DropDownMenuDemo();
+                  break;
+              }
+              RouteUtils.push(context, child);
             } else {
               Toast.showText(context, '这是一个 Toast这是一个');
             }
           },
-          title: Text(title, style: TextStyle(fontSize: 16)),
-          trailing: trailing,
+          child: Container(
+            height: 50,
+            alignment: Alignment.center,
+            padding: EdgeInsets.only(left: 15, right: 15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(title, style: TextStyle(fontSize: 16)),
+                if(trailing != null)
+                  trailing,
+              ],
+            ),
+          ),
         ),
         Positioned(
           child: Divider(height: 0.5),
@@ -293,3 +303,4 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 }
+

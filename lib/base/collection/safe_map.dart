@@ -111,14 +111,9 @@ class SafeMap{
   }
 
   SafeMap map(dynamic key, {bool useTempSafeMap = true}){
-    if(this.value != null){
-      dynamic value = this.value[key];
-      if(value is Map){
-        return useTempSafeMap ? _getTempSafeMap(value) : SafeMap(value);
-      }
-    }
 
-    return null;
+
+    return SafeMap(value != null ? value[key]: null);
   }
 
   List<T> getList<T, R>(dynamic key, GetListForEach<T, R> forEach, {int max}){

@@ -2,6 +2,8 @@
 import 'package:GlfKit/list/section.dart';
 import 'package:GlfKit/list/section_adapter.dart';
 import 'package:GlfKit/list/section_grid_view.dart';
+import 'package:GlfKit/widget/navigation_bar.dart';
+import 'package:GlfKit/widget/page.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -14,19 +16,18 @@ class SectionGridViewDemo extends StatefulWidget{
   }
 }
 
-class _SectionGridViewState extends State<SectionGridViewDemo> with SectionAdapterMixin, SectionGridAdapterMixin {
+class _SectionGridViewState extends State<SectionGridViewDemo> with StatefulPageState, SectionAdapterMixin, SectionGridAdapterMixin {
 
   final List<Color> colors = [Colors.red, Colors.orange, Colors.yellow, Colors.green, Colors.cyan, Colors.blue, Colors.purple,];
 
   @override
-  Widget build(BuildContext context) {
+  NavigationBarController configNavigationBar(BuildContext context){
+    return NavigationBarController(title: 'SectionGridView');
+  }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("SectionGridView"),
-      ),
-      body: SectionGridView.builder(adapter: this),
-    );
+  @override
+  Widget getContentWidget(BuildContext context) {
+    return SectionGridView.builder(adapter: this);
   }
 
   void _changeCount(){

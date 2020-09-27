@@ -29,6 +29,7 @@ dependencies:
   cupertino_icons: ^0.1.3
   uuid: ^2.2.2
   device_info: ^0.4.2+7
+  encrypt: ^4.0.3
   GlfKit:
     path: ../
 

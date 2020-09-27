@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 class DropDownMenuDemo extends StatelessWidget implements DropDownMenuDelegate {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('DropDownMenu'),
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text('DropDownMenu'),
       ),
-      body: Container(
+      child: Container(
         child: DropDownMenu(
           delegate: this,
           itemEqualWidth: true,

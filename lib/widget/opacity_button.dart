@@ -34,6 +34,7 @@ class OpacityButton extends StatefulWidget {
     this.borderRadius,
     @required this.onPressed,
     this.alignment = Alignment.center,
+    this.border,
   }) : assert(pressedOpacity == null || (pressedOpacity >= 0.0 && pressedOpacity <= 1.0)),
         assert(disabledColor != null),
         _filled = false,
@@ -55,6 +56,7 @@ class OpacityButton extends StatefulWidget {
     this.borderRadius,
     @required this.onPressed,
     this.alignment = Alignment.center,
+    this.border,
   }) : assert(pressedOpacity == null || (pressedOpacity >= 0.0 && pressedOpacity <= 1.0)),
         assert(disabledColor != null),
         color = null,
@@ -62,6 +64,7 @@ class OpacityButton extends StatefulWidget {
         super(key: key);
 
   final Alignment alignment;
+  final BoxBorder border;
 
   /// The widget below this widget in the tree.
   ///
@@ -240,6 +243,7 @@ class _OpacityButtonState extends State<OpacityButton> with SingleTickerProvider
             opacity: _opacityAnimation,
             child: DecoratedBox(
               decoration: BoxDecoration(
+                border: widget.border,
                 borderRadius: widget.borderRadius,
                 color: backgroundColor != null && !enabled
                     ? CupertinoDynamicColor.resolve(widget.disabledColor, context)

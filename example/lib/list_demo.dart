@@ -3,7 +3,10 @@
 import 'package:GlfKit/list/section.dart';
 import 'package:GlfKit/list/section_adapter.dart';
 import 'package:GlfKit/list/section_list_view.dart';
+import 'package:GlfKit/widget/navigation_bar.dart';
+import 'package:GlfKit/widget/page.dart';
 import 'package:flutter/material.dart';
+import 'package:GlfKit/utils/route_utils.dart';
 
 class SectionListDemo extends StatefulWidget {
 
@@ -13,14 +16,16 @@ class SectionListDemo extends StatefulWidget {
   }
 }
 
-class _SectionListDemoState extends State<SectionListDemo> with SectionAdapterMixin{
+class _SectionListDemoState extends State<SectionListDemo> with StatefulPageState, SectionAdapterMixin{
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('SectionListDemo'),),
-      body: SectionListView.builder(adapter: this),
-    );
+  NavigationBarController configNavigationBar(BuildContext context){
+    return NavigationBarController(title: 'SectionListView');
+  }
+
+  @override
+  Widget getContentWidget(BuildContext context) {
+    return SectionListView.builder(adapter: this);
   }
 
   @override
@@ -38,8 +43,16 @@ class _SectionListDemoState extends State<SectionListDemo> with SectionAdapterMi
     return Stack(
       alignment: AlignmentDirectional.bottomCenter,
       children: <Widget>[
-        ListTile(
-          title: Text('$indexPath'),
+        GestureDetector(
+          child: Container(
+            height: 50,
+            padding: EdgeInsets.only(left: 15, right: 15),
+            alignment: Alignment.centerLeft,
+            child: Text('$indexPath'),
+          ),
+          onTap: () {
+            RouteUtils.pushAndRemoveUntil(context, RouteDemo(), 'SectionListDemo');
+          },
         ),
         Divider(height: 0.5,)
       ],
@@ -115,6 +128,22 @@ class _SectionListDemoState extends State<SectionListDemo> with SectionAdapterMi
         child: Text('Footer'),
       ),
     );
+  }
+}
+
+class RouteDemo extends StatefulWidget {
+
+  @override
+  State<StatefulWidget> createState() {
+    return _RouteDemo();
+  }
+}
+
+class _RouteDemo extends State<RouteDemo> with StatefulPageState  {
+
+  @override
+  NavigationBarController configNavigationBar(BuildContext context){
+    return NavigationBarController(title: 'RouteDemo');
   }
 }
 
