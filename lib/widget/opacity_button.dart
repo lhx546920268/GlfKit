@@ -29,7 +29,7 @@ class OpacityButton extends StatefulWidget {
     this.padding,
     this.color,
     this.disabledColor = CupertinoColors.quaternarySystemFill,
-    this.minSize = 0,
+    this.minSize = const Size(0, 0),
     this.pressedOpacity = 0.4,
     this.borderRadius,
     @required this.onPressed,
@@ -51,7 +51,7 @@ class OpacityButton extends StatefulWidget {
     @required this.child,
     this.padding,
     this.disabledColor = CupertinoColors.quaternarySystemFill,
-    this.minSize = 0,
+    this.minSize = const Size(0, 0),
     this.pressedOpacity = 0.4,
     this.borderRadius,
     @required this.onPressed,
@@ -101,7 +101,7 @@ class OpacityButton extends StatefulWidget {
   ///
   /// Defaults to kMinInteractiveDimensionCupertino which the iOS Human
   /// Interface Guidelines recommends as the minimum tappable area.
-  final double minSize;
+  final Size minSize;
 
   /// The opacity that the button will fade to when it is pressed.
   /// The button will have an opacity of 1.0 when it is not pressed.
@@ -236,8 +236,8 @@ class _OpacityButtonState extends State<OpacityButton> with SingleTickerProvider
           constraints: widget.minSize == null
               ? const BoxConstraints()
               : BoxConstraints(
-            minWidth: widget.minSize,
-            minHeight: widget.minSize,
+            minWidth: widget.minSize.width,
+            minHeight: widget.minSize.height,
           ),
           child: FadeTransition(
             opacity: _opacityAnimation,

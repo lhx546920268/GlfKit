@@ -23,7 +23,7 @@ class ColorTheme{
   static Color lightGrayTextColor = Color(0xff999999);
 
   ///分割线颜色
-  static Color dividerColor = Color(0xffdedede);
+  static Color dividerColor = Color(0xffededed);
 
   ///输入框
   static Color placeholderColor = Color.fromRGBO(179, 179, 179, 0.7);

@@ -107,7 +107,6 @@ class SectionRenderSliverList extends SectionRenderSliverMultiBoxAdaptor {
   void clearCache(SectionAdapter adapter){
     _adapter = adapter;
     _itemGeometries.clear();
-    _currentStickChild = null;
   }
 
   @override
@@ -389,7 +388,7 @@ class SectionRenderSliverList extends SectionRenderSliverMultiBoxAdaptor {
       //把header置顶
       if(currentSectionInfo.isHeaderStick && currentSectionInfo.isExistHeader){
         ItemGeometry geometry = _itemGeometries[currentSectionInfo.getHeaderPosition()];
-        if(geometry.scrollOffset < constraints.scrollOffset){
+        if(geometry != null && geometry.scrollOffset < constraints.scrollOffset){
           int index = currentSectionInfo.getHeaderPosition();
           RenderBox child = addAndLayoutChild(childConstraints, index: index, after: lastChild);
 

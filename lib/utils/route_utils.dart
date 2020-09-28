@@ -1,8 +1,40 @@
 
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
+import 'dart:collection';
+
+class RouteObserver extends NavigatorObserver {
+
+  final Set<Route> routes = HashSet();
+
+  @override
+  void didPush(Route route, Route previousRoute) {
+    routes.add(route);
+  }
+
+  @override
+  void didPop(Route route, Route previousRoute) {
+    routes.remove(route);
+  }
+
+  @override
+  void didReplace({Route newRoute, Route oldRoute}) {
+    routes.add(newRoute);
+    routes.remove(oldRoute);
+  }
+
+  @override
+  void didRemove(Route route, Route previousRoute) {
+    routes.remove(route);
+  }
+}
+
+typedef RouteNamePredicate = bool Function(String name);
 
 class RouteUtils {
+
+  static RouteObserver get observer => _observer;
+  static RouteObserver _observer = RouteObserver();
 
   static Future<T> push<T>(BuildContext context, Widget widget, {bool fullscreenDialog = false, String routeName}) {
 
@@ -18,7 +50,10 @@ class RouteUtils {
 
     bool enable = false;
     return Navigator.of(context).pushAndRemoveUntil(
-      AppPageRoute(fullscreenDialog: fullscreenDialog, builder: (_) => widget),
+      AppPageRoute(
+          fullscreenDialog: fullscreenDialog,
+          routeName: widget.runtimeType.toString(),
+          builder: (_) => widget),
       (route) {
         if(enable){
           return true;
@@ -35,6 +70,33 @@ class RouteUtils {
         }
         return false;
       },
+    );
+  }
+
+  static Future<T> pushAndRemove<T>(BuildContext context, Widget widget, RouteNamePredicate predicate, {bool fullscreenDialog = false}) {
+    assert(predicate != null);
+
+    var navigator = Navigator.of(context);
+
+    Set<Route> routes = HashSet();
+    routes.addAll(_observer.routes);
+    for(var route in routes){
+      String name;
+      if (route is AppPageRoute) {
+        AppPageRoute appPageRoute = route;
+        name = appPageRoute.routeName;
+      } else {
+        name = route.settings.name;
+      }
+      if(predicate(name)){
+        navigator.removeRoute(route);
+      }
+    }
+
+    return Navigator.of(context).push(AppPageRoute(
+        fullscreenDialog: fullscreenDialog,
+        routeName: widget.runtimeType.toString(),
+        builder: (_) => widget)
     );
   }
 

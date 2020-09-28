@@ -1,6 +1,7 @@
 
 import 'dart:async';
 
+import 'package:GlfKit/widget/page_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:GlfKit/widget/custom_page_view.dart';
@@ -37,7 +38,7 @@ class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
   ///计时器
   Timer _timer;
   CustomPageController _pageController;
-  TabController _tabController;
+  PageIndicatorController _indicatorController;
 
   @override
   void initState() {
@@ -50,10 +51,7 @@ class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
         }
       });
 
-      _tabController = TabController(
-          length: count,
-          vsync: this
-      );
+      _indicatorController = PageIndicatorController();
     }
 
     super.initState();
@@ -62,7 +60,6 @@ class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
   @override
   void dispose() {
     _timer?.cancel();
-    _tabController?.dispose();
     super.dispose();
   }
 
@@ -83,7 +80,7 @@ class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
         }else if(index >= (realCount + 1)){
           _pageController.jumpToPage(1);
         }
-        _tabController.animateTo(_getRealIndex(index, realCount));
+        _indicatorController.curPage = _getRealIndex(index, realCount);
       };
     }
 
@@ -104,10 +101,9 @@ class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
     if(realCount > 1){
       children.add(Padding(
         padding: EdgeInsetsDirectional.only(bottom: 15),
-        child: TabPageSelector(
-          controller: _tabController,
-          color: Colors.grey[400],
-          selectedColor: Colors.white,
+        child: PageIndicator(
+          numberOfPage: realCount,
+          controller: _indicatorController,
         ),
       ));
     }

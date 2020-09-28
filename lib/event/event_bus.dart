@@ -1,7 +1,7 @@
 
 import 'dart:collection';
 
-typedef EventCallback = void Function(dynamic value);
+typedef EventCallback<T> = void Function(T value);
 
 ///事件处理中心
 class EventBus {
@@ -25,7 +25,7 @@ class EventBus {
   }
 
   ///订阅
-  void subscribe(String name, EventCallback callback){
+  void subscribe<T>(String name, EventCallback<T> callback){
     assert(name != null && callback != null);
 
     Set set = _subscribers[name];
@@ -37,7 +37,7 @@ class EventBus {
   }
 
   ///取消订阅
-  void unsubscribe(String name, EventCallback callback){
+  void unsubscribe<T>(String name, EventCallback<T> callback){
     if(name != null && callback != null){
       Set set = _subscribers[name];
       if(set != null && set.isNotEmpty){
