@@ -16,4 +16,9 @@ class AppUtils {
       return androidDeviceInfo.androidId; // unique ID on Android
     }
   }
+
+  ///关闭键盘
+  static void unfocus(BuildContext context) {
+    FocusScope.of(context).requestFocus(FocusNode());
+  }
 }

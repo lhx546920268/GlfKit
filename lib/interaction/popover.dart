@@ -10,7 +10,7 @@ enum ArrowDirection {left, top, right, bottom }
 class Popover extends StatelessWidget {
 
   //显示一个弹窗，使用 Navigator.of(context).pop() 关闭
-  static void show({
+  static Future<T> show<T>({
     @required BuildContext context,
     @required Widget child,
     Rect relatedRect, // relatedRect和clickWidgetKey必须有一个
@@ -27,13 +27,14 @@ class Popover extends StatelessWidget {
         const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
     Color barrierColor = const Color(0x01000000),
     bool barrierDismissible = true,
+    Duration duration,
   }) {
     assert(context != null && child != null);
-    showGeneralDialog(
+    return showGeneralDialog(
         context: context,
         barrierDismissible: barrierDismissible,
         barrierColor: barrierColor,
-        transitionDuration: Duration(milliseconds: 200),
+        transitionDuration: duration ?? Duration(milliseconds: 200),
         barrierLabel: "Dismiss",
         pageBuilder: (BuildContext context, Animation<double> animation,
             Animation<double> secondaryAnimation) {
@@ -56,6 +57,10 @@ class Popover extends StatelessWidget {
             animation: animation,
           );
         });
+  }
+
+  static Future<void> dismiss(BuildContext context) async {
+    return Navigator.of(context).pop();
   }
 
   Popover({
