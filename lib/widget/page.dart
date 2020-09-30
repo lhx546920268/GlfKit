@@ -35,7 +35,9 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
   NavigationBarController _navigationBarController;
 
   Widget build(BuildContext context) {
-
+    if(shouldCallSuperBuild){
+      super.build(context);
+    }
     var topWidget = getTopWidget(context);
     var bottomWidget = getBottomWidget(context);
 
@@ -89,6 +91,8 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
       );
     }
   }
+
+  bool get shouldCallSuperBuild => false;
 
   Widget getTopWidget(BuildContext context) {
     return null;

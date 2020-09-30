@@ -38,7 +38,7 @@ class Popover extends StatelessWidget {
         barrierLabel: "Dismiss",
         pageBuilder: (BuildContext context, Animation<double> animation,
             Animation<double> secondaryAnimation) {
-          return child;
+          return Container();
         },
         transitionBuilder: (BuildContext context, Animation<double> animation,
             Animation<double> secondaryAnimation, Widget child) {

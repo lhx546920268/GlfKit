@@ -8,8 +8,8 @@ class TextUtils {
   static double calcTextHeight(String text,
       BuildContext context,
       TextStyle style, {
-        double maxWidth,
-        int maxLines,
+        double maxWidth = double.infinity,
+        int maxLines = 1,
       }) {
     
     assert(style != null);
