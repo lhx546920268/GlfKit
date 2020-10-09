@@ -1,5 +1,7 @@
 
 
+import 'dart:async';
+
 import 'package:GlfKit/list/geometry.dart';
 import 'package:GlfKit/list/section.dart';
 import 'package:GlfKit/list/section_adapter.dart';
@@ -93,6 +95,9 @@ class SectionRenderSliverList extends SectionRenderSliverMultiBoxAdaptor {
   ///当前置顶的子视图
   RenderBox _currentStickChild;
 
+  ///当前
+  int _stickSection;
+
   ///主轴缓存
   SplayTreeMap<int, ItemGeometry> _itemGeometries= SplayTreeMap();
 
@@ -101,6 +106,7 @@ class SectionRenderSliverList extends SectionRenderSliverMultiBoxAdaptor {
     @required SectionAdapter adapter,
   }) : super(childManager: childManager){
     _adapter = adapter;
+    _stickSection = null;
   }
 
   ///清除缓存
@@ -113,6 +119,7 @@ class SectionRenderSliverList extends SectionRenderSliverMultiBoxAdaptor {
   void performLayout() {
     final SliverConstraints constraints = this.constraints;
     _adapter.crossAxisExtent = constraints.crossAxisExtent;
+    _adapter.mainAxisExtent = constraints.viewportMainAxisExtent;
 
     childManager.didStartLayout();
     childManager.setDidUnderflow(false);
@@ -402,6 +409,17 @@ class SectionRenderSliverList extends SectionRenderSliverMultiBoxAdaptor {
 
           _currentStickChild = child;
           hasStick = true;
+        }
+
+        if(_stickSection != currentSectionInfo.section){
+          _stickSection = currentSectionInfo.section;
+          int section = _stickSection;
+          //必须延迟，否则在回调中setState会抛出异常
+          Timer(Duration(milliseconds: 100), () {
+            if(_stickSection == section){
+              _adapter.onSectionHeaderStick(_stickSection);
+            }
+          });
         }
       }
     }

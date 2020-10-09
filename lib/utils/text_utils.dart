@@ -11,7 +11,18 @@ class TextUtils {
         double maxWidth = double.infinity,
         int maxLines = 1,
       }) {
-    
+
+    return calcTextSize(text, context, style, maxWidth: maxWidth, maxLines: maxLines).height;
+  }
+
+  ///计算文字大小
+  static Size calcTextSize(String text,
+      BuildContext context,
+      TextStyle style, {
+        double maxWidth = double.infinity,
+        int maxLines = 1,
+      }) {
+
     assert(style != null);
     TextPainter painter = TextPainter(
       //AUTO：华为手机如果不指定locale的时候，该方法算出来的文字高度是比系统计算偏小的。
@@ -24,7 +35,7 @@ class TextUtils {
         ));
     painter.layout(maxWidth: maxWidth);
     //文字的宽度:painter.width
-    return painter.height;
+    return painter.size;
   }
 
   ///判断是否为空

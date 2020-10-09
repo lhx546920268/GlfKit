@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:GlfKit/list/geometry.dart';
@@ -14,6 +15,7 @@ import 'dart:math' as math;
 
 ///可分区的网格列表
 class SectionGridView extends BoxScrollView {
+
   ///网格分区适配器
   final SectionGridAdapter adapter;
   final SliverChildDelegate childrenDelegate;
@@ -68,6 +70,7 @@ class SectionGridView extends BoxScrollView {
 
 ///
 class SectionSliverGrid extends SectionSliverMultiBoxAdaptorWidget {
+
   ///适配器
   final SectionGridAdapter adapter;
 
@@ -109,6 +112,9 @@ class SectionRenderSliverGrid extends SectionRenderSliverMultiBoxAdaptor {
   ///当前置顶的子视图
   RenderBox _currentStickChild;
 
+  ///当前
+  int _stickSection;
+
   SectionRenderSliverGrid(
       {@required RenderSliverBoxChildManager childManager,
       @required SectionGridAdapter adapter})
@@ -118,6 +124,7 @@ class SectionRenderSliverGrid extends SectionRenderSliverMultiBoxAdaptor {
   ///清除缓存
   void clearCache(SectionGridAdapter adapter) {
     _adapter = adapter;
+    _stickSection = null;
     _pageGridGeometries.clear();
     _children.clear();
   }
@@ -127,6 +134,7 @@ class SectionRenderSliverGrid extends SectionRenderSliverMultiBoxAdaptor {
 
     final SliverConstraints constraints = this.constraints;
     _adapter.crossAxisExtent = constraints.crossAxisExtent;
+    _adapter.mainAxisExtent = constraints.viewportMainAxisExtent;
 
     childManager.didStartLayout();
     childManager.setDidUnderflow(false);
@@ -284,7 +292,7 @@ class SectionRenderSliverGrid extends SectionRenderSliverMultiBoxAdaptor {
       }
 
       if (currentSectionInfo == null &&
-          geometry.mainEnd >= constraints.scrollOffset) {
+          geometry.mainEnd > constraints.scrollOffset) {
         currentSectionInfo = sectionInfo;
       }
 
@@ -337,6 +345,7 @@ class SectionRenderSliverGrid extends SectionRenderSliverMultiBoxAdaptor {
           currentSectionInfo.isExistHeader) {
         ItemGridGeometry geometry = currentSectionInfo.headerGeometry;
         if (geometry.scrollOffset < constraints.scrollOffset) {
+
           int index = currentSectionInfo.getHeaderPosition();
           RenderBox child = addAndLayoutChild(childConstraint,
               index: index, after: lastVisibleChild);
@@ -348,6 +357,17 @@ class SectionRenderSliverGrid extends SectionRenderSliverMultiBoxAdaptor {
           parentData.crossAxisOffset = geometry.crossAxisOffset;
           _currentStickChild = child;
           hasStick = true;
+        }
+
+        if(_stickSection != currentSectionInfo.section){
+          _stickSection = currentSectionInfo.section;
+          int section = _stickSection;
+          //必须延迟，否则在回调中setState会抛出异常
+          Timer(Duration(milliseconds: 100), () {
+            if(_stickSection == section){
+              _adapter.onSectionHeaderStick(_stickSection);
+            }
+          });
         }
       }
     }

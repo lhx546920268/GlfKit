@@ -29,6 +29,14 @@ class _SectionListDemoState extends State<SectionListDemo> with StatefulPageStat
   }
 
   @override
+  Widget getBottomWidget(BuildContext context) {
+    // TODO: implement getBottomWidget
+    return Container(
+      height: 300,
+    );
+  }
+
+  @override
   int numberOfSections() {
     return 10;
   }
