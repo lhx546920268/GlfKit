@@ -1,12 +1,13 @@
 
 
 import 'package:GlfKit/loading/page_fail.dart';
-import 'package:GlfKit/theme/color_theme.dart';
 import 'package:GlfKit/widget/navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:GlfKit/loading/page_loading.dart';
+
+export 'navigation_bar.dart';
 
 ///页面状态
 enum PageStatus {normal, loading, fail, empty}
@@ -34,7 +35,10 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
   NavigationBarController get navigationBarController => _navigationBarController;
   NavigationBarController _navigationBarController;
 
-  Widget build(BuildContext context) {
+  @override
+  Widget build(dynamic ctx) {
+
+    BuildContext context = ctx; // 1.22.1 analyzer 有问题
     if(shouldCallSuperBuild){
       super.build(context);
     }

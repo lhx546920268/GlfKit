@@ -17,7 +17,6 @@ class DropDownMenuDemo extends StatefulWidget {
 
 class _DropDownMenuDemoState extends State<DropDownMenuDemo> with StatefulPageState implements DropDownMenuDelegate {
 
-
   @override
   NavigationBarController configNavigationBar(BuildContext context){
     return NavigationBarController(title: 'DropDownMenu');

@@ -1,11 +1,10 @@
 
-import 'package:GlfKit/list/section.dart';
-import 'package:GlfKit/list/section_adapter.dart';
-import 'package:GlfKit/list/section_grid_view.dart';
 import 'package:GlfKit/widget/navigation_bar.dart';
 import 'package:GlfKit/widget/page.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
+
+import 'package:flutter_section_list/flutter_section_grid.dart';
 
 class SectionGridViewDemo extends StatefulWidget{
 

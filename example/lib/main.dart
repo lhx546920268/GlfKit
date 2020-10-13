@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:GlfKit/interaction/popover.dart';
 import 'package:GlfKit/interaction/toast.dart';
 import 'package:GlfKit/event/event_bus.dart';
 import 'package:GlfKit/loading/loading.dart';
@@ -252,55 +253,41 @@ class _MyHomePageState extends State<MyHomePage> with StatefulPageState {
 
   void _showPopover() async {
 
-    String id = await _getId();
-    print(id);
-
-    // onTap() {
-    //   Navigator.of(context).pop();
-    // }
-    //
-    // Popover.show(
-    //     context: context,
-    //     shadow: BoxShadow(color: Colors.grey, blurRadius: 10),
-    //     clickWidgetKey: key,
-    //     child: Container(
-    //       width: 180,
-    //       child: ListView(
-    //         physics: NeverScrollableScrollPhysics(),
-    //         padding: EdgeInsets.zero,
-    //         shrinkWrap: true,
-    //         children: <Widget>[
-    //           ListTile(
-    //             title: Text('首页'),
-    //             leading: Icon(CupertinoIcons.home),
-    //             onTap: onTap,
-    //           ),
-    //           ListTile(
-    //               title: Text('购物车'),
-    //               leading: Icon(CupertinoIcons.shopping_cart),
-    //               onTap: onTap),
-    //           ListTile(
-    //               title: Text('个人中心'),
-    //               leading: Icon(CupertinoIcons.profile_circled),
-    //               onTap: onTap),
-    //           ListTile(
-    //               title: Text('位置'),
-    //               leading: Icon(CupertinoIcons.location),
-    //               onTap: onTap)
-    //         ],
-    //       ),
-    //     ));
-  }
-  Future<String> _getId() async {
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    if (Theme.of(context).platform == TargetPlatform.iOS) {
-      IosDeviceInfo iosDeviceInfo = await deviceInfo.iosInfo;
-      return iosDeviceInfo.identifierForVendor; // unique ID on iOS
-    } else {
-      AndroidDeviceInfo androidDeviceInfo = await deviceInfo.androidInfo;
-      return androidDeviceInfo.androidId; // unique ID on Android
+    onTap() {
+      Navigator.of(context).pop();
     }
-  }
 
+    Popover.show(
+        context: context,
+        shadow: BoxShadow(color: Colors.grey, blurRadius: 10),
+        clickWidgetKey: key,
+        child: Container(
+          width: 180,
+          child: ListView(
+            physics: NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            children: <Widget>[
+              ListTile(
+                title: Text('首页'),
+                leading: Icon(CupertinoIcons.home),
+                onTap: onTap,
+              ),
+              ListTile(
+                  title: Text('购物车'),
+                  leading: Icon(CupertinoIcons.shopping_cart),
+                  onTap: onTap),
+              ListTile(
+                  title: Text('个人中心'),
+                  leading: Icon(CupertinoIcons.profile_circled),
+                  onTap: onTap),
+              ListTile(
+                  title: Text('位置'),
+                  leading: Icon(CupertinoIcons.location),
+                  onTap: onTap)
+            ],
+          ),
+        ));
+  }
 }
 

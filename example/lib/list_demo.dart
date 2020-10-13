@@ -1,12 +1,10 @@
 
 
-import 'package:GlfKit/list/section.dart';
-import 'package:GlfKit/list/section_adapter.dart';
-import 'package:GlfKit/list/section_list_view.dart';
 import 'package:GlfKit/widget/navigation_bar.dart';
 import 'package:GlfKit/widget/page.dart';
 import 'package:flutter/material.dart';
 import 'package:GlfKit/utils/route_utils.dart';
+import 'package:flutter_section_list/flutter_section_list.dart';
 
 class SectionListDemo extends StatefulWidget {
 
@@ -26,14 +24,6 @@ class _SectionListDemoState extends State<SectionListDemo> with StatefulPageStat
   @override
   Widget getContentWidget(BuildContext context) {
     return SectionListView.builder(adapter: this);
-  }
-
-  @override
-  Widget getBottomWidget(BuildContext context) {
-    // TODO: implement getBottomWidget
-    return Container(
-      height: 300,
-    );
   }
 
   @override

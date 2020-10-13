@@ -74,7 +74,8 @@ class Loading{
 
   static void dismiss({bool animate = true}) {
     if(_statusNotifier != null){
-      if(_statusNotifier.value == _Status.willShow || !animate){
+      // _statusNotifier.hasListeners 有时候消失太快 没initState 导致没有监听者
+      if(_statusNotifier.value == _Status.willShow || !animate || !_statusNotifier.hasListeners){
         _onDismiss();
       }else{
         _statusNotifier.value = _Status.dismiss;

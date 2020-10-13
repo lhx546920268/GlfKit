@@ -32,6 +32,8 @@ dependencies:
   encrypt: ^4.0.3
   GlfKit:
     path: ../
+  flutter_section_list:
+    path: ../../flutter_section_list/
 
 dev_dependencies:
   flutter_test:

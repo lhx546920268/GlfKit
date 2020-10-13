@@ -124,6 +124,7 @@ mixin BaseHttpTask {
       }
       if(isSuccess){
         onSuccess();
+        await afterSuccess();
       }else{
         onFail();
       }
@@ -153,6 +154,11 @@ mixin BaseHttpTask {
 
   @protected
   void onSuccess();
+
+  ///在onSuccess后执行，主要是用于保存一些信息
+  Future<void> afterSuccess() async {
+
+  }
 
   @protected
   void onFail() {
