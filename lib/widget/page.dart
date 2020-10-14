@@ -35,10 +35,8 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
   NavigationBarController get navigationBarController => _navigationBarController;
   NavigationBarController _navigationBarController;
 
-  @override
-  Widget build(dynamic ctx) {
+  Widget build(BuildContext context) {
 
-    BuildContext context = ctx; // 1.22.1 analyzer 有问题
     if(shouldCallSuperBuild){
       super.build(context);
     }

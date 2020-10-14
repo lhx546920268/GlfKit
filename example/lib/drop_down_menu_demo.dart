@@ -11,15 +11,39 @@ class DropDownMenuDemo extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _DropDownMenuDemoState();
+    return DropDownMenuDemoState();
   }
 }
 
-class _DropDownMenuDemoState extends State<DropDownMenuDemo> with StatefulPageState implements DropDownMenuDelegate {
+mixin PageState<T extends StatefulWidget> on State<T>{
+
+  Widget build(BuildContext context) {
+    print('mixin');
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(middle: Text("Demo"), backgroundColor: Colors.blue,),
+      child: Container(
+        color: Colors.white,
+        child: Column(
+          children: [
+
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+class DropDownMenuDemoState extends State<DropDownMenuDemo> with PageState implements DropDownMenuDelegate {
 
   @override
   NavigationBarController configNavigationBar(BuildContext context){
     return NavigationBarController(title: 'DropDownMenu');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return super.build(context);
   }
 
   @override

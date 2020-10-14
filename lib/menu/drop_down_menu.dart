@@ -62,6 +62,8 @@ class DropDownMenu extends StatefulWidget {
   ///item内边距
   final EdgeInsetsGeometry itemPadding;
 
+  final double height;
+
   DropDownMenu({
     Key key,
     this.items,
@@ -71,7 +73,8 @@ class DropDownMenu extends StatefulWidget {
     this.normalColor = Colors.black,
     this.itemEqualWidth = true,
     this.itemPadding = EdgeInsets.zero,
-  }): assert(!isEmpty(items) && selectedColor != null && normalColor != null && itemEqualWidth != null),
+    this.height = 45,
+  }): assert(!isEmpty(items) && selectedColor != null && normalColor != null && itemEqualWidth != null && height != null),
         super(key: key);
 
   @override
@@ -92,7 +95,7 @@ class _DropDownMenuState extends State<DropDownMenu> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 45,
+      height: widget.height,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: _buildMenuItems(),

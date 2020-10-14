@@ -26,7 +26,7 @@ class Loading{
 
   //全局的
   static OverlayEntry _entry;
-  static ValueNotifier<_Status> _statusNotifier;
+  static _StatusNotifier _statusNotifier;
 
   static void show(
       BuildContext context, {
@@ -54,7 +54,7 @@ class Loading{
     //移除已存在的
     _entry?.remove();
 
-    _statusNotifier = ValueNotifier(delay != null ? _Status.willShow : _Status.show);
+    _statusNotifier = _StatusNotifier(delay != null ? _Status.willShow : _Status.show);
 
     OverlayState overlayState = Overlay.of(context);
     _entry = OverlayEntry(builder: (BuildContext context){
@@ -75,10 +75,10 @@ class Loading{
   static void dismiss({bool animate = true}) {
     if(_statusNotifier != null){
       // _statusNotifier.hasListeners 有时候消失太快 没initState 导致没有监听者
-      if(_statusNotifier.value == _Status.willShow || !animate || !_statusNotifier.hasListeners){
+      if(_statusNotifier.status == _Status.willShow || !animate || !_statusNotifier.available){
         _onDismiss();
       }else{
-        _statusNotifier.value = _Status.dismiss;
+        _statusNotifier.status = _Status.dismiss;
       }
     }
   }
@@ -89,13 +89,29 @@ class Loading{
   }
 }
 
+class _StatusNotifier extends ChangeNotifier {
+
+  set status(_Status status){
+    if(_status != status){
+      _status = status;
+      notifyListeners();
+    }
+  }
+  _Status get status => _status ?? _Status.show;
+  _Status _status;
+
+  _StatusNotifier(_Status status): _status = status;
+
+  bool get available => hasListeners;
+}
+
 ///loading 组件
 class _LoadingWidget extends StatefulWidget{
 
   final Widget child;
   final Color backgroundColor;
   final BorderRadius borderRadius;
-  final ValueNotifier<_Status> statusNotifier;
+  final _StatusNotifier statusNotifier;
   final Duration delay;
   final VoidCallback onDismiss;
   final Size size;
@@ -125,7 +141,7 @@ class _LoadingWidgetState extends State<_LoadingWidget> {
   void initState() {
     if(widget.delay != null){
       _timer = Timer(widget.delay, () {
-        widget.statusNotifier?.value = _Status.show;
+        widget.statusNotifier?.status = _Status.show;
       });
     }
     widget.statusNotifier?.addListener(_onStatusChange);
@@ -140,7 +156,7 @@ class _LoadingWidgetState extends State<_LoadingWidget> {
   }
 
   void _onStatusChange() {
-    switch(widget.statusNotifier.value){
+    switch(widget.statusNotifier.status){
       case _Status.show :
       case _Status.willShow : {
         setState(() {
@@ -162,7 +178,7 @@ class _LoadingWidgetState extends State<_LoadingWidget> {
   @override
   Widget build(BuildContext context) {
 
-    var status = widget.statusNotifier?.value ?? _Status.show;
+    var status = widget.statusNotifier?.status ?? _Status.show;
 
     var child = Center(
       child: Material(

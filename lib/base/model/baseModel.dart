@@ -2,6 +2,8 @@
 import 'package:GlfKit/base/collection/safe_map.dart';
 import 'package:flutter/cupertino.dart';
 
+export '../collection/safe_map.dart';
+
 ///基础数据模型
 mixin BaseModel {
 

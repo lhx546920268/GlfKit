@@ -16,7 +16,6 @@ import 'package:example/list_demo.dart';
 import 'package:example/menu_bar_demo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:device_info/device_info.dart';
 
 double kStatusBarHeight = 0;
 

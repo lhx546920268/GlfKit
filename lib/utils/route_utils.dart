@@ -36,11 +36,18 @@ class RouteUtils {
   static RouteObserver get observer => _observer;
   static RouteObserver _observer = RouteObserver();
 
-  static Future<T> push<T>(BuildContext context, Widget widget, {bool fullscreenDialog = false, String routeName}) {
+  static Future<T> push<T>(
+      BuildContext context,
+      Widget widget, {
+        bool fullscreenDialog = false,
+        String routeName,
+        Duration transitionDuration = const Duration(milliseconds: 300)
+      }) {
 
     return Navigator.of(context).push(AppPageRoute(
         fullscreenDialog: fullscreenDialog,
         routeName: routeName ?? widget.runtimeType.toString(),
+        duration: transitionDuration,
         builder: (_) => widget)
     );
   }
@@ -126,6 +133,10 @@ class RouteUtils {
 class AppPageRoute<T> extends CupertinoPageRoute<T> {
 
   String routeName;
+  final Duration duration;
+
+  @override
+  Duration get transitionDuration => duration ?? super.transitionDuration;
 
   AppPageRoute({
     @required WidgetBuilder builder,
@@ -133,7 +144,8 @@ class AppPageRoute<T> extends CupertinoPageRoute<T> {
     RouteSettings settings,
     bool maintainState = true,
     bool fullscreenDialog = false,
-    this.routeName
+    this.routeName,
+    this.duration,
   }): super(builder: builder, title: title, settings: settings, maintainState: maintainState, fullscreenDialog: fullscreenDialog);
 }
 

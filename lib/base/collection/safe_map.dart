@@ -1,5 +1,6 @@
 
 import 'collection_utils.dart' as collection_utils;
+import 'dart:math' as math;
 
 extension MapUtils on Map {
 
@@ -146,7 +147,7 @@ class SafeMap{
     if(list is List && list != null && list.length > 0){
       int maxCount = list.length;
       if(max != null && max != 0){
-        maxCount = max;
+        maxCount = math.min(max, maxCount);
       }
       for(int i = 0;i < maxCount; i ++){
         var value = safeMapForEach(useTempSafeMap ? _getTempSafeMap(list[i]) : SafeMap(list[i]), i);
