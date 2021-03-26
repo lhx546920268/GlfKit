@@ -10,19 +10,18 @@ mixin TaskAutoCancelMixin<T extends StatefulWidget> on State<T> {
     if (_currentTasks == null) {
       _currentTasks = HashSet();
     }
-    return _currentTasks;
+    return _currentTasks!;
   }
 
-  Set<BaseHttpTask> _currentTasks;
+  Set<BaseHttpTask>? _currentTasks;
 
   ///  添加需要取消的请求 在dealloc
   ///
   ///  @param task 请求
   ///  @param cancelTheSame 是否取消相同的任务 通过 task.name 来判断
   void addCanceledTask(BaseHttpTask task, {bool cancelTheSame = true}) {
-    assert(task != null);
     if (cancelTheSame && _currentTasks != null) {
-      _currentTasks.removeWhere((element) => element.name == task.name);
+      _currentTasks!.removeWhere((element) => element.name == task.name);
     }
     task.addCompleteCallback((value) {
       currentTasks.remove(value);
@@ -33,7 +32,7 @@ mixin TaskAutoCancelMixin<T extends StatefulWidget> on State<T> {
   @override
   void dispose() {
     if (_currentTasks != null) {
-      _currentTasks.forEach((task) {
+      _currentTasks!.forEach((task) {
         task.cancel();
       });
     }

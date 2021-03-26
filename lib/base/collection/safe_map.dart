@@ -4,8 +4,8 @@ import 'dart:math' as math;
 
 extension MapUtils on Map {
 
-  T get<T>(dynamic key){
-    dynamic value = this[key];
+  T? get<T>(dynamic key){
+    dynamic? value = this[key];
     if(value != null){
       if(value is T){
         return value;
@@ -15,7 +15,7 @@ extension MapUtils on Map {
           return value.toString() as T;
         }else if(T == int){
           if(value is String){
-            value = int.tryParse(value) as T;
+            value = int.tryParse(value) as T?;
             return value == null ? 0 : value;
           }else if(value is double){
             return value.toInt() as T;
@@ -48,10 +48,10 @@ extension MapUtils on Map {
 class SafeMap{
 
   ///当前的值
-  Map get value {
+  Map? get value {
     return _value;
   }
-  Map _value;
+  Map? _value;
   
   ///是否为空
   bool get isEmpty => collection_utils.isEmpty(_value);
@@ -59,15 +59,15 @@ class SafeMap{
   ///当值为空是 返回默认值，只对 int, double, bool 有效
   final bool toDefaultValue;
 
-  SafeMap(Map value, {this.toDefaultValue = true}){
+  SafeMap(Map? value, {this.toDefaultValue = true}){
     if(value is Map){
       _value = value;
     }
   }
 
-  T get<T>(dynamic key){
+  T? get<T>(dynamic key){
     if(this.value != null){
-      T value = this.value.get(key);
+      T value = this.value!.get(key);
       if(value != null){
         return value;
       }
@@ -112,15 +112,13 @@ class SafeMap{
   }
 
   SafeMap map(dynamic key, {bool useTempSafeMap = true}){
-
-
-    return SafeMap(value != null ? value[key]: null);
+    return SafeMap(value != null ? value![key]: null);
   }
 
-  List<T> getList<T, R>(dynamic key, GetListForEach<T, R> forEach, {int max}){
+  List<T>? getList<T, R>(dynamic key, GetListForEach<T, R> forEach, {int? max}){
     List<T> result = [];
-    List list = get(key);
-    if(list is List && list != null && list.length > 0){
+    List? list = get(key);
+    if(list is List && list.length > 0){
       int maxCount = list.length;
       if(max != null && max != 0){
         maxCount = max;
@@ -136,15 +134,15 @@ class SafeMap{
     return result;
   }
 
-  List<T> forEach<T>(dynamic key, SafeMapForEach<T> safeMapForEach, {bool useTempSafeMap = true, bool map = true, int max}){
+  List<T>? forEach<T>(dynamic key, SafeMapForEach<T> safeMapForEach, {bool useTempSafeMap = true, bool map = true, int? max}){
     List list = get(key);
     return forEachList(list, safeMapForEach, useTempSafeMap: useTempSafeMap, max: max, map: map);
   }
 
-  List<T> forEachList<T>(List list, SafeMapForEach<T> safeMapForEach, {bool useTempSafeMap = true, bool map = true, int max}){
-    List<T> result = map ? [] : null;
+  List<T>? forEachList<T>(List? list, SafeMapForEach<T> safeMapForEach, {bool useTempSafeMap = true, bool map = true, int? max}){
+    List<T>? result = map ? [] : null;
     
-    if(list is List && list != null && list.length > 0){
+    if(list is List && list.length > 0){
       int maxCount = list.length;
       if(max != null && max != 0){
         maxCount = math.min(max, maxCount);
@@ -152,7 +150,7 @@ class SafeMap{
       for(int i = 0;i < maxCount; i ++){
         var value = safeMapForEach(useTempSafeMap ? _getTempSafeMap(list[i]) : SafeMap(list[i]), i);
         if(map && value != null){
-          result.add(value);
+          result!.add(value);
         }
       }
     }
@@ -161,13 +159,13 @@ class SafeMap{
   }
 
   ///临时使用
-  SafeMap _tempSafeMap;
+  SafeMap? _tempSafeMap;
   SafeMap _getTempSafeMap(Map value){
     if(_tempSafeMap == null){
       _tempSafeMap = SafeMap(value);
     }
-    _tempSafeMap._value = value;
-    return _tempSafeMap;
+    _tempSafeMap!._value = value;
+    return _tempSafeMap!;
   }
 }
 

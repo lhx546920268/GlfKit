@@ -18,7 +18,7 @@ class _MenuBarDemoState extends State<MenuBarDemo> with StatefulPageState{
 
   PageScrollNotification scrollNotification = PageScrollNotification(null);
   List<String> titles = ['零食', '粮油', '生活用品', '家具', '家电', '移动设备', '五金', '生鲜', '衣服', '百货'];
-  PageController pageController;
+  PageController? pageController;
 
   @override
   Widget getContentWidget(BuildContext context) {
@@ -34,7 +34,7 @@ class _MenuBarDemoState extends State<MenuBarDemo> with StatefulPageState{
           indicatorWidth: 20,
           scrollNotification: scrollNotification,
           onChange: (int page){
-            pageController.jumpToPage(page);
+            pageController?.jumpToPage(page);
           },
         ),
         Expanded(
@@ -67,7 +67,7 @@ class _MenuBarDemoState extends State<MenuBarDemo> with StatefulPageState{
   bool _onPageNotification(ScrollNotification notification){
 
     if(notification.depth == 0){
-      scrollNotification.value = notification;
+      scrollNotification.notification = notification;
       return true;
     }
 

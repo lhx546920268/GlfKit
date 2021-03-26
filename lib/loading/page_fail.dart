@@ -8,7 +8,7 @@ class PageFailWidget extends StatelessWidget {
   ///刷新回调
   final VoidCallback onRefresh;
 
-  PageFailWidget({Key key, this.onRefresh}): super(key: key);
+  PageFailWidget({Key? key, required this.onRefresh}): super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -9,23 +9,22 @@ import 'package:flutter/material.dart';
 ///标签栏控制器
 class TabBarController extends ChangeNotifier {
 
-  List<TabItem> _items;
+  List<TabItem>? _items;
 
   ///选中的下标
   int get selectedIndex => _selectedIndex ?? 0;
   set selectedIndex(int value){
-    assert(value != null);
     assert(value >= 0);
     if(_selectedIndex != value){
       _selectedIndex = value;
       notifyListeners();
     }
   }
-  int _selectedIndex;
+  int? _selectedIndex;
 
   void setBadgeValue(Widget value, int index){
-    assert(_items != null && index >= 0 && index < _items.length);
-    _items[index].badgeValue = value;
+    assert(_items != null && index >= 0 && index < _items!.length);
+    _items![index].badgeValue = value;
     notifyListeners();
   }
 }
@@ -37,7 +36,7 @@ class TabBarScaffold extends StatelessWidget {
   final List<TabItem> items;
 
   ///背景颜色
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   ///边框
   final Border border;
@@ -54,22 +53,22 @@ class TabBarScaffold extends StatelessWidget {
   ///内容
   final IndexedWidgetBuilder tabBuilder;
 
-  TabBarScaffold({Key key,
-      @required this.items,
-      @required this.tabBuilder,
+  TabBarScaffold({Key? key,
+      required this.items,
+      required this.tabBuilder,
       this.backgroundColor,
       this.border =
           const Border(top: BorderSide(color: Color(0xffdedede), width: 0.5)),
-      TextStyle style,
-      TextStyle activeStyle,
-      TabBarController controller})
+      TextStyle? style,
+      TextStyle? activeStyle,
+      TabBarController? controller})
       : this.style = style ?? TextStyle(fontSize: 11, color: Colors.grey),
         this.activeStyle =
             activeStyle ?? TextStyle(fontSize: 11, color: ColorTheme.themeColor),
         this.controller = controller ?? TabBarController(),
-  assert(!isEmpty(items) && tabBuilder != null),
+  assert(!isEmpty(items)),
         super(key: key) {
-    controller._items = items;
+    this.controller._items = items;
   }
 
   @override
@@ -105,7 +104,12 @@ class _TabBarContent extends StatefulWidget {
   ///内容
   final IndexedWidgetBuilder tabBuilder;
 
-  _TabBarContent({Key key, this.items, this.controller, this.tabBuilder}): super(key: key);
+  _TabBarContent({
+    Key? key,
+    required this.items,
+    required this.controller,
+    required this.tabBuilder
+  }): super(key: key);
 
   @override
   State<StatefulWidget> createState() {

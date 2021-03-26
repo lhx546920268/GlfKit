@@ -8,23 +8,25 @@ class RouteObserver extends NavigatorObserver {
   final Set<Route> routes = HashSet();
 
   @override
-  void didPush(Route route, Route previousRoute) {
+  void didPush(Route route, Route? previousRoute) {
     routes.add(route);
   }
 
   @override
-  void didPop(Route route, Route previousRoute) {
+  void didPop(Route route, Route? previousRoute) {
     routes.remove(route);
   }
 
   @override
-  void didReplace({Route newRoute, Route oldRoute}) {
-    routes.add(newRoute);
+  void didReplace({Route? newRoute, Route? oldRoute}) {
+    if(newRoute != null){
+      routes.add(newRoute);
+    }
     routes.remove(oldRoute);
   }
 
   @override
-  void didRemove(Route route, Route previousRoute) {
+  void didRemove(Route route, Route? previousRoute) {
     routes.remove(route);
   }
 }
@@ -36,11 +38,11 @@ class RouteUtils {
   static RouteObserver get observer => _observer;
   static RouteObserver _observer = RouteObserver();
 
-  static Future<T> push<T>(
+  static Future<T?> push<T>(
       BuildContext context,
       Widget widget, {
         bool fullscreenDialog = false,
-        String routeName,
+        String? routeName,
         Duration transitionDuration = const Duration(milliseconds: 300)
       }) {
 
@@ -52,8 +54,7 @@ class RouteUtils {
     );
   }
 
-  static Future<T> pushAndRemoveUntil<T>(BuildContext context, Widget widget, String untilRouteName, {bool fullscreenDialog = false}) {
-    assert(untilRouteName != null);
+  static Future<T?> pushAndRemoveUntil<T>(BuildContext context, Widget widget, String untilRouteName, {bool fullscreenDialog = false}) {
 
     bool enable = false;
     return Navigator.of(context).pushAndRemoveUntil(
@@ -80,22 +81,21 @@ class RouteUtils {
     );
   }
 
-  static Future<T> pushAndRemove<T>(BuildContext context, Widget widget, RouteNamePredicate predicate, {bool fullscreenDialog = false}) {
-    assert(predicate != null);
+  static Future<T?> pushAndRemove<T>(BuildContext context, Widget widget, RouteNamePredicate predicate, {bool fullscreenDialog = false}) {
 
     var navigator = Navigator.of(context);
 
     Set<Route> routes = HashSet();
     routes.addAll(_observer.routes);
     for(var route in routes){
-      String name;
+      String? name;
       if (route is AppPageRoute) {
         AppPageRoute appPageRoute = route;
         name = appPageRoute.routeName;
       } else {
         name = route.settings.name;
       }
-      if(predicate(name)){
+      if(name != null && predicate(name)){
         navigator.removeRoute(route);
       }
     }
@@ -107,15 +107,14 @@ class RouteUtils {
     );
   }
 
-  static Future<T> showDialogFromBottom<T>({
-    @required BuildContext context,
-    @required Widget widget,
-    ImageFilter filter,
+  static Future<T?> showDialogFromBottom<T>({
+    required BuildContext context,
+    required Widget widget,
+    ImageFilter? filter,
     bool useRootNavigator = true,
     bool barrierDismissible = true,
-    Color barrierColor,
+    Color? barrierColor,
   }) {
-    assert(useRootNavigator != null);
     return Navigator.of(context, rootNavigator: useRootNavigator).push(
       _CupertinoModalPopupRoute<T>(
         barrierColor: barrierColor ?? CupertinoDynamicColor.resolve(_kModalBarrierColor, context),
@@ -132,16 +131,16 @@ class RouteUtils {
 
 class AppPageRoute<T> extends CupertinoPageRoute<T> {
 
-  String routeName;
-  final Duration duration;
+  String? routeName;
+  final Duration? duration;
 
   @override
   Duration get transitionDuration => duration ?? super.transitionDuration;
 
   AppPageRoute({
-    @required WidgetBuilder builder,
-    String title,
-    RouteSettings settings,
+    required WidgetBuilder builder,
+    String? title,
+    RouteSettings? settings,
     bool maintainState = true,
     bool fullscreenDialog = false,
     this.routeName,
@@ -151,13 +150,13 @@ class AppPageRoute<T> extends CupertinoPageRoute<T> {
 
 class _CupertinoModalPopupRoute<T> extends PopupRoute<T> {
   _CupertinoModalPopupRoute({
-    this.barrierColor,
-    this.barrierLabel,
-    this.builder,
-    bool semanticsDismissible,
-    ImageFilter filter,
-    RouteSettings settings,
-    bool barrierDismissible,
+    required this.barrierColor,
+    required this.barrierLabel,
+    required this.builder,
+    bool? semanticsDismissible,
+    ImageFilter? filter,
+    RouteSettings? settings,
+    bool? barrierDismissible,
   }) : super(
     filter: filter,
     settings: settings,
@@ -167,7 +166,7 @@ class _CupertinoModalPopupRoute<T> extends PopupRoute<T> {
   }
 
   final WidgetBuilder builder;
-  bool _semanticsDismissible;
+  bool? _semanticsDismissible;
 
   @override
   final String barrierLabel;
@@ -177,7 +176,7 @@ class _CupertinoModalPopupRoute<T> extends PopupRoute<T> {
 
   @override
   bool get barrierDismissible => _barrierDismissible ?? true;
-  bool _barrierDismissible;
+  bool? _barrierDismissible;
 
   @override
   bool get semanticsDismissible => _semanticsDismissible ?? false;
@@ -185,9 +184,9 @@ class _CupertinoModalPopupRoute<T> extends PopupRoute<T> {
   @override
   Duration get transitionDuration => _kModalPopupTransitionDuration;
 
-  Animation<double> _animation;
+  Animation<double>? _animation;
 
-  Tween<Offset> _offsetTween;
+  Tween<Offset>? _offsetTween;
 
   @override
   Animation<double> createAnimation() {
@@ -204,7 +203,7 @@ class _CupertinoModalPopupRoute<T> extends PopupRoute<T> {
       begin: const Offset(0.0, 1.0),
       end: const Offset(0.0, 0.0),
     );
-    return _animation;
+    return _animation!;
   }
 
   @override
@@ -220,7 +219,7 @@ class _CupertinoModalPopupRoute<T> extends PopupRoute<T> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: FractionalTranslation(
-        translation: _offsetTween.evaluate(_animation),
+        translation: _offsetTween!.evaluate(_animation!),
         child: child,
       ),
     );

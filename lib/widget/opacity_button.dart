@@ -24,19 +24,18 @@ const EdgeInsets _kBackgroundButtonPadding = EdgeInsets.all(0.0);
 class OpacityButton extends StatefulWidget {
   /// Creates an iOS-style button.
   const OpacityButton({
-    Key key,
-    @required this.child,
+    Key? key,
+    required this.child,
     this.padding,
     this.color,
     this.disabledColor = CupertinoColors.quaternarySystemFill,
     this.minSize = const Size(0, 0),
     this.pressedOpacity = 0.4,
     this.borderRadius,
-    @required this.onPressed,
+    this.onPressed,
     this.alignment = Alignment.center,
     this.border,
-  }) : assert(pressedOpacity == null || (pressedOpacity >= 0.0 && pressedOpacity <= 1.0)),
-        assert(disabledColor != null),
+  }) : assert(pressedOpacity >= 0.0 && pressedOpacity <= 1.0),
         _filled = false,
         super(key: key);
 
@@ -47,24 +46,23 @@ class OpacityButton extends StatefulWidget {
   /// To specify a custom background color, use the [color] argument of the
   /// default constructor.
   const OpacityButton.filled({
-    Key key,
-    @required this.child,
+    Key? key,
+    required this.child,
     this.padding,
     this.disabledColor = CupertinoColors.quaternarySystemFill,
     this.minSize = const Size(0, 0),
     this.pressedOpacity = 0.4,
     this.borderRadius,
-    @required this.onPressed,
+    this.onPressed,
     this.alignment = Alignment.center,
     this.border,
-  }) : assert(pressedOpacity == null || (pressedOpacity >= 0.0 && pressedOpacity <= 1.0)),
-        assert(disabledColor != null),
+  }) : assert(pressedOpacity >= 0.0 && pressedOpacity <= 1.0),
         color = null,
         _filled = true,
         super(key: key);
 
   final Alignment alignment;
-  final BoxBorder border;
+  final BoxBorder? border;
 
   /// The widget below this widget in the tree.
   ///
@@ -74,7 +72,7 @@ class OpacityButton extends StatefulWidget {
   /// The amount of space to surround the child inside the bounds of the button.
   ///
   /// Defaults to 16.0 pixels.
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? padding;
 
   /// The color of the button's background.
   ///
@@ -82,7 +80,7 @@ class OpacityButton extends StatefulWidget {
   ///
   /// Defaults to the [CupertinoTheme]'s `primaryColor` when the
   /// [CupertinoButton.filled] constructor is used.
-  final Color color;
+  final Color? color;
 
   /// The color of the button's background when the button is disabled.
   ///
@@ -95,7 +93,7 @@ class OpacityButton extends StatefulWidget {
   /// The callback that is called when the button is tapped or otherwise activated.
   ///
   /// If this is set to null, the button will be disabled.
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   /// Minimum size of the button.
   ///
@@ -113,7 +111,7 @@ class OpacityButton extends StatefulWidget {
   /// The radius of the button's corners when it has a background color.
   ///
   /// Defaults to round corners of 8 logical pixels.
-  final BorderRadius borderRadius;
+  final BorderRadius? borderRadius;
 
   final bool _filled;
 
@@ -137,8 +135,8 @@ class _OpacityButtonState extends State<OpacityButton> with SingleTickerProvider
   static const Duration kFadeInDuration = Duration(milliseconds: 100);
   final Tween<double> _opacityTween = Tween<double>(begin: 1.0);
 
-  AnimationController _animationController;
-  Animation<double> _opacityAnimation;
+  AnimationController? _animationController;
+  Animation<double>? _opacityAnimation;
 
   @override
   void initState() {
@@ -148,7 +146,7 @@ class _OpacityButtonState extends State<OpacityButton> with SingleTickerProvider
       value: 0.0,
       vsync: this,
     );
-    _opacityAnimation = _animationController
+    _opacityAnimation = _animationController!
         .drive(CurveTween(curve: Curves.decelerate))
         .drive(_opacityTween);
     _setTween();
@@ -161,12 +159,12 @@ class _OpacityButtonState extends State<OpacityButton> with SingleTickerProvider
   }
 
   void _setTween() {
-    _opacityTween.end = widget.pressedOpacity ?? 1.0;
+    _opacityTween.end = widget.pressedOpacity;
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _animationController?.dispose();
     _animationController = null;
     super.dispose();
   }
@@ -195,12 +193,12 @@ class _OpacityButtonState extends State<OpacityButton> with SingleTickerProvider
   }
 
   void _animate() {
-    if (_animationController.isAnimating)
+    if (_animationController != null && _animationController!.isAnimating)
       return;
     final bool wasHeldDown = _buttonHeldDown;
     final TickerFuture ticker = _buttonHeldDown
-        ? _animationController.animateTo(1.0, duration: kFadeOutDuration)
-        : _animationController.animateTo(0.0, duration: kFadeInDuration);
+        ? _animationController!.animateTo(1.0, duration: kFadeOutDuration)
+        : _animationController!.animateTo(0.0, duration: kFadeInDuration);
     ticker.then<void>((void value) {
       if (mounted && wasHeldDown != _buttonHeldDown)
         _animate();
@@ -212,9 +210,9 @@ class _OpacityButtonState extends State<OpacityButton> with SingleTickerProvider
     final bool enabled = widget.enabled;
     final CupertinoThemeData themeData = CupertinoTheme.of(context);
     final Color primaryColor = themeData.primaryColor;
-    final Color backgroundColor = widget.color == null
+    final Color? backgroundColor = widget.color == null
         ? (widget._filled ? primaryColor : null)
-        : CupertinoDynamicColor.resolve(widget.color, context);
+        : CupertinoDynamicColor.resolve(widget.color!, context);
 
     final Color foregroundColor = backgroundColor != null
         ? themeData.primaryContrastingColor
@@ -233,14 +231,12 @@ class _OpacityButtonState extends State<OpacityButton> with SingleTickerProvider
       child: Semantics(
         button: true,
         child: ConstrainedBox(
-          constraints: widget.minSize == null
-              ? const BoxConstraints()
-              : BoxConstraints(
+          constraints: BoxConstraints(
             minWidth: widget.minSize.width,
             minHeight: widget.minSize.height,
           ),
           child: FadeTransition(
-            opacity: _opacityAnimation,
+            opacity: _opacityAnimation!,
             child: DecoratedBox(
               decoration: BoxDecoration(
                 border: widget.border,
@@ -254,7 +250,7 @@ class _OpacityButtonState extends State<OpacityButton> with SingleTickerProvider
                     ? _kBackgroundButtonPadding
                     : _kButtonPadding),
                 child: Align(
-                  alignment: widget.alignment ?? Alignment.center,
+                  alignment: widget.alignment,
                   widthFactor: 1.0,
                   heightFactor: 1.0,
                   child: DefaultTextStyle(

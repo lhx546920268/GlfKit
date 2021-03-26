@@ -8,20 +8,20 @@ import 'package:GlfKit/base/collection/collection_utils.dart';
 class DropDownMenuItem {
 
   ///按钮标题
-  String title;
+  String? title;
 
   ///下拉列表内容，如果标题为空，则使用第一个值作为标题
-  List<String> conditions;
+  List<String>? conditions;
 
   ///选中的列表item
-  int selectedIndex;
+  int? selectedIndex;
 
   ///当前显示的标题
   String get displayTitle {
-    if (conditions != null && conditions.isNotEmpty && selectedIndex != null) {
-      return conditions[selectedIndex];
+    if (conditions != null && conditions!.isNotEmpty && selectedIndex != null) {
+      return conditions![selectedIndex!];
     }
-    return title;
+    return title!;
   }
 
   DropDownMenuItem({this.title, this.conditions, this.selectedIndex})
@@ -41,14 +41,11 @@ class DropDownMenu extends StatefulWidget {
   ///菜单按钮
   final List<DropDownMenuItem> items;
 
-  ///当前选中的下标
-  int _selectedPosition;
-
   ///关联区域，如果没有，则使用当前菜单栏
-  final Rect relatedRect;
+  final Rect? relatedRect;
 
   ///代理
-  final DropDownMenuDelegate delegate;
+  final DropDownMenuDelegate? delegate;
 
   ///选中颜色
   final Color selectedColor;
@@ -65,8 +62,8 @@ class DropDownMenu extends StatefulWidget {
   final double height;
 
   DropDownMenu({
-    Key key,
-    this.items,
+    Key? key,
+    required this.items,
     this.relatedRect,
     this.delegate,
     this.selectedColor = Colors.blue,
@@ -74,7 +71,7 @@ class DropDownMenu extends StatefulWidget {
     this.itemEqualWidth = true,
     this.itemPadding = EdgeInsets.zero,
     this.height = 45,
-  }): assert(!isEmpty(items) && selectedColor != null && normalColor != null && itemEqualWidth != null && height != null),
+  }): assert(!isEmpty(items)),
         super(key: key);
 
   @override
@@ -84,6 +81,9 @@ class DropDownMenu extends StatefulWidget {
 }
 
 class _DropDownMenuState extends State<DropDownMenu> {
+
+  ///当前选中的下标
+  int? _selectedPosition;
 
   @override
   void dispose() {
@@ -105,11 +105,11 @@ class _DropDownMenuState extends State<DropDownMenu> {
 
   ///创建菜单按钮
   List<Widget> _buildMenuItems() {
-    List<Widget> widgets = List();
+    List<Widget> widgets = [];
     for (int i = 0; i < widget.items.length; i++) {
-      bool tick = i == widget._selectedPosition;
+      bool tick = i == _selectedPosition;
       var item = widget.items[i];
-      List<Widget> children = List();
+      List<Widget> children = [];
       children.add(Text(
         item.displayTitle,
         maxLines: 1,
@@ -120,7 +120,7 @@ class _DropDownMenuState extends State<DropDownMenu> {
           color: tick ? widget.selectedColor : widget.normalColor,
         ),
       ));
-      if (item.conditions != null && item.conditions.isNotEmpty) {
+      if (!isEmpty(item.conditions)) {
         children.add(
           Icon(
             tick ? Icons.arrow_drop_up : Icons.arrow_drop_down,
@@ -132,12 +132,12 @@ class _DropDownMenuState extends State<DropDownMenu> {
       Widget child = CupertinoButton(
         padding: widget.itemPadding,
         onPressed: () {
-          if (widget._selectedPosition == i) {
+          if (_selectedPosition == i) {
             _dismissList(true);
           } else {
             _dismissList(false);
             setState(() {
-              widget._selectedPosition = i;
+              _selectedPosition = i;
             });
             _showList(item);
           }
@@ -159,14 +159,14 @@ class _DropDownMenuState extends State<DropDownMenu> {
   }
 
   //下拉列表容器和动画控制器
-  OverlayEntry _entry;
-  AnimationController _animationController;
+  OverlayEntry? _entry;
+  AnimationController? _animationController;
 
   ///显示下拉菜单
   void _showList(DropDownMenuItem item) {
-    Rect relatedRect = widget.relatedRect;
+    Rect? relatedRect = widget.relatedRect;
     if (relatedRect == null) {
-      final RenderBox renderBox = context.findRenderObject();
+      final RenderBox renderBox = context.findRenderObject() as RenderBox;
       final Size size = renderBox.size;
       final Offset offset = renderBox.localToGlobal(Offset.zero);
       relatedRect =
@@ -175,36 +175,38 @@ class _DropDownMenuState extends State<DropDownMenu> {
 
     _animationController?.dispose();
 
-    OverlayState overlayState = Overlay.of(context);
-    _animationController = AnimationController(
-        duration: Duration(milliseconds: 200), vsync: overlayState);
-    _entry = OverlayEntry(builder: (BuildContext context) {
-      return DropDownMenuList(
-        item: item,
-        relatedRect: relatedRect,
-        onSelect: (){
-          widget.delegate?.onDropDownMenuSelectCondition(widget.items[widget._selectedPosition]);
-        },
-        onDismiss: (bool animate) {
-          _dismissList(animate);
-        },
-        listenable: Tween(begin: 0.0, end: 1.0).animate(_animationController),
-        selectedColor: widget.selectedColor,
-        normalColor: widget.normalColor,
-      );
-    });
+    OverlayState? overlayState = Overlay.of(context);
+    if(overlayState != null){
+      _animationController = AnimationController(
+          duration: Duration(milliseconds: 200), vsync: overlayState);
+      _entry = OverlayEntry(builder: (BuildContext context) {
+        return DropDownMenuList(
+          item: item,
+          relatedRect: relatedRect!,
+          onSelect: (){
+            widget.delegate?.onDropDownMenuSelectCondition(widget.items[_selectedPosition!]);
+          },
+          onDismiss: (bool animate) {
+            _dismissList(animate);
+          },
+          listenable: Tween(begin: 0.0, end: 1.0).animate(_animationController!),
+          selectedColor: widget.selectedColor,
+          normalColor: widget.normalColor,
+        );
+      });
 
-    overlayState.insert(_entry);
-    _animationController.forward();
+      overlayState.insert(_entry!);
+      _animationController!.forward();
+    }
   }
 
   ///隐藏下拉菜单
   void _dismissList(bool animate) async {
     if (animate) {
       setState(() {
-        widget._selectedPosition = null;
+        _selectedPosition = null;
       });
-      await _animationController.reverse();
+      await _animationController?.reverse();
       _entry?.remove();
       _entry = null;
     } else {
@@ -227,7 +229,7 @@ class DropDownMenuList extends AnimatedWidget {
   final ValueCallback<bool> onDismiss;
 
   ///点击某个item回调
-  final VoidCallback onSelect;
+  final VoidCallback? onSelect;
 
   ///选中颜色
   final Color selectedColor;
@@ -236,20 +238,19 @@ class DropDownMenuList extends AnimatedWidget {
   final Color normalColor;
 
   DropDownMenuList({
-    Key key,
-    @required this.item,
-    @required this.relatedRect,
-    @required this.onDismiss,
+    Key? key,
+    required this.item,
+    required this.relatedRect,
+    required this.onDismiss,
     this.onSelect,
     this.selectedColor = Colors.blue,
     this.normalColor = Colors.black,
-    @required Listenable listenable,
-  })  : assert(item != null && relatedRect != null && onDismiss != null && selectedColor != null && normalColor != null),
-        super(key: key, listenable: listenable);
+    required Listenable listenable,
+  }): super(key: key, listenable: listenable);
 
   @override
   Widget build(BuildContext context) {
-    final Animation<double> animation = listenable as Animation;
+    final animation = listenable as Animation<double>?;
     double value = animation?.value ?? 1.0;
 
     return Stack(
@@ -308,12 +309,12 @@ class DropDownMenuList extends AnimatedWidget {
 
   //列表item
   List<Widget> _buildListItems(BuildContext context) {
-    List<Widget> widgets = List();
-    for (int i = 0; i < item.conditions.length; i++) {
+    List<Widget> widgets = [];
+    for (int i = 0; i < item.conditions!.length; i++) {
       bool tick = i == item.selectedIndex;
-      List<Widget> children = List();
+      List<Widget> children = [];
       children.add(Text(
-        item.conditions[i],
+        item.conditions![i],
         maxLines: 1,
         softWrap: true,
         overflow: TextOverflow.ellipsis,
@@ -330,24 +331,21 @@ class DropDownMenuList extends AnimatedWidget {
         ));
       }
 
-      widgets.add(RaisedButton(
-        onPressed: () {
+      widgets.add( GestureDetector(
+        onTap: () {
           item.selectedIndex = i;
           if (onSelect != null) {
-            onSelect();
+            onSelect!();
           }
           onDismiss(true);
         },
-        color: Colors.white,
-        elevation: 0,
-        padding: EdgeInsets.symmetric(horizontal: 15),
-        highlightElevation: 0,
-        hoverElevation: 0,
-        disabledColor: Colors.white,
-        splashColor: Colors.transparent,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: children,
+        child: Container(
+          color: Colors.white,
+          padding: EdgeInsets.symmetric(horizontal: 15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: children,
+          ),
         ),
       ));
     }
@@ -358,9 +356,9 @@ class DropDownMenuList extends AnimatedWidget {
 
 ///下拉列表内容容器
 class _DropDownMenuLisContent extends SingleChildRenderObjectWidget {
-  final double animatedValue;
+  final double? animatedValue;
 
-  _DropDownMenuLisContent({Key key, Widget child, this.animatedValue})
+  _DropDownMenuLisContent({Key? key, Widget? child, this.animatedValue})
       : super(key: key, child: child);
 
   @override
@@ -377,20 +375,25 @@ class _DropDownMenuLisContent extends SingleChildRenderObjectWidget {
 
 class _DropDownMenuListContentRenderBox extends RenderShiftedBox {
   ///动画值
-  double _animatedValue;
-  set animatedValue(double value) {
+  double? _animatedValue;
+  set animatedValue(double? value) {
     if (_animatedValue != value) {
       _animatedValue = value;
       markNeedsLayout();
     }
   }
 
-  _DropDownMenuListContentRenderBox({RenderBox child, double animatedValue})
+  _DropDownMenuListContentRenderBox({RenderBox? child, double? animatedValue})
       : _animatedValue = animatedValue,
         super(child);
 
   @override
   void performLayout() {
+    if(this.child == null){
+      return;
+    }
+
+    final child = this.child!;
     double value = (_animatedValue ?? 1.0);
     child.layout(constraints, parentUsesSize: true);
     size = Size(child.size.width, child.size.height * value);

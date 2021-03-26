@@ -1,5 +1,4 @@
 
-//集合是否为空
 import 'dart:convert';
 
 ///判断集合是否为空
@@ -16,6 +15,10 @@ bool isEmpty(dynamic obj){
   return obj == null;
 }
 
+bool isNotEmpty(dynamic obj){
+  return !isEmpty(obj);
+}
+
 extension ListUtils on List {
 
   T get<T>(int index) => index < length ? this[index] : null;
@@ -24,8 +27,8 @@ extension ListUtils on List {
 extension JsonUtils on JsonCodec {
 
   ///解析返回数组
-  List decodeList(String source,
-      {Object reviver(Object key, Object value)}){
+  List? decodeList(String source,
+      {Object? reviver(Object? key, Object? value)?}){
     try{
       var value = decode(source, reviver: reviver);
       if(value is List){
@@ -38,8 +41,8 @@ extension JsonUtils on JsonCodec {
   }
 
   ///解析返回字典
-  Map decodeMap(String source,
-      {Object reviver(Object key, Object value)}){
+  Map? decodeMap(String source,
+      {Object? reviver(Object? key, Object? value)?}){
     try{
       var value = decode(source, reviver: reviver);
       if(value is Map){

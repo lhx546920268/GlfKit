@@ -14,23 +14,23 @@ mixin BaseHttpTask {
   set name(String value){
     _name = value;
   }
-  String _name;
+  String? _name;
 
   ///http响应
-  Response get response => _response;
-  Response _response;
+  Response? get response => _response;
+  Response? _response;
 
   ///所有json数据
-  SafeMap rawData;
+  SafeMap? rawData;
 
   ///用到的data
-  SafeMap data;
+  SafeMap? data;
 
   ///api状态码
-  int code;
+  int? code;
 
   ///提示信息
-  String message;
+  String? message;
 
   ///是否还有更多
   bool hasMore = false;
@@ -51,13 +51,13 @@ mixin BaseHttpTask {
   String get path;
 
   ///配置
-  Options options;
+  Options? options;
 
   ///
   Dio get dio;
 
   ///用来取消的
-  CancelToken _cancelToken;
+  CancelToken? _cancelToken;
 
   ///是否正在请求
   bool get isRunning => _running;
@@ -72,7 +72,7 @@ mixin BaseHttpTask {
   bool get isNetworkError => code == null;
 
   ///用来提示错误信息和loading的
-  BuildContext context;
+  BuildContext? context;
 
   ///是否提示错误信息
   bool shouldShowErrorMessage = false;
@@ -81,10 +81,10 @@ mixin BaseHttpTask {
   bool shouldShowLoading = false;
 
   ///loading 延迟显示
-  Duration loadingDelay;
+  Duration loadingDelay = const Duration(milliseconds: 500);
 
   ///loading 文字
-  String loadingText;
+  String? loadingText;
 
   ///开始请求
   Future<void> start() async {
@@ -98,9 +98,8 @@ mixin BaseHttpTask {
       return;
     }
 
-    if(shouldShowLoading){
-      assert(context != null);
-      Loading.show(context, delay: loadingDelay, text: loadingText);
+    if(shouldShowLoading && context != null){
+      Loading.show(context!, delay: loadingDelay, text: loadingText);
     }
 
     await beforeStart();
@@ -112,7 +111,7 @@ mixin BaseHttpTask {
       options.method = method;
       _response = await dio.request(path, queryParameters: params, options: options, cancelToken: _cancelToken);
     } on DioError catch (error) {
-      if(error.type != DioErrorType.CANCEL){
+      if(error.type != DioErrorType.cancel){
         print('${dio.options.baseUrl}$path request error $error');
       }
       code = null;
@@ -141,7 +140,7 @@ mixin BaseHttpTask {
     if(isRunning && !isCancelled && _cancelToken != null){
       _running = false;
       _cancelled = true;
-      _cancelToken.cancel('cancelled');
+      _cancelToken!.cancel('cancelled');
       onComplete();
     }
   }
@@ -162,12 +161,11 @@ mixin BaseHttpTask {
 
   @protected
   void onFail() {
-    if(shouldShowErrorMessage && message != null){
-      assert(context != null);
+    if(shouldShowErrorMessage && message != null && context != null){
       if(shouldShowLoading){
         Loading.dismiss(animate: false);
       }
-      Toast.showText(context, message);
+      Toast.showText(context!, message!);
     }
   }
 
@@ -175,16 +173,15 @@ mixin BaseHttpTask {
     if(_completeCallbacks == null){
       _completeCallbacks = [];
     }
-    return _completeCallbacks;
+    return _completeCallbacks!;
   }
-  List<ValueCallback<BaseHttpTask>> _completeCallbacks;
+  List<ValueCallback<BaseHttpTask>>? _completeCallbacks;
+
   void addCompleteCallback(ValueCallback<BaseHttpTask> callback){
-    assert(callback != null);
     completeCallbacks.add(callback);
   }
 
   void removeCompleteCallback(ValueCallback<BaseHttpTask> callback) {
-    assert(callback != null);
     completeCallbacks.remove(callback);
   }
 
@@ -194,7 +191,7 @@ mixin BaseHttpTask {
       Loading.dismiss();
     }
     if(_completeCallbacks != null){
-      _completeCallbacks.forEach((callback) {
+      _completeCallbacks!.forEach((callback) {
         callback(this);
       });
     }

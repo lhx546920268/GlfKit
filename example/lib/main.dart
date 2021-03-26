@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     MediaQueryData data =
-        MediaQueryData.fromWindow(WidgetsBinding.instance.window);
+        MediaQueryData.fromWindow(WidgetsBinding.instance!.window);
     kStatusBarHeight = data.padding.top;
 
     return CupertinoApp(
@@ -71,7 +71,7 @@ class MyApp extends StatelessWidget {
     ];
   }
 
-  TabItem _tabBarItem(String title, Widget icon, Widget activeIcon, Widget badgeValue){
+  TabItem _tabBarItem(String title, Widget icon, Widget activeIcon, Widget? badgeValue){
 
     return TabItem(
         title: Text(title),
@@ -157,8 +157,8 @@ class _MyHomePageState extends State<MyHomePage> with StatefulPageState {
   }
 
   Widget _getListItem(int index, BuildContext context) {
-    String title;
-    Widget trailing;
+    String? title;
+    Widget? trailing;
     switch (index) {
       case 0:
         title = 'SectionListView';
@@ -206,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage> with StatefulPageState {
             }
 
             if (index != 2) {
-              Widget child;
+              Widget? child;
               switch (index) {
                 case 0:
                   child = SectionListDemo();
@@ -221,7 +221,7 @@ class _MyHomePageState extends State<MyHomePage> with StatefulPageState {
                   child = DropDownMenuDemo();
                   break;
               }
-              RouteUtils.push(context, child);
+              RouteUtils.push(context, child!);
             } else {
               Toast.showText(context, '这是一个 Toast这是一个');
             }
@@ -233,7 +233,7 @@ class _MyHomePageState extends State<MyHomePage> with StatefulPageState {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(title, style: TextStyle(fontSize: 16)),
+                Text(title!, style: TextStyle(fontSize: 16)),
                 if(trailing != null)
                   trailing,
               ],

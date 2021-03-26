@@ -1,11 +1,11 @@
 
 import 'dart:collection';
 
-typedef EventCallback = void Function(dynamic value);
+typedef EventCallback = void Function(dynamic? value);
 
 class Event {
 
-  final Object sender;
+  final Object? sender;
   Event({this.sender});
 }
 
@@ -13,7 +13,7 @@ class Event {
 class EventBus {
 
   ///单例
-  static EventBus _defaultBus;
+  static EventBus? _defaultBus;
   static EventBus get defaultBus => _getInstance();
 
   ///内部构造方法
@@ -27,14 +27,13 @@ class EventBus {
     if(_defaultBus == null){
       _defaultBus = EventBus._();
     }
-    return _defaultBus;
+    return _defaultBus!;
   }
 
   ///订阅
   void subscribe(String name, EventCallback callback){
-    assert(name != null && callback != null);
 
-    Set set = _subscribers[name];
+    Set? set = _subscribers[name];
     if(set == null){
       set = LinkedHashSet<EventCallback>();
       _subscribers[name] = set;
@@ -44,25 +43,21 @@ class EventBus {
 
   ///取消订阅
   void unsubscribe(String name, EventCallback callback){
-    if(name != null && callback != null){
-      Set set = _subscribers[name];
-      if(set != null && set.isNotEmpty){
-        set.remove(callback);
-        if(set.isEmpty){
-          _subscribers.remove(name);
-        }
+    Set? set = _subscribers[name];
+    if(set != null && set.isNotEmpty){
+      set.remove(callback);
+      if(set.isEmpty){
+        _subscribers.remove(name);
       }
     }
   }
 
   ///发送一个事件
-  void post(String name, {dynamic value}){
-    if(name != null){
-      Set set = _subscribers[name];
-      if(set != null && set.isNotEmpty){
-        for(EventCallback callback in set){
-          callback(value);
-        }
+  void post(String name, {dynamic? value}){
+    Set? set = _subscribers[name];
+    if(set != null && set.isNotEmpty){
+      for(EventCallback callback in set){
+        callback(value);
       }
     }
   }

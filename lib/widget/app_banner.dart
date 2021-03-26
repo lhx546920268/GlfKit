@@ -21,11 +21,11 @@ class AppBanner extends StatefulWidget {
   final IndexedWidgetBuilder builder;
 
   AppBanner({
-    Key key,
+    Key? key,
     this.animationInterval = _defaultAnimationInterval,
-    @required this.count,
-    @required this.builder,
-  }) : assert(count != null && builder != null), super(key: key);
+    required this.count,
+    required this.builder,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -36,9 +36,9 @@ class AppBanner extends StatefulWidget {
 class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
 
   ///计时器
-  Timer _timer;
-  CustomPageController _pageController;
-  PageIndicatorController _indicatorController;
+  Timer? _timer;
+  CustomPageController? _pageController;
+  PageIndicatorController? _indicatorController;
 
   @override
   void initState() {
@@ -47,7 +47,7 @@ class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
     if(count > 1){
       _timer = Timer.periodic(widget.animationInterval, (Timer timer){
         if(_pageController != null){
-          _pageController.nextPage(duration: Duration(milliseconds: 300), curve: Curves.easeOut);
+          _pageController!.nextPage(duration: Duration(milliseconds: 300), curve: Curves.easeOut);
         }
       });
 
@@ -72,15 +72,15 @@ class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
       initialPage: isInfinite ? 1 : 0
     );
 
-    ValueChanged<int> onPageChanged;
+    ValueChanged<int>? onPageChanged;
     if(isInfinite){
       onPageChanged = (int index){
         if(index == 0){
-          _pageController.jumpToPage(realCount + 1);
+          _pageController?.jumpToPage(realCount + 1);
         }else if(index >= (realCount + 1)){
-          _pageController.jumpToPage(1);
+          _pageController?.jumpToPage(1);
         }
-        _indicatorController.curPage = _getRealIndex(index, realCount);
+        _indicatorController?.curPage = _getRealIndex(index, realCount);
       };
     }
 
@@ -91,7 +91,7 @@ class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
 
     List<Widget> children = [];
     children.add(CustomPageView(
-      controller: _pageController,
+      controller: _pageController!,
       onPageChanged: onPageChanged,
       children: List.generate(count, (index){
         return widget.builder(context, _getRealIndex(index, realCount));

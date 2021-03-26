@@ -1,6 +1,5 @@
 
 import 'package:GlfKit/utils/text_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
 ///大写的Y会导致时间多出一年
@@ -14,9 +13,7 @@ const String dateFormatYMd = "yyyy-MM-dd";
 class DateUtils {
 
   ///格式化时间戳
-  static String formatTimeStamp(int timeStamp, String format){
-    assert(format != null);
-
+  static String? formatTimeStamp(int? timeStamp, String format){
     if(timeStamp == null){
       timeStamp = 0;
     }
@@ -34,8 +31,7 @@ class DateUtils {
   }
   
   ///格式化dart时间对象
-  static String formatDateTime(DateTime dateTime, {String fromFormat = dateFormatYMdHms}) {
-    assert(fromFormat != null && dateTime != null);
+  static String? formatDateTime(DateTime dateTime, {String fromFormat = dateFormatYMdHms}) {
     try {
       var dateFormat = DateFormat(fromFormat);
       return dateFormat.format(dateTime);
@@ -48,9 +44,7 @@ class DateUtils {
 
   ///获取时间戳
   static int timeStampFromTime(String time, String format){
-    assert(format != null);
-
-    DateTime dateTime;
+    DateTime? dateTime;
     if(!TextUtils.isEmpty(time)){
       try{
         var dateFormat = DateFormat(format);
@@ -68,17 +62,14 @@ class DateUtils {
   }
 
   ///转换时间格式
-  static String convertTimeToFormat(String time, {String fromFormat = dateFormatYMdHms, @required String toFormat}){
-    assert(fromFormat != null && toFormat != null);
+  static String convertTimeToFormat(String time, {String fromFormat = dateFormatYMdHms, required String toFormat}){
 
     if(!TextUtils.isEmpty(time)){
       try {
         var dateFormat = DateFormat(fromFormat);
         var dateTime = dateFormat.parse(time);
-        if(dateTime != null){
-          dateFormat = DateFormat(toFormat);
-          return dateFormat.format(dateTime);
-        }
+        dateFormat = DateFormat(toFormat);
+        return dateFormat.format(dateTime);
       }catch(_){
 
       }
@@ -88,8 +79,7 @@ class DateUtils {
   }
   
   ///获取dart 时间对象
-  static DateTime dateTimeFromTme(String time, {String fromFormat = dateFormatYMdHms}){
-    assert(fromFormat != null);
+  static DateTime? dateTimeFromTme(String time, {String fromFormat = dateFormatYMdHms}){
     if(!TextUtils.isEmpty(time)){
       try {
         var dateFormat = DateFormat(fromFormat);

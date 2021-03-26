@@ -32,8 +32,8 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
   Color backgroundColor = Colors.white;
 
   ///导航栏控制器
-  NavigationBarController get navigationBarController => _navigationBarController;
-  NavigationBarController _navigationBarController;
+  NavigationBarController? get navigationBarController => _navigationBarController;
+  NavigationBarController? _navigationBarController;
 
   Widget build(BuildContext context) {
 
@@ -43,12 +43,12 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
     var topWidget = getTopWidget(context);
     var bottomWidget = getBottomWidget(context);
 
-    var children = List<Widget>();
+    List<Widget> children = [];
     if (topWidget != null) {
       children.add(topWidget);
     }
 
-    Widget contentWidget;
+    Widget? contentWidget;
     switch(pageStatus){
       case PageStatus.normal :
         contentWidget = getContentWidget(context);
@@ -64,9 +64,8 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
         break;
     }
 
-    contentWidget = wrapContentWidget(context, contentWidget);
-
     if (contentWidget != null) {
+      contentWidget = wrapContentWidget(context, contentWidget);
       children.add(Expanded(
         child: contentWidget,
       ));
@@ -94,19 +93,21 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
     }
   }
 
+  //  bool get shouldCallSuperBuild => false;
+
+  Widget? getTopWidget(BuildContext context) {
+    return null;
+  }
+
+  Widget? getBottomWidget(BuildContext context) {
+    return null;
+  }
+
+  Widget? getContentWidget(BuildContext context) {
+    return null;
+  }
+
   bool get shouldCallSuperBuild => false;
-
-  Widget getTopWidget(BuildContext context) {
-    return null;
-  }
-
-  Widget getBottomWidget(BuildContext context) {
-    return null;
-  }
-
-  Widget getContentWidget(BuildContext context) {
-    return null;
-  }
 
   @mustCallSuper
   Widget wrapContentWidget(BuildContext context, Widget content) {
@@ -149,14 +150,14 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
 
   }
 
-  NavigationBarController configNavigationBar(BuildContext context){
+  NavigationBarController? configNavigationBar(BuildContext context){
     return null;
   }
 
-  NavigationBar getNavigationBar(
+  NavigationBar? getNavigationBar(
       BuildContext context) {
 
-    NavigationBarController controller = configNavigationBar(context);
+    NavigationBarController? controller = configNavigationBar(context);
     if(controller == null){
       return null;
     }
@@ -200,7 +201,7 @@ mixin RefreshPageState<T extends StatefulWidget> on StatefulPageState<T> {
   bool _isLoadingMore = false;
 
   ///刷新控制器
-  EasyRefreshController easyRefreshController;
+  EasyRefreshController? easyRefreshController;
 
   ///分页当前页码
   int curPage = 1;
@@ -272,7 +273,7 @@ mixin ProviderPageState<T extends StatefulWidget> on StatefulPageState<T> {
     return widget;
   }
 
-  Widget wrapProviderIfNeeded(BuildContext context, Widget child);
+  Widget? wrapProviderIfNeeded(BuildContext context, Widget child);
 }
 
 mixin WillScrollKeyboardDismiss <T extends StatefulWidget> on StatefulPageState<T>{

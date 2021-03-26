@@ -18,7 +18,6 @@ class DropDownMenuDemo extends StatefulWidget {
 mixin PageState<T extends StatefulWidget> on State<T>{
 
   Widget build(BuildContext context) {
-    print('mixin');
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(middle: Text("Demo"), backgroundColor: Colors.blue,),
       child: Container(

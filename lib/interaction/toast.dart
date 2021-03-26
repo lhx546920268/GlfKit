@@ -31,7 +31,7 @@ enum ToastGravity{top, center, bottom}
 class Toast{
 
   //全局的，用来防止出现多个toast
-  static OverlayEntry _entry;
+  static OverlayEntry? _entry;
 
   static void showText(
       BuildContext context,
@@ -44,9 +44,6 @@ class Toast{
         EdgeInsets padding = _toastDefaultPadding,
         EdgeInsets margin = _toastDefaultMargin,
       }){
-
-    assert(context != null);
-    assert(text != null);
 
     Widget widget = Text(text, style: style,);
     showWidget(context, widget,
@@ -69,34 +66,29 @@ class Toast{
         EdgeInsets margin = _toastDefaultMargin,
   }){
 
-    assert(duration != null);
-    assert(backgroundColor != null);
-    assert(borderRadius != null);
-    assert(gravity != null);
-    assert(padding != null);
-    assert(margin != null);
-
     //移除已存在的
     _entry?.remove();
 
-    OverlayState overlayState = Overlay.of(context);
-    _entry = OverlayEntry(builder: (BuildContext context){
+    OverlayState? overlayState = Overlay.of(context);
+    if(overlayState != null){
+      _entry = OverlayEntry(builder: (BuildContext context){
 
-      return _ToastWidget(
-        child: widget,
-        backgroundColor: backgroundColor,
-        borderRadius: borderRadius,
-        gravity: gravity,
-        padding: padding,
-        margin: margin,
-        showDuration: duration,
-        onDismiss: () {
-          _entry?.remove();
-          _entry = null;
-        },
-      );
-    }, opaque: false);
-    overlayState.insert(_entry);
+        return _ToastWidget(
+          child: widget,
+          backgroundColor: backgroundColor,
+          borderRadius: borderRadius,
+          gravity: gravity,
+          padding: padding,
+          margin: margin,
+          showDuration: duration,
+          onDismiss: () {
+            _entry?.remove();
+            _entry = null;
+          },
+        );
+      }, opaque: false);
+      overlayState.insert(_entry!);
+    }
   }
 }
 
@@ -114,14 +106,14 @@ class _ToastWidget extends StatefulWidget{
 
 
   _ToastWidget({
-    this.child,
-    this.backgroundColor,
-    this.borderRadius,
-    this.gravity,
-    this.padding,
-    this.margin,
-    this.onDismiss,
-    this.showDuration
+    required this.child,
+    required this.backgroundColor,
+    required this.borderRadius,
+    required this.gravity,
+    required this.padding,
+    required this.margin,
+    required this.onDismiss,
+    required this.showDuration
   });
 
   @override
@@ -133,7 +125,7 @@ class _ToastWidget extends StatefulWidget{
 class _ToastState extends State<_ToastWidget> {
 
   double _opacity = 1.0;
-  Timer _timer;
+  Timer? _timer;
 
   @override
   void initState() {

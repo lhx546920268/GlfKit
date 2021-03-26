@@ -24,18 +24,17 @@ const Color _kHoverColor = Color(0xfff2f2f2);
 class HoverButton extends StatefulWidget {
   /// Creates an iOS-style button.
   const HoverButton({
-    Key key,
-    @required this.child,
+    Key? key,
+    required this.child,
     this.padding,
     this.color,
     this.disabledColor = CupertinoColors.quaternarySystemFill,
     this.minSize = 0,
     this.hoverColor = _kHoverColor,
     this.borderRadius,
-    @required this.onPressed,
+    this.onPressed,
     this.alignment = Alignment.center,
-  }) :  assert(disabledColor != null),
-        _filled = false,
+  }) :  _filled = false,
         super(key: key);
 
   /// Creates an iOS-style button with a filled background.
@@ -45,17 +44,16 @@ class HoverButton extends StatefulWidget {
   /// To specify a custom background color, use the [color] argument of the
   /// default constructor.
   const HoverButton.filled({
-    Key key,
-    @required this.child,
+    Key? key,
+    required this.child,
     this.padding,
     this.disabledColor = CupertinoColors.quaternarySystemFill,
     this.minSize = 0,
     this.hoverColor = _kHoverColor,
     this.borderRadius,
-    @required this.onPressed,
+    this.onPressed,
     this.alignment = Alignment.center,
-  }) :  assert(disabledColor != null),
-        color = null,
+  }) :  color = null,
         _filled = true,
         super(key: key);
 
@@ -69,7 +67,7 @@ class HoverButton extends StatefulWidget {
   /// The amount of space to surround the child inside the bounds of the button.
   ///
   /// Defaults to 16.0 pixels.
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? padding;
 
   /// The color of the button's background.
   ///
@@ -77,7 +75,7 @@ class HoverButton extends StatefulWidget {
   ///
   /// Defaults to the [CupertinoTheme]'s `primaryColor` when the
   /// [CupertinoButton.filled] constructor is used.
-  final Color color;
+  final Color? color;
 
   /// The color of the button's background when the button is disabled.
   ///
@@ -90,7 +88,7 @@ class HoverButton extends StatefulWidget {
   /// The callback that is called when the button is tapped or otherwise activated.
   ///
   /// If this is set to null, the button will be disabled.
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   /// Minimum size of the button.
   ///
@@ -108,7 +106,7 @@ class HoverButton extends StatefulWidget {
   /// The radius of the button's corners when it has a background color.
   ///
   /// Defaults to round corners of 8 logical pixels.
-  final BorderRadius borderRadius;
+  final BorderRadius? borderRadius;
 
   final bool _filled;
 
@@ -159,14 +157,14 @@ class _HoverButtonState extends State<HoverButton> {
     final bool enabled = widget.enabled;
     final CupertinoThemeData themeData = CupertinoTheme.of(context);
     final Color primaryColor = themeData.primaryColor;
-    Color backgroundColor;
+    Color? backgroundColor;
     if(enabled){
-      if(_buttonHeldDown && widget.hoverColor != null){
+      if(_buttonHeldDown){
         backgroundColor = widget.hoverColor;
       }else{
         backgroundColor = widget.color == null
             ? (widget._filled ? primaryColor : null)
-            : CupertinoDynamicColor.resolve(widget.color, context);
+            : CupertinoDynamicColor.resolve(widget.color!, context);
       }
     }else{
       backgroundColor = CupertinoDynamicColor.resolve(widget.disabledColor, context);
@@ -189,9 +187,7 @@ class _HoverButtonState extends State<HoverButton> {
       child: Semantics(
         button: true,
         child: ConstrainedBox(
-          constraints: widget.minSize == null
-              ? const BoxConstraints()
-              : BoxConstraints(
+          constraints: BoxConstraints(
             minWidth: widget.minSize,
             minHeight: widget.minSize,
           ),
@@ -205,7 +201,7 @@ class _HoverButtonState extends State<HoverButton> {
                   ? _kBackgroundButtonPadding
                   : _kButtonPadding),
               child: Align(
-                alignment: widget.alignment ?? Alignment.center,
+                alignment: widget.alignment,
                 widthFactor: 1.0,
                 heightFactor: 1.0,
                 child: DefaultTextStyle(

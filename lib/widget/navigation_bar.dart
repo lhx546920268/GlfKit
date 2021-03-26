@@ -10,11 +10,11 @@ class NavigationBar extends StatefulWidget
     implements ObstructingPreferredSizeWidget {
 
   final NavigationBarController controller;
-  final VoidCallback goBack;
+  final VoidCallback? goBack;
 
   NavigationBar({
-    Key key,
-    NavigationBarController controller,
+    Key? key,
+    NavigationBarController? controller,
     this.goBack,
   })
       : this.controller = controller ?? NavigationBarController(),
@@ -49,35 +49,35 @@ class NavigationBarController extends ChangeNotifier {
     }
   }
 
-  SystemUiOverlayStyle _statusBarStyle;
+  SystemUiOverlayStyle? _statusBarStyle;
 
   ///背景颜色
   Color get backgroundColor =>
       _backgroundColor ?? ColorTheme.navigationBarBackgroundColor;
 
-  set backgroundColor(Color color) {
+  set backgroundColor(Color? color) {
     if (color != _backgroundColor) {
       _backgroundColor = color;
       notifyListeners();
     }
   }
 
-  Color _backgroundColor;
+  Color? _backgroundColor;
 
   ///阴影颜色
   Color get shadowColor => _shadowColor ?? ColorTheme.navigationBarShadowColor;
 
-  set shadowColor(Color color) {
+  set shadowColor(Color? color) {
     if (color != _shadowColor) {
       _shadowColor = color;
       notifyListeners();
     }
   }
 
-  Color _shadowColor;
+  Color? _shadowColor;
 
   ///间距
-  double get padding => _padding ?? 15;
+  double get padding => _padding;
 
   set padding(double padding) {
     if (padding != _padding) {
@@ -91,136 +91,126 @@ class NavigationBarController extends ChangeNotifier {
   ///标题 样式
   TextStyle get titleStyle => _titleStyle ?? AppTheme.navigationBarTitleStyle;
 
-  set titleStyle(TextStyle style) {
+  set titleStyle(TextStyle? style) {
     if (_titleStyle != titleStyle) {
       _titleStyle = titleStyle;
       notifyListeners();
     }
   }
 
-  TextStyle _titleStyle;
+  TextStyle? _titleStyle;
 
   ///标题
-  String get title => _title;
+  String? get title => _title;
 
-  set title(String title) {
+  set title(String? title) {
     if (_title != title) {
       _title = title;
       notifyListeners();
     }
   }
 
-  String _title;
+  String? _title;
 
   ///中间组件
-  Widget get middle {
+  Widget? get middle {
     if (_middle != null)
       return _middle;
 
     if (title != null) {
-      _middle = Text(title, style: titleStyle,);
+      _middle = Text(title!, style: titleStyle,);
     }
 
     return _middle;
   }
 
-  set middle(Widget widget) {
+  set middle(Widget? widget) {
     if (_middle != widget) {
       _middle = widget;
       notifyListeners();
     }
   }
 
-  Widget _middle;
+  Widget? _middle;
 
   ///左边组件 优先使用
-  Widget get leading {
+  Widget? get leading {
     if (_leading != null)
       return _leading;
 
     if (leadingItem != null) {
-      return leadingItem.getWidget(padding);
+      return leadingItem!.getWidget(padding);
     }
 
     return _leading;
   }
 
-  set leading(Widget widget) {
+  set leading(Widget? widget) {
     if (_leading != widget) {
       _leading = widget;
       notifyListeners();
     }
   }
 
-  Widget _leading;
+  Widget? _leading;
 
   ///左边按钮
-  NavigationBarItem get leadingItem {
-    if (_leadingItem != null)
-      return _leadingItem;
+  NavigationBarItem? get leadingItem => _leadingItem;
 
-    return _leadingItem;
-  }
-
-  set leadingItem(NavigationBarItem item) {
+  set leadingItem(NavigationBarItem? item) {
     if (_leadingItem != item) {
       _leadingItem = item;
       notifyListeners();
     }
   }
 
-  NavigationBarItem _leadingItem;
+  NavigationBarItem? _leadingItem;
 
   ///右边组件 优先使用
-  Widget get trailing {
+  Widget? get trailing {
     if (_trailing != null)
       return _trailing;
 
     if (trailingItem != null) {
-      return trailingItem.getWidget(padding);
+      return trailingItem!.getWidget(padding);
     }
 
     return _trailing;
   }
 
-  set trailing(Widget widget) {
+  set trailing(Widget? widget) {
     if (_trailing != widget) {
       _trailing = widget;
       notifyListeners();
     }
   }
 
-  Widget _trailing;
+  Widget? _trailing;
 
   ///左边按钮
-  NavigationBarItem get trailingItem {
-    if (_trailingItem != null)
-      return _trailingItem;
+  NavigationBarItem? get trailingItem => _trailingItem;
 
-    return _trailingItem;
-  }
-
-  set trailingItem(NavigationBarItem item) {
+  set trailingItem(NavigationBarItem? item) {
     if (_trailingItem != item) {
       _trailingItem = item;
       notifyListeners();
     }
   }
 
-  NavigationBarItem _trailingItem;
+  NavigationBarItem? _trailingItem;
 
   NavigationBarController({
-    SystemUiOverlayStyle statusBarStyle,
-    Color backgroundColor,
-    Color shadowColor,
-    double padding,
-    TextStyle titleStyle,
-    String title,
-    Widget middle,
-    Widget leading,
-    NavigationBarItem leadingItem,
-    Widget trailing,
-    NavigationBarItem trailingItem
+    SystemUiOverlayStyle? statusBarStyle,
+    Color? backgroundColor,
+    Color? shadowColor,
+    double padding = 12,
+    TextStyle? titleStyle,
+    String? title,
+    Widget? middle,
+    Widget? leading,
+    NavigationBarItem? leadingItem,
+    Widget? trailing,
+    NavigationBarItem? trailingItem
   }) {
     _statusBarStyle = statusBarStyle;
     _backgroundColor = backgroundColor;
@@ -239,9 +229,9 @@ class NavigationBarController extends ChangeNotifier {
 ///导航栏按钮
 class NavigationBarItem {
 
-  final String title;
-  final Widget child;
-  final VoidCallback onPressed;
+  final String? title;
+  final Widget? child;
+  final VoidCallback? onPressed;
 
   NavigationBarItem({
     this.title,
@@ -255,7 +245,7 @@ class NavigationBarItem {
     return CupertinoButton(
       color: Colors.transparent,
       padding: EdgeInsets.only(left: padding, right: padding),
-      child: child ?? Text(title, style: AppTheme.navigationBarItemStyle,),
+      child: child ?? Text(title!, style: AppTheme.navigationBarItemStyle,),
       disabledColor: Colors.transparent,
       borderRadius: null,
       onPressed: onPressed,
@@ -285,7 +275,7 @@ class _NavigationBarState extends State<NavigationBar> {
             ),
             onPressed: () {
               if (widget.goBack != null) {
-                widget.goBack();
+                widget.goBack!();
               } else {
                 Navigator.of(context).pop();
               }
@@ -309,15 +299,9 @@ class _NavigationBarState extends State<NavigationBar> {
       types.add(_Type.trailing);
     }
 
-    Border border = widget.controller.shadowColor != null
-        ? Border(
-        bottom: BorderSide(color: widget.controller.shadowColor, width: 0.5))
-        : null;
+    Border border = Border(bottom: BorderSide(color: widget.controller.shadowColor, width: 0.5));
 
-    var top = MediaQuery
-        .of(context)
-        .padding
-        .top;
+    var top = MediaQuery.of(context).padding.top;
     return AnnotatedRegion<SystemUiOverlayStyle>(
         value: widget.controller.statusBarStyle,
         sized: true,
@@ -343,10 +327,10 @@ class _NavigationContent extends MultiChildRenderObjectWidget {
   final NavigationBarController controller;
 
   _NavigationContent({
-    Key key,
+    Key? key,
     List<Widget> children = const <Widget>[],
-    this.types,
-    this.controller,
+    required this.types,
+    required this.controller,
   }) : super(
     key: key,
     children: children,
@@ -396,9 +380,10 @@ class _NavigationContentRenderBox extends RenderBox
 
   NavigationBarController _controller;
 
-  _NavigationContentRenderBox(
-      {List<_Type> types, NavigationBarController controller})
-      : _types = types,
+  _NavigationContentRenderBox({
+    required List<_Type> types,
+    required NavigationBarController controller
+  }): _types = types,
         _controller = controller;
 
   @override
@@ -425,12 +410,12 @@ class _NavigationContentRenderBox extends RenderBox
         minHeight: constraints.maxHeight,
         maxHeight: constraints.maxHeight);
 
-    RenderBox child = firstChild;
+    RenderBox? child = firstChild;
     double height = constraints.maxHeight;
     double width = constraints.maxWidth;
-    RenderBox leading;
-    RenderBox trailing;
-    RenderBox middle;
+    RenderBox? leading;
+    RenderBox? trailing;
+    RenderBox? middle;
 
     int index = 0;
     double remainingSpacing = width;
@@ -441,7 +426,7 @@ class _NavigationContentRenderBox extends RenderBox
       if(type != _Type.middle){
         remainingSpacing -= child.size.width;
       }
-      _NavigationContentParentData parentData = child.parentData;
+      _NavigationContentParentData parentData = child.parentData as _NavigationContentParentData;
 
       switch(type){
         case _Type.leading :
@@ -473,7 +458,7 @@ class _NavigationContentRenderBox extends RenderBox
           maxWidth: remainingSpacing,
           minHeight: 0,
           maxHeight: height), parentUsesSize: true);
-      _NavigationContentParentData parentData = middle.parentData;
+      _NavigationContentParentData parentData = middle.parentData as _NavigationContentParentData;
       double dx = (width - middle.size.width) / 2;
       if(leading != null && dx < leading.size.width){
         dx = leading.size.width;
@@ -490,7 +475,7 @@ class _NavigationContentRenderBox extends RenderBox
   }
 
   @override
-  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
     return defaultHitTestChildren(result, position: position);
   }
 }

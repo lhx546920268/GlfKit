@@ -24,13 +24,11 @@ const Color _kActiveTickColor = CupertinoDynamicColor.withBrightness(
 class ActivityIndicator extends StatefulWidget {
   /// Creates an iOS-style activity indicator that spins clockwise.
   const ActivityIndicator({
-    Key key,
+    Key? key,
     this.animating = true,
     this.radius = _kDefaultIndicatorRadius,
     this.activeColor,
-  }) : assert(animating != null),
-        assert(radius != null),
-        assert(radius > 0),
+  }) : assert(radius > 0),
         super(key: key);
 
   /// Whether the activity indicator is running its animation.
@@ -44,7 +42,7 @@ class ActivityIndicator extends StatefulWidget {
   final double radius;
 
   ///
-  final Color activeColor;
+  final Color? activeColor;
 
   @override
   _ActivityIndicatorState createState() => _ActivityIndicatorState();
@@ -52,7 +50,7 @@ class ActivityIndicator extends StatefulWidget {
 
 
 class _ActivityIndicatorState extends State<ActivityIndicator> with SingleTickerProviderStateMixin {
-  AnimationController _controller;
+  AnimationController? _controller;
 
   @override
   void initState() {
@@ -63,7 +61,7 @@ class _ActivityIndicatorState extends State<ActivityIndicator> with SingleTicker
     );
 
     if (widget.animating)
-      _controller.repeat();
+      _controller?.repeat();
   }
 
   @override
@@ -71,15 +69,15 @@ class _ActivityIndicatorState extends State<ActivityIndicator> with SingleTicker
     super.didUpdateWidget(oldWidget);
     if (widget.animating != oldWidget.animating) {
       if (widget.animating)
-        _controller.repeat();
+        _controller?.repeat();
       else
-        _controller.stop();
+        _controller?.stop();
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -90,7 +88,7 @@ class _ActivityIndicatorState extends State<ActivityIndicator> with SingleTicker
       width: widget.radius * 2,
       child: CustomPaint(
         painter: _ActivityIndicatorPainter(
-          position: _controller,
+          position: _controller!,
           activeColor: widget.activeColor ?? CupertinoDynamicColor.resolve(_kActiveTickColor, context),
           radius: widget.radius,
         ),
@@ -108,9 +106,9 @@ const List<int> _alphaValues = <int>[147, 131, 114, 97, 81, 64, 47, 47, 47, 47, 
 
 class _ActivityIndicatorPainter extends CustomPainter {
   _ActivityIndicatorPainter({
-    @required this.position,
-    @required this.activeColor,
-    double radius,
+    required this.position,
+    required this.activeColor,
+    required double radius,
   }) : tickFundamentalRRect = RRect.fromLTRBXY(
     -radius,
     radius / _kDefaultIndicatorRadius,

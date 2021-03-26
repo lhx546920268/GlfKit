@@ -23,10 +23,9 @@ class TextUtils {
         int maxLines = 1,
       }) {
 
-    assert(style != null);
     TextPainter painter = TextPainter(
       //AUTO：华为手机如果不指定locale的时候，该方法算出来的文字高度是比系统计算偏小的。
-        locale: Localizations.localeOf(context, nullOk: true),
+        locale: Localizations.localeOf(context),
         maxLines: maxLines,
         textDirection: TextDirection.ltr,
         text: TextSpan(
@@ -39,7 +38,7 @@ class TextUtils {
   }
 
   ///判断是否为空
-  static bool isEmpty(String str, {bool replaceSpace = true}) {
+  static bool isEmpty(String? str, {bool replaceSpace = true}) {
     if (str == null || str is! String || str.isEmpty) return true;
     if (replaceSpace && str
         .replaceAll(RegExp('\s'), '')
@@ -50,15 +49,12 @@ class TextUtils {
 
   ///给url添加参数
   static String addParams(String url, String params) {
-    assert(params != null);
     if(TextUtils.isEmpty(url))
       return url;
 
     var uri = Uri.parse(url);
-    if(uri == null)
-      return url;
 
-    if(uri.fragment != null && uri.fragment.contains('?')){
+    if(uri.fragment.contains('?')){
       uri = uri.replace(fragment: '${uri.fragment}&$params');
     }else{
       if(TextUtils.isEmpty(uri.query)){
@@ -70,19 +66,13 @@ class TextUtils {
     return uri.toString();
   }
 
-  static String getQueryValue(String url, String key){
-    assert(key != null);
+  static String? getQueryValue(String url, String key){
     if(TextUtils.isEmpty(url))
       return null;
 
     var uri = Uri.parse(url);
-    if(uri == null)
-      return null;
 
-    String value;
-    if(uri.queryParameters != null){
-      value = uri.queryParameters[key];
-    }
+    String? value = uri.queryParameters[key];
 
     //有些参数可能在fragment那里
     var fragment = uri.fragment;

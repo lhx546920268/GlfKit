@@ -11,13 +11,13 @@ class BadgeValue extends SingleChildRenderObjectWidget {
   final _Style _style;
 
   BadgeValue({
-    Key key,
-    Widget child,
-    double minWidth,
-    double minHeight,
-    EdgeInsets padding,
-    Color color,
-    double pointSize,
+    Key? key,
+    Widget? child,
+    double? minWidth,
+    double? minHeight,
+    EdgeInsets? padding,
+    Color? color,
+    double? pointSize,
   }): _style = _Style(
       minWidth: minWidth ?? 15,
       minHeight: minHeight ?? 15,
@@ -51,11 +51,11 @@ class _Style {
   double pointSize;
 
   _Style({
-    this.minWidth,
-    this.minHeight,
-    this.padding,
-    this.color,
-    this.pointSize
+    required this.minWidth,
+    required this.minHeight,
+    required this.padding,
+    required this.color,
+    required this.pointSize
   });
 
   @override
@@ -85,20 +85,20 @@ class _BadgeValueRenderObject extends RenderShiftedBox {
   }
   _Style _style;
 
-  _BadgeValueRenderObject({RenderBox child, _Style style}): _style = style, super(child);
+  _BadgeValueRenderObject({RenderBox? child, required _Style style}): _style = style, super(child);
 
   @override
   void performLayout() {
     if(child != null){
-      child.layout(constraints, parentUsesSize: true);
+      child!.layout(constraints, parentUsesSize: true);
 
-      BoxParentData parentData = child.parentData as BoxParentData;
+      BoxParentData parentData = child!.parentData as BoxParentData;
 
-      double width = max(child.size.width + _style.padding.left + _style.padding.right, _style.minWidth);
-      double height = max(child.size.height + _style.padding.top + _style.padding.bottom, _style.minHeight);
+      double width = max(child!.size.width + _style.padding.left + _style.padding.right, _style.minWidth);
+      double height = max(child!.size.height + _style.padding.top + _style.padding.bottom, _style.minHeight);
       width = max(height, width);
 
-      parentData.offset = Offset((width - child.size.width) / 2, (height - child.size.height) / 2);
+      parentData.offset = Offset((width - child!.size.width) / 2, (height - child!.size.height) / 2);
 
       size = Size(width, height);
     }else{

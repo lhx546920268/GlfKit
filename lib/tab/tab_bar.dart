@@ -8,21 +8,21 @@ import 'package:flutter/rendering.dart';
 class TabBar extends StatefulWidget {
 
   final List<TabItem> items;
-  final Color backgroundColor;
-  final Border border;
+  final Color? backgroundColor;
+  final Border? border;
   final TextStyle style;
   final TextStyle activeStyle;
   final TabBarController controller;
 
   TabBar({
-    Key key,
-    this.items,
+    Key? key,
+    required this.items,
     this.backgroundColor,
     this.border,
-    this.style,
-    this.activeStyle,
-    this.controller
-  }): super(key: key);
+    required this.style,
+    required this.activeStyle,
+    TabBarController? controller
+  }): this.controller = controller ?? TabBarController(), super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -67,7 +67,7 @@ class _TabBarState extends State<TabBar> {
     var item = widget.items[index];
     List<Widget> children = [];
 
-    Widget icon = selected ? item.activeIcon ?? item.icon : item.icon ?? item.activeIcon;
+    Widget? icon = selected ? item.activeIcon ?? item.icon : item.icon ?? item.activeIcon;
     if(icon != null){
       if(item.activeIcon != null && item.icon != null){
         children.add(Stack(
@@ -90,12 +90,12 @@ class _TabBarState extends State<TabBar> {
     if(item.title != null){
       children.add(DefaultTextStyle(
         style: selected ? widget.activeStyle : widget.style,
-        child: item.title,
+        child: item.title!,
       ));
     }
 
     if(item.badgeValue != null){
-      children.add(item.badgeValue);
+      children.add(item.badgeValue!);
     }
 
     return Expanded(
@@ -115,9 +115,9 @@ class TabBarItem extends MultiChildRenderObjectWidget {
   final TabItem item;
 
   TabBarItem({
-    Key key,
+    Key? key,
     List<Widget> children = const <Widget>[],
-    @required this.item,
+    required this.item,
   }): super(key: key, children: children);
 
   @override
@@ -135,7 +135,7 @@ class _TabBarItemRenderObject extends RenderBox with
 
   TabItem item;
 
-  _TabBarItemRenderObject({this.item});
+  _TabBarItemRenderObject({required this.item});
 
   @override
   void setupParentData(RenderObject child) {
@@ -153,12 +153,12 @@ class _TabBarItemRenderObject extends RenderBox with
         minHeight: constraints.minHeight,
         maxHeight: constraints.maxHeight);
 
-    RenderBox child = firstChild;
+    RenderBox? child = firstChild;
     double height = constraints.maxHeight;
     double width = constraints.maxWidth;
-    RenderBox icon;
-    RenderBox title;
-    RenderBox badgeValue;
+    RenderBox? icon;
+    RenderBox? title;
+    RenderBox? badgeValue;
 
     int index = 0;
     while(child != null){
@@ -232,7 +232,7 @@ class _TabBarItemRenderObject extends RenderBox with
   }
 
   @override
-  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
     return defaultHitTestChildren(result, position: position);
   }
 }

@@ -25,20 +25,18 @@ enum _Status {show, willShow, dismiss}
 class Loading{
 
   //全局的
-  static OverlayEntry _entry;
-  static _StatusNotifier _statusNotifier;
+  static OverlayEntry? _entry;
+  static _StatusNotifier? _statusNotifier;
 
   static void show(
       BuildContext context, {
-        String text,
-        TextStyle style,
-        Duration delay,
-        Size size,
-        BorderRadius borderRadius,
-        Color backgroundColor
+        String? text,
+        TextStyle? style,
+        Duration? delay,
+        Size? size,
+        BorderRadius? borderRadius,
+        Color? backgroundColor
       }){
-
-    assert(context != null);
 
     Widget child = Column(
       mainAxisSize: MainAxisSize.min,
@@ -56,29 +54,31 @@ class Loading{
 
     _statusNotifier = _StatusNotifier(delay != null ? _Status.willShow : _Status.show);
 
-    OverlayState overlayState = Overlay.of(context);
-    _entry = OverlayEntry(builder: (BuildContext context){
+    OverlayState? overlayState = Overlay.of(context);
+    if(overlayState != null){
+      _entry = OverlayEntry(builder: (BuildContext context){
 
-      return _LoadingWidget(
-        child: child,
-        backgroundColor: backgroundColor ?? _kDefaultBackgroundColor,
-        borderRadius: borderRadius ?? _kDefaultBorderRadius,
-        delay: delay,
-        onDismiss: _onDismiss,
-        statusNotifier: _statusNotifier,
-        size: size ?? _kDefaultSize,
-      );
-    }, opaque: false);
-    overlayState.insert(_entry);
+        return _LoadingWidget(
+          child: child,
+          backgroundColor: backgroundColor ?? _kDefaultBackgroundColor,
+          borderRadius: borderRadius ?? _kDefaultBorderRadius,
+          delay: delay,
+          onDismiss: _onDismiss,
+          statusNotifier: _statusNotifier,
+          size: size ?? _kDefaultSize,
+        );
+      }, opaque: false);
+      overlayState.insert(_entry!);
+    }
   }
 
   static void dismiss({bool animate = true}) {
     if(_statusNotifier != null){
       // _statusNotifier.hasListeners 有时候消失太快 没initState 导致没有监听者
-      if(_statusNotifier.status == _Status.willShow || !animate || !_statusNotifier.available){
+      if(_statusNotifier!.status == _Status.willShow || !animate || !_statusNotifier!.available){
         _onDismiss();
       }else{
-        _statusNotifier.status = _Status.dismiss;
+        _statusNotifier!.status = _Status.dismiss;
       }
     }
   }
@@ -98,7 +98,7 @@ class _StatusNotifier extends ChangeNotifier {
     }
   }
   _Status get status => _status ?? _Status.show;
-  _Status _status;
+  _Status? _status;
 
   _StatusNotifier(_Status status): _status = status;
 
@@ -111,19 +111,19 @@ class _LoadingWidget extends StatefulWidget{
   final Widget child;
   final Color backgroundColor;
   final BorderRadius borderRadius;
-  final _StatusNotifier statusNotifier;
-  final Duration delay;
+  final _StatusNotifier? statusNotifier;
+  final Duration? delay;
   final VoidCallback onDismiss;
   final Size size;
 
   _LoadingWidget({
-    this.child,
-    this.backgroundColor,
-    this.borderRadius,
+    required this.child,
+    required this.backgroundColor,
+    required this.borderRadius,
     this.statusNotifier,
     this.delay,
-    this.onDismiss,
-    this.size,
+    required this.onDismiss,
+    required this.size,
   });
 
   @override
@@ -135,12 +135,12 @@ class _LoadingWidget extends StatefulWidget{
 class _LoadingWidgetState extends State<_LoadingWidget> {
 
   double _opacity = 1.0;
-  Timer _timer;
+  Timer? _timer;
 
   @override
   void initState() {
     if(widget.delay != null){
-      _timer = Timer(widget.delay, () {
+      _timer = Timer(widget.delay!, () {
         widget.statusNotifier?.status = _Status.show;
       });
     }
@@ -156,22 +156,25 @@ class _LoadingWidgetState extends State<_LoadingWidget> {
   }
 
   void _onStatusChange() {
-    switch(widget.statusNotifier.status){
-      case _Status.show :
-      case _Status.willShow : {
-        setState(() {
-
-        });
-      }
-      break;
-      case _Status.dismiss : {
-        if(mounted){
+    var status = widget.statusNotifier?.status;
+    if(status != null){
+      switch(status){
+        case _Status.show :
+        case _Status.willShow : {
           setState(() {
-            _opacity = 0;
+
           });
         }
+        break;
+        case _Status.dismiss : {
+          if(mounted){
+            setState(() {
+              _opacity = 0;
+            });
+          }
+        }
+        break;
       }
-      break;
     }
   }
 

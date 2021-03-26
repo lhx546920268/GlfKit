@@ -10,27 +10,27 @@ enum ArrowDirection {left, top, right, bottom }
 class Popover extends StatelessWidget {
 
   //显示一个弹窗，使用 Navigator.of(context).pop() 关闭
-  static Future<T> show<T>({
-    @required BuildContext context,
-    @required Widget child,
-    Rect relatedRect, // relatedRect和clickWidgetKey必须有一个
-    Key clickWidgetKey, //
-    Key key,
-    ArrowDirection arrowDirection, //null 将自动计算方向
+  static Future<T?> show<T>({
+    required BuildContext context,
+    required Widget child,
+    Rect? relatedRect, // relatedRect和clickWidgetKey必须有一个
+    GlobalKey? clickWidgetKey, //
+    Key? key,
+    ArrowDirection? arrowDirection, //null 将自动计算方向
     double arrowMargin = 5,
     double arrowMinPadding = 10,
     Color popoverColor = Colors.white,
-    BoxShadow shadow,
+    BoxShadow? shadow,
     double cornerRadius = 10,
     Size arrowSize = const Size(18, 12),
     EdgeInsets margin =
         const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
     Color barrierColor = const Color(0x01000000),
     bool barrierDismissible = true,
-    Duration duration,
+    Duration? duration,
   }) {
-    assert(context != null && child != null);
-    return showGeneralDialog(
+    assert(clickWidgetKey != null || relatedRect != null);
+    return showGeneralDialog<T>(
         context: context,
         barrierDismissible: barrierDismissible,
         barrierColor: barrierColor,
@@ -64,32 +64,27 @@ class Popover extends StatelessWidget {
   }
 
   Popover({
-    Key key,
-    GlobalKey clickWidgetKey,
-    Rect relatedRect,
-    ArrowDirection arrowDirection,
+    Key? key,
+    GlobalKey? clickWidgetKey,
+    Rect? relatedRect,
+    ArrowDirection? arrowDirection,
     double arrowMargin = 5,
     double arrowMinPadding = 10,
     Color popoverColor = Colors.white,
-    BoxShadow shadow,
+    BoxShadow? shadow,
     double cornerRadius = 10,
     Size arrowSize = const Size(18, 12),
     EdgeInsets margin = const EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
-    @required this.child,
-    this.animation,
+    required this.child,
+    required this.animation,
   }) : super(key: key){
 
     assert(clickWidgetKey != null || relatedRect != null);
-    assert(arrowMargin != null);
-    assert(popoverColor != null);
-    assert(cornerRadius != null);
-    assert(arrowSize != null);
-    assert(margin != null);
-    assert(child != null);
 
     if(relatedRect == null){
-      final RenderBox renderBox = clickWidgetKey.currentContext.findRenderObject();
-      final Size size = renderBox.size;
+      final RenderBox? renderBox = clickWidgetKey!.currentContext?.findRenderObject() as RenderBox?;
+      assert(renderBox != null, "Popover clickWidgetKey does not relate a widget");
+      final Size size = renderBox!.size;
       final Offset offset = renderBox.localToGlobal(Offset.zero);
       relatedRect = Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
     }
@@ -110,10 +105,10 @@ class Popover extends StatelessWidget {
   }
 
   ///位置
-  _PopoverPosition _position;
+  late _PopoverPosition _position;
 
   ///样式
-  _PopoverStyle _style;
+  late _PopoverStyle _style;
 
   ///要显示的内容
   final Widget child;
@@ -149,7 +144,7 @@ class _PopoverPosition {
   final Rect relatedRect;
 
   ///箭头方向
-  final ArrowDirection arrowDirection;
+  final ArrowDirection? arrowDirection;
 
   ///箭头和点击位置的间距
   final double arrowMargin;
@@ -160,8 +155,12 @@ class _PopoverPosition {
   ///外边距
   final EdgeInsets margin;
 
-  _PopoverPosition(
-      {this.relatedRect, this.arrowDirection, this.arrowMargin, this.margin, this.arrowMinPadding});
+  _PopoverPosition({
+    required this.relatedRect,
+    this.arrowDirection,
+    required this.arrowMargin,
+    required this.margin,
+    required this.arrowMinPadding});
 
   @override
   bool operator ==(dynamic other) {
@@ -188,7 +187,7 @@ class _PopoverStyle{
   final Color backgroundColor;
 
   ///阴影
-  final BoxShadow shadow;
+  final BoxShadow? shadow;
 
   ///圆角
   final double cornerRadius;
@@ -197,10 +196,10 @@ class _PopoverStyle{
   final Size arrowSize;
 
   _PopoverStyle({
-    this.backgroundColor,
+    required this.backgroundColor,
     this.shadow,
-    this.cornerRadius,
-    this.arrowSize,
+    required this.cornerRadius,
+    required this.arrowSize,
   });
 
   @override
@@ -225,9 +224,9 @@ class _PopoverPositioned extends SingleChildRenderObjectWidget {
   final _PopoverPosition position;
 
   _PopoverPositioned({
-    Key key,
-    Widget child,
-    this.position,
+    Key? key,
+    Widget? child,
+    required this.position,
   }) : super(key: key, child: child);
 
   @override
@@ -248,12 +247,12 @@ class _PopoverPositioned extends SingleChildRenderObjectWidget {
 class _PopoverPositionedRenderBox extends RenderShiftedBox {
 
   ///弹窗位置
-  _PopoverPosition _position;
+   _PopoverPosition _position;
 
-  _PopoverPositionedRenderBox({RenderBox child, _PopoverPosition position})
-      : super(child) {
-    _position = position;
-  }
+  _PopoverPositionedRenderBox({
+    RenderBox? child,
+    required _PopoverPosition position
+  }): _position = position, super(child);
 
   _PopoverPosition get position => _position;
   set position(_PopoverPosition position) {
@@ -265,6 +264,11 @@ class _PopoverPositionedRenderBox extends RenderShiftedBox {
 
   @override
   void performLayout() {
+    if(this.child == null){
+      return;
+    }
+
+    RenderBox child = this.child!;
     final childConstraints = this.constraints;
     child.layout(childConstraints, parentUsesSize: true);
 
@@ -326,8 +330,6 @@ class _PopoverPositionedRenderBox extends RenderShiftedBox {
           }
         }
         break;
-      default:
-        break;
     }
 
     BoxParentData parentData = child.parentData as BoxParentData;
@@ -348,11 +350,11 @@ class _PopoverContent extends SingleChildRenderObjectWidget {
   final _PopoverPosition position;
 
   _PopoverContent({
-    Key key,
-    Widget child,
-    this.style,
-    this.scale,
-    this.position
+    Key? key,
+    Widget? child,
+    required this.style,
+    required this.scale,
+    required this.position
   }) : super(key: key, child: child);
 
   @override
@@ -382,15 +384,11 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
   _PopoverPosition _position;
 
   _PopoverContentRenderBox({
-    RenderBox child,
-    double scale,
-    _PopoverStyle style,
-    _PopoverPosition position
-  }) : super(child){
-    _scale = scale;
-    _style = style;
-    _position = position;
-  }
+    RenderBox? child,
+    required double scale,
+    required _PopoverStyle style,
+    required _PopoverPosition position
+  }) : _scale = scale, _style = style, _position = position, super(child);
 
   double get scale => _scale;
   set scale(double scale){
@@ -418,6 +416,11 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
 
   @override
   void performLayout() {
+    if(this.child == null){
+      return;
+    }
+
+    RenderBox child = this.child!;
     child.layout(constraints, parentUsesSize: true);
 
     double width;
@@ -443,8 +446,6 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
         dy = 0;
       }
       break;
-      default:
-        break;
     }
 
     size = Size(width, height);
@@ -454,7 +455,11 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    if(this.child == null){
+      return;
+    }
 
+    RenderBox child = this.child!;
     Size childSize = child.size;
 
     ArrowDirection direction = _calcArrowDirection(_position, childSize, constraints);
@@ -463,14 +468,14 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
     Offset arrowOffset = _calcArrowOffset(direction, _position, offset, childSize, style);
 
     //绘制背景
-    Path path = _getBackgroundPath(direction, offset, arrowOffset);
+    Path path = _getBackgroundPath(direction, offset, arrowOffset)!;
     Paint paint = Paint();
     paint.color = _style.backgroundColor;
 
     //绘制阴影
-    Paint shadowPaint;
+    Paint? shadowPaint;
     if(_style.shadow != null){
-      shadowPaint = _style.shadow.toPaint();
+      shadowPaint = _style.shadow!.toPaint();
     }
 
     //缩放
@@ -493,8 +498,13 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
   }
 
   ///获取弹窗背景路径
-  Path _getBackgroundPath(ArrowDirection direction, Offset offset, Offset arrowOffset){
+  Path? _getBackgroundPath(ArrowDirection direction, Offset offset, Offset arrowOffset){
 
+    if(this.child == null){
+      return null;
+    }
+
+    RenderBox child = this.child!;
     double dx = offset.dx;
     double dy = offset.dy;
     double width = child.size.width;
@@ -503,7 +513,6 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
     double arrowHeight = _style.arrowSize.height;
     double cornerRadius = _style.cornerRadius;
     Radius radius = Radius.circular(cornerRadius);
-
 
     //箭头位置
     double arrowDx = arrowOffset.dx;
@@ -635,8 +644,6 @@ class _PopoverContentRenderBox extends RenderShiftedBox {
         path.lineTo(right + arrowHeight, dy + height / 2);
       }
       break;
-      default:
-        break;
     }
 
     return path;
@@ -663,7 +670,7 @@ ArrowDirection _calcArrowDirection(_PopoverPosition position, Size childSize, Bo
     }
   }
 
-  return position.arrowDirection;
+  return position.arrowDirection!;
 }
 
 ///获取箭头位置

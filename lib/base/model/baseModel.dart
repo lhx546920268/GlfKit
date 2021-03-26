@@ -8,11 +8,11 @@ export '../collection/safe_map.dart';
 mixin BaseModel {
 
   ///解析json
-  T fromJson<T>(Map map){
+  T? fromJson<T>(Map? map){
     return fromMap(SafeMap(map));
   }
 
-  T fromMap<T>(SafeMap map){
+  T? fromMap<T>(SafeMap map){
     parseData(map);
     dynamic value = this;
     if(value is T){

@@ -58,9 +58,20 @@ import 'package:flutter/rendering.dart';
  */
 
 ///滑动通知
-class PageScrollNotification extends ValueNotifier<ScrollNotification>{
+class PageScrollNotification extends ChangeNotifier{
 
-  PageScrollNotification(ScrollNotification notification) : super(notification);
+  ScrollNotification? get notification => _notification;
+  ScrollNotification? _notification;
+  set notification(ScrollNotification? notification) {
+    if (_notification == notification)
+      return;
+    _notification = notification;
+    notifyListeners();
+  }
+
+  PageScrollNotification(ScrollNotification? notification) {
+    _notification = notification;
+  }
 }
 
 ///菜单条控制器
@@ -100,38 +111,35 @@ class MenuBar extends StatefulWidget {
   final Color selectedTextColor;
 
   ///选中改变
-  final ValueChanged<int> onChange;
+  final ValueChanged<int>? onChange;
 
   ///关联的page滑动通知
-  final PageScrollNotification scrollNotification;
+  final PageScrollNotification? scrollNotification;
 
   ///控制器
-  MenuBarController _controller;
+  late MenuBarController _controller;
 
   ///样式
-  MenuBarStyle _style;
+  late MenuBarStyle _style;
 
   MenuBar({
-    Key key,
+    Key? key,
     this.height = 45,
-    this.titles,
+    required this.titles,
     this.selectedPosition = 0,
     this.fontSize = 14,
     this.textColor = Colors.black,
     this.selectedTextColor = Colors.blue,
     this.onChange,
     this.scrollNotification,
-    MenuBarController controller,
-    double indicatorWidth,
+    MenuBarController? controller,
+    double? indicatorWidth,
     double indicatorHeight = 2,
     Color indicatorColor = Colors.blue,
     double spacing = 20,
     bool equalWidth = false,
     EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 20),
-  })  : assert(height != null),
-        assert(selectedPosition != null),
-        assert(fontSize != null),
-        super(key: key) {
+  }) : super(key: key) {
     _style = MenuBarStyle(
       equalWidth: equalWidth,
       indicatorWidth: indicatorWidth,
@@ -157,17 +165,17 @@ class MenuBarState extends State<MenuBar> with SingleTickerProviderStateMixin {
   var keys = Map<int, GlobalKey>();
 
   ///动画
-  AnimationController animationController;
-  Animation<double> animation;
+  AnimationController? animationController;
+  Animation<double>? animation;
 
   ///滑动监听
-  ScrollNotification _scrollNotification;
+  ScrollNotification? _scrollNotification;
 
   @override
   void initState() {
     super.initState();
     animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 200));
-    animation = Tween<double>(begin: 0, end: 1.0).animate(animationController)
+    animation = Tween<double>(begin: 0, end: 1.0).animate(animationController!)
       ..addListener(() {
         setState(() {});
       });
@@ -178,14 +186,16 @@ class MenuBarState extends State<MenuBar> with SingleTickerProviderStateMixin {
 
   ///page滑动改变
   void _onPageScrollNotification(){
-    ScrollNotification scrollNotification = widget.scrollNotification.value;
-    int position;
+    ScrollNotification? scrollNotification = widget.scrollNotification?.notification;
+    int? position;
 
-    ScrollMetrics metrics = scrollNotification.metrics;
-    double value = metrics.pixels % metrics.viewportDimension / metrics.viewportDimension;
+    if(scrollNotification != null){
+      ScrollMetrics metrics = scrollNotification.metrics;
+      double value = metrics.pixels % metrics.viewportDimension / metrics.viewportDimension;
 
-    //避免选中的效果有延迟
-    position = metrics.pixels ~/ metrics.viewportDimension + (value - value.floor() > 0.9 ? 1 : 0);
+      //避免选中的效果有延迟
+      position = metrics.pixels ~/ metrics.viewportDimension + (value - value.floor() > 0.9 ? 1 : 0);
+    }
 
     if(scrollNotification is ScrollEndNotification || scrollNotification is UserScrollNotification){
       scrollNotification = null;
@@ -218,7 +228,7 @@ class MenuBarState extends State<MenuBar> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     var titles = widget.titles;
 
-    List<Widget> children = List();
+    List<Widget> children = [];
     for (int i = 0; i < titles.length; i++) {
       if (keys[i] == null) {
         keys[i] = GlobalKey();
@@ -249,7 +259,7 @@ class MenuBarState extends State<MenuBar> with SingleTickerProviderStateMixin {
         scrollDirection: Axis.horizontal,
         child: _MenuBarFlex(
           selectedPosition: widget._controller.position,
-          animatedValue: animationController.isAnimating ? animation.value : 1.0,
+          animatedValue: (animationController?.isAnimating ?? false) ? animation!.value : 1.0,
           children: children,
           style: widget._style,
           scrollNotification: _scrollNotification,
@@ -263,18 +273,22 @@ class MenuBarState extends State<MenuBar> with SingleTickerProviderStateMixin {
     setState(() {
       widget._controller._position = position;
     });
-    animationController.reset();
-    animationController.forward();
+    animationController?.reset();
+    animationController?.forward();
     if(callback && widget.onChange != null){
-      widget.onChange(position);
+      widget.onChange!(position);
     }
    // _animateTo(position);
   }
 
   ///滑动到某个位置
   void _animateTo(int position){
-    Scrollable.ensureVisible(keys[position].currentContext,
-        alignment: 0.5, duration: animationController.duration);
+    final context = keys[position]?.currentContext;
+    final duration = animationController?.duration;
+    if(context != null && duration != null){
+      Scrollable.ensureVisible(context,
+          alignment: 0.5, duration: duration);
+    }
   }
 }
 
@@ -285,7 +299,7 @@ class MenuBarStyle {
   final bool equalWidth;
 
   ///下划线宽度，如果为空或者<=0，则使用选中的item宽度
-  final double indicatorWidth;
+  final double? indicatorWidth;
 
   ///下划线高度
   final double indicatorHeight;
@@ -299,13 +313,13 @@ class MenuBarStyle {
   ///内边距仅支持左右
   final EdgeInsets padding;
 
-  MenuBarStyle(
-      {this.equalWidth,
-        this.indicatorWidth,
-      this.indicatorHeight,
-      this.indicatorColor,
-      this.spacing,
-      this.padding});
+  MenuBarStyle({
+    required this.equalWidth,
+    this.indicatorWidth,
+    required this.indicatorHeight,
+    required this.indicatorColor,
+    required this.spacing,
+    required this.padding});
 
   @override
   int get hashCode => hashValues(
@@ -314,16 +328,15 @@ class MenuBarStyle {
   ///是否需要显示下划线
   bool shouldDisplayIndicator() =>
       indicatorHeight > 0 &&
-      indicatorColor != null &&
       indicatorColor.opacity > 0.01;
 
   ///获取下划线宽度
   double indicatorWidthFor(RenderBox child){
-    if(indicatorWidth == null || indicatorWidth <= 0){
+    if(indicatorWidth == null || indicatorWidth! <= 0){
       return child.size.width;
     }
 
-    return indicatorWidth;
+    return indicatorWidth!;
   }
 
   @override
@@ -345,20 +358,20 @@ class _MenuBarFlex extends MultiChildRenderObjectWidget {
   final int selectedPosition;
 
   ///当前动画值
-  final double animatedValue;
+  final double? animatedValue;
 
   ///样式
   final MenuBarStyle style;
 
   ///关联的page滑动通知
-  final ScrollNotification scrollNotification;
+  final ScrollNotification? scrollNotification;
 
   _MenuBarFlex({
-    Key key,
+    Key? key,
     List<Widget> children = const <Widget>[],
     this.selectedPosition = 0,
     this.animatedValue,
-    this.style,
+    required this.style,
     this.scrollNotification,
   }) : super(
           key: key,
@@ -392,7 +405,7 @@ class _MenuBarFlex extends MultiChildRenderObjectWidget {
 class MenuBarParentData extends ContainerBoxParentData<RenderBox> {
 
   ///原始大小
-  Size size;
+  Size? size;
 }
 
 class MenuBarRenderBox extends RenderBox
@@ -403,10 +416,10 @@ class MenuBarRenderBox extends RenderBox
   double windowWidth;
 
   ///当前选中的子视图
-  RenderBox _selectedChild;
+  RenderBox? _selectedChild;
 
   ///以前选中的子视图
-  RenderBox _oldSelectedChild;
+  RenderBox? _oldSelectedChild;
 
   ///当前选中的
   int _selectedPosition;
@@ -420,8 +433,8 @@ class MenuBarRenderBox extends RenderBox
   }
 
   ///动画值
-  double _animatedValue;
-  set animatedValue(double value) {
+  double? _animatedValue;
+  set animatedValue(double? value) {
     if (_animatedValue != value) {
       _animatedValue = value;
       markNeedsPaint();
@@ -438,8 +451,8 @@ class MenuBarRenderBox extends RenderBox
   }
 
   ///关联的page滑动通知
-  ScrollNotification _scrollNotification;
-  set scrollNotification(ScrollNotification notification){
+  ScrollNotification? _scrollNotification;
+  set scrollNotification(ScrollNotification? notification){
     if(notification != _scrollNotification){
       _scrollNotification = notification;
       markNeedsPaint();
@@ -447,12 +460,12 @@ class MenuBarRenderBox extends RenderBox
   }
 
   MenuBarRenderBox({
-    this.windowWidth,
-    List<RenderBox> children,
+    required this.windowWidth,
+    List<RenderBox>? children,
     int selectedPosition = 0,
-    double animatedValue,
-    MenuBarStyle style,
-    ScrollNotification scrollNotification,
+    double? animatedValue,
+    required MenuBarStyle style,
+    ScrollNotification? scrollNotification,
   })  : _selectedPosition = selectedPosition,
         _animatedValue = animatedValue,
         _style = style {
@@ -461,12 +474,12 @@ class MenuBarRenderBox extends RenderBox
 
   //获取选中的child
   void _fetchSelectedChildIfNeeded() {
-    if (_selectedChild == null || _selectedChild.parent != this) {
+    if (_selectedChild == null || _selectedChild!.parent != this) {
       _oldSelectedChild = _oldSelectedChild ?? firstChild;
       int index = 0;
-      RenderBox child = firstChild;
+      RenderBox? child = firstChild;
       while (index != _selectedPosition) {
-        child = childAfter(child);
+        child = childAfter(child!);
         index++;
       }
       _selectedChild = child;
@@ -503,14 +516,14 @@ class MenuBarRenderBox extends RenderBox
         minHeight: constraints.minHeight,
         maxHeight: constraints.maxHeight);
 
-    RenderBox child = firstChild;
-    double dx = _style.padding?.left ?? 0;
+    RenderBox? child = firstChild;
+    double dx = _style.padding.left;
     double height = constraints.maxHeight;
 
     while (child != null) {
       child.layout(childConstraints, parentUsesSize: true);
 
-      MenuBarParentData parentData = child.parentData;
+      MenuBarParentData parentData = child.parentData as MenuBarParentData;
       parentData.offset = Offset(dx, (height - child.size.height) / 2);
       parentData.size = child.size;
 
@@ -520,17 +533,17 @@ class MenuBarRenderBox extends RenderBox
       dx += child.size.width;
       child = parentData.nextSibling;
       if(child != null){
-        dx += _style.spacing ?? 0;
+        dx += _style.spacing;
       }
     }
 
-    dx += _style.padding?.right ?? 0;
+    dx += _style.padding.right;
 
     size = Size(dx, height);
   }
 
   @override
-  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
     return defaultHitTestChildren(result, position: position);
   }
 
@@ -542,22 +555,22 @@ class MenuBarRenderBox extends RenderBox
     if (childCount > 0 && _style.shouldDisplayIndicator()) {
       _fetchSelectedChildIfNeeded();
 
-      RenderBox child;
-      RenderBox oldChild;
+      RenderBox? child;
+      RenderBox? oldChild;
 
-      double value;
+      double? value;
       if(_scrollNotification != null){
 
-        ScrollMetrics metrics = _scrollNotification.metrics;
+        ScrollMetrics metrics = _scrollNotification!.metrics;
         if(!metrics.outOfRange){
           oldChild = _selectedChild;
           if(metrics.pixels < _selectedPosition * metrics.viewportDimension){
-            child = (_selectedChild.parentData as MenuBarParentData).previousSibling;
+            child = (_selectedChild?.parentData as MenuBarParentData?)?.previousSibling;
             if(child != null){
               value = 1.0 - metrics.pixels % metrics.viewportDimension / metrics.viewportDimension;
             }
           }else{
-            child = (_selectedChild.parentData as MenuBarParentData).nextSibling;
+            child = (_selectedChild?.parentData as MenuBarParentData?)?.nextSibling;
             if(child != null){
               value = metrics.pixels % metrics.viewportDimension / metrics.viewportDimension;
             }
@@ -574,12 +587,12 @@ class MenuBarRenderBox extends RenderBox
         value = _animatedValue ?? 1;
       }
 
-      MenuBarParentData parentData = child.parentData as MenuBarParentData;
-      double dx = parentData.offset.dx + (child.size.width - parentData.size.width) / 2 + (parentData.size.width - _style.indicatorWidthFor(child)) / 2;
+      MenuBarParentData parentData = child!.parentData as MenuBarParentData;
+      double dx = parentData.offset.dx + (child.size.width - parentData.size!.width) / 2 + (parentData.size!.width - _style.indicatorWidthFor(child)) / 2;
       double dy = size.height - _style.indicatorHeight;
 
-      MenuBarParentData oldParentData = oldChild.parentData as MenuBarParentData;
-      double oldDx = oldParentData.offset.dx + (child.size.width - parentData.size.width) / 2 + (oldParentData.size.width - _style.indicatorWidthFor(oldChild)) / 2;
+      MenuBarParentData oldParentData = oldChild!.parentData as MenuBarParentData;
+      double oldDx = oldParentData.offset.dx + (child.size.width - parentData.size!.width) / 2 + (oldParentData.size!.width - _style.indicatorWidthFor(oldChild)) / 2;
 
       double indicatorWidth = _style.indicatorWidthFor(oldChild) +
           (_style.indicatorWidthFor(child) - _style.indicatorWidthFor(oldChild)) * value;

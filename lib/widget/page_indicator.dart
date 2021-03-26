@@ -12,28 +12,28 @@ class PageIndicatorController extends ChangeNotifier {
       notifyListeners();
     }
   }
-  int _curPage;
+  int? _curPage;
 }
 
 class PageIndicator extends StatefulWidget {
 
-  final Color color;
-  final Color selectedColor;
-  final double size;
-  final double margin;
-  final Alignment alignment;
-  final PageIndicatorController controller;
+  final Color? color;
+  final Color? selectedColor;
+  final double? size;
+  final double? margin;
+  final Alignment? alignment;
+  final PageIndicatorController? controller;
   final int numberOfPage;
 
   PageIndicator({
-    Key key,
+    Key? key,
     this.color,
     this.selectedColor,
     this.margin,
     this.size,
     this.alignment,
     this.controller,
-    @required this.numberOfPage
+    required this.numberOfPage
   }): super(key: key);
 
   @override
@@ -47,8 +47,8 @@ class _PageIndicatorState extends State<PageIndicator> {
   @override
   Widget build(BuildContext context) {
 
-    Widget child;
-    if(widget.numberOfPage != null && widget.numberOfPage > 0){
+    Widget? child;
+    if(widget.numberOfPage > 0){
 
       var size = widget.size ?? 10;
       child = Row(
