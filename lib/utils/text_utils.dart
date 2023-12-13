@@ -39,7 +39,7 @@ class TextUtils {
 
   ///判断是否为空
   static bool isEmpty(String? str, {bool replaceSpace = true}) {
-    if (str == null || str is! String || str.isEmpty) return true;
+    if (str == null || str.isEmpty) return true;
     if (replaceSpace && str
         .replaceAll(RegExp('\s'), '')
         .isEmpty) return true;

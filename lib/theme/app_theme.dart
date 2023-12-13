@@ -1,6 +1,7 @@
 
 import 'package:GlfKit/theme/color_theme.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class AppTheme {
@@ -18,5 +19,9 @@ class AppTheme {
   static TextStyle navigationBarItemStyle = TextStyle(fontSize: 14, color: ColorTheme.themeTintColor, fontWeight: FontWeight.normal);
 
   ///状态栏样式
-  static SystemUiOverlayStyle statusBarStyle = SystemUiOverlayStyle.light;
+  static SystemUiOverlayStyle statusBarStyle = SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
+      statusBarIconBrightness: Brightness.light);
 }

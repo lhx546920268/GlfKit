@@ -1,7 +1,6 @@
 
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 ///默认2秒后消失
@@ -70,25 +69,23 @@ class Toast{
     _entry?.remove();
 
     OverlayState? overlayState = Overlay.of(context);
-    if(overlayState != null){
-      _entry = OverlayEntry(builder: (BuildContext context){
+    _entry = OverlayEntry(builder: (BuildContext context){
 
-        return _ToastWidget(
-          child: widget,
-          backgroundColor: backgroundColor,
-          borderRadius: borderRadius,
-          gravity: gravity,
-          padding: padding,
-          margin: margin,
-          showDuration: duration,
-          onDismiss: () {
-            _entry?.remove();
-            _entry = null;
-          },
-        );
-      }, opaque: false);
-      overlayState.insert(_entry!);
-    }
+      return _ToastWidget(
+        child: widget,
+        backgroundColor: backgroundColor,
+        borderRadius: borderRadius,
+        gravity: gravity,
+        padding: padding,
+        margin: margin,
+        showDuration: duration,
+        onDismiss: () {
+          _entry?.remove();
+          _entry = null;
+        },
+      );
+    }, opaque: false);
+    overlayState.insert(_entry!);
   }
 }
 

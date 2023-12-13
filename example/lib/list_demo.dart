@@ -1,6 +1,5 @@
 
 
-import 'package:GlfKit/widget/navigation_bar.dart';
 import 'package:GlfKit/widget/page.dart';
 import 'package:flutter/material.dart';
 import 'package:GlfKit/utils/route_utils.dart';
@@ -19,6 +18,11 @@ class _SectionListDemoState extends State<SectionListDemo> with StatefulPageStat
   @override
   NavigationBarController configNavigationBar(BuildContext context){
     return NavigationBarController(title: 'SectionListView');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return buildInternal(context);
   }
 
   @override
@@ -142,6 +146,11 @@ class _RouteDemo extends State<RouteDemo> with StatefulPageState  {
   @override
   NavigationBarController configNavigationBar(BuildContext context){
     return NavigationBarController(title: 'RouteDemo');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return buildInternal(context);
   }
 }
 

@@ -6,13 +6,13 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 ///导航栏
-class NavigationBar extends StatefulWidget
+class CustomNavigationBar extends StatefulWidget
     implements ObstructingPreferredSizeWidget {
 
   final NavigationBarController controller;
   final VoidCallback? goBack;
 
-  NavigationBar({
+  CustomNavigationBar({
     Key? key,
     NavigationBarController? controller,
     this.goBack,
@@ -27,7 +27,7 @@ class NavigationBar extends StatefulWidget
 
   @override
   State<StatefulWidget> createState() {
-    return _NavigationBarState();
+    return _CustomNavigationBarState();
   }
 
   @override
@@ -254,7 +254,7 @@ class NavigationBarItem {
   }
 }
 
-class _NavigationBarState extends State<NavigationBar> {
+class _CustomNavigationBarState extends State<CustomNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
@@ -302,6 +302,7 @@ class _NavigationBarState extends State<NavigationBar> {
     Border border = Border(bottom: BorderSide(color: widget.controller.shadowColor, width: 0.5));
 
     var top = MediaQuery.of(context).padding.top;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
         value: widget.controller.statusBarStyle,
         sized: true,

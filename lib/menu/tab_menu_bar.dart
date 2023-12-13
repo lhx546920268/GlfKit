@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -75,7 +74,7 @@ class PageScrollNotification extends ChangeNotifier{
 }
 
 ///菜单条控制器
-class MenuBarController extends ChangeNotifier {
+class TabMenuBarController extends ChangeNotifier {
 
   int _position = 0;
   int get position => _position;
@@ -91,7 +90,7 @@ class MenuBarController extends ChangeNotifier {
 
 ///条形菜单
 // ignore: must_be_immutable
-class MenuBar extends StatefulWidget {
+class TabMenuBar extends StatefulWidget {
   ///菜单栏高度
   final double height;
 
@@ -117,12 +116,12 @@ class MenuBar extends StatefulWidget {
   final PageScrollNotification? scrollNotification;
 
   ///控制器
-  late MenuBarController _controller;
+  late TabMenuBarController _controller;
 
   ///样式
   late MenuBarStyle _style;
 
-  MenuBar({
+  TabMenuBar({
     Key? key,
     this.height = 45,
     required this.titles,
@@ -132,7 +131,7 @@ class MenuBar extends StatefulWidget {
     this.selectedTextColor = Colors.blue,
     this.onChange,
     this.scrollNotification,
-    MenuBarController? controller,
+    TabMenuBarController? controller,
     double? indicatorWidth,
     double indicatorHeight = 2,
     Color indicatorColor = Colors.blue,
@@ -149,17 +148,17 @@ class MenuBar extends StatefulWidget {
       padding: padding,
     );
 
-    _controller = controller ?? MenuBarController();
+    _controller = controller ?? TabMenuBarController();
     _controller._position = selectedPosition;
   }
 
   @override
   State<StatefulWidget> createState() {
-    return MenuBarState();
+    return TabMenuBarState();
   }
 }
 
-class MenuBarState extends State<MenuBar> with SingleTickerProviderStateMixin {
+class TabMenuBarState extends State<TabMenuBar> with SingleTickerProviderStateMixin {
 
   ///item标识符
   var keys = Map<int, GlobalKey>();
@@ -322,7 +321,7 @@ class MenuBarStyle {
     required this.padding});
 
   @override
-  int get hashCode => hashValues(
+  int get hashCode => Object.hash(
       indicatorWidth, indicatorHeight, indicatorColor, spacing, padding);
 
   ///是否需要显示下划线

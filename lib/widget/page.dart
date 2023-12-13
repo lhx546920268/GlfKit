@@ -1,13 +1,13 @@
 
 
 import 'package:GlfKit/loading/page_fail.dart';
-import 'package:GlfKit/widget/navigation_bar.dart';
+import 'package:GlfKit/widget/custom_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:GlfKit/loading/page_loading.dart';
 
-export 'navigation_bar.dart';
+export 'custom_navigation_bar.dart';
 
 ///页面状态
 enum PageStatus {normal, loading, fail, empty}
@@ -35,11 +35,8 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
   NavigationBarController? get navigationBarController => _navigationBarController;
   NavigationBarController? _navigationBarController;
 
-  Widget build(BuildContext context) {
+  Widget buildInternal(BuildContext context) {
 
-    if(shouldCallSuperBuild){
-      super.build(context);
-    }
     var topWidget = getTopWidget(context);
     var bottomWidget = getBottomWidget(context);
 
@@ -82,7 +79,7 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
       return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: backgroundColor,
-        navigationBar: navigationBar,
+        navigationBar: getNavigationBar(context),
         child: child,
       );
     } else {
@@ -92,8 +89,6 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
       );
     }
   }
-
-  //  bool get shouldCallSuperBuild => false;
 
   Widget? getTopWidget(BuildContext context) {
     return null;
@@ -106,8 +101,6 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
   Widget? getContentWidget(BuildContext context) {
     return null;
   }
-
-  bool get shouldCallSuperBuild => false;
 
   @mustCallSuper
   Widget wrapContentWidget(BuildContext context, Widget content) {
@@ -154,8 +147,7 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
     return null;
   }
 
-  NavigationBar? getNavigationBar(
-      BuildContext context) {
+  CustomNavigationBar? getNavigationBar(BuildContext context) {
 
     NavigationBarController? controller = configNavigationBar(context);
     if(controller == null){
@@ -163,10 +155,7 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
     }
 
     _navigationBarController = controller;
-    return NavigationBar(
-      controller: controller,
-      goBack: goBack,
-    );
+    return CustomNavigationBar(controller: controller, goBack: goBack);
   }
 
   //返回
@@ -255,7 +244,7 @@ mixin RefreshPageState<T extends StatefulWidget> on StatefulPageState<T> {
   }
 
   void stopLoadMore(bool hasMore){
-    easyRefreshController?.finishLoad(noMore: !hasMore);
+    easyRefreshController?.finishLoad(hasMore ? IndicatorResult.success : IndicatorResult.noMore);
     _isLoadingMore = false;
   }
 }

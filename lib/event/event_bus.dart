@@ -1,7 +1,7 @@
 
 import 'dart:collection';
 
-typedef EventCallback = void Function(dynamic? value);
+typedef EventCallback = void Function(dynamic value);
 
 class Event {
 
@@ -53,7 +53,7 @@ class EventBus {
   }
 
   ///发送一个事件
-  void post(String name, {dynamic? value}){
+  void post(String name, {dynamic value}){
     Set? set = _subscribers[name];
     if(set != null && set.isNotEmpty){
       for(EventCallback callback in set){

@@ -2,10 +2,10 @@
 
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+//角标
 class BadgeValue extends SingleChildRenderObjectWidget {
 
   final _Style _style;
@@ -72,7 +72,7 @@ class _Style {
   }
 
   @override
-  int get hashCode => hashValues(minWidth, minHeight, padding, color, pointSize);
+  int get hashCode => Object.hash(minWidth, minHeight, padding, color, pointSize);
 }
 
 class _BadgeValueRenderObject extends RenderShiftedBox {

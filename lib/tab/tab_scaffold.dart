@@ -74,8 +74,8 @@ class TabBarScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return ColoredBox(
-      color: backgroundColor ?? Colors.white,
+    return Container(
+      color: backgroundColor ?? Colors.blue,
       child: SafeArea(
         top: false,
         bottom: true,

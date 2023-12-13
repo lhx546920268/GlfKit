@@ -6,9 +6,9 @@ import 'package:GlfKit/event/event_bus.dart';
 import 'package:GlfKit/loading/loading.dart';
 import 'package:GlfKit/tab/tab_item.dart';
 import 'package:GlfKit/tab/tab_scaffold.dart';
+import 'package:GlfKit/utils/app_utils.dart';
 import 'package:GlfKit/utils/route_utils.dart';
 import 'package:GlfKit/widget/badge_value.dart';
-import 'package:GlfKit/widget/navigation_bar.dart';
 import 'package:GlfKit/widget/page.dart';
 import 'package:example/drop_down_menu_demo.dart';
 import 'package:example/grid_demo.dart';
@@ -30,12 +30,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    MediaQueryData data =
-        MediaQueryData.fromWindow(WidgetsBinding.instance!.window);
-    kStatusBarHeight = data.padding.top;
+    kStatusBarHeight = AppUtils.getStatusBarHeight(context);
 
     return CupertinoApp(
         title: 'GliKitDemo',
+        theme: CupertinoThemeData(brightness: Brightness.light),
         home: TabBarScaffold(items: _tabBarItems(), tabBuilder: _tabBuilder, controller: controller,));
   }
 
@@ -88,23 +87,43 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-enum Type {
-  me,
-  him
+class HomeListItem {
+
+  final String title;
+  final Function() onTap;
+  final int count;
+
+  HomeListItem(this.title, this.onTap, this.count);
 }
 
 class _MyHomePageState extends State<MyHomePage> with StatefulPageState {
   GlobalKey key = GlobalKey();
+  late final List<HomeListItem> items;
 
   @override
   void initState() {
+    items = [
+      HomeListItem("SectionListView", () => _openPage(SectionListDemo()), 1),
+      HomeListItem("SectionGridView", () => _openPage(SectionGridViewDemo()),
+          15),
+      HomeListItem("Toast", () => Toast.showText(context, '这是一个 Toast这是一个'),
+          39),
+      HomeListItem("Loading", () {
+        Loading.show(context);
+        Timer(Duration(milliseconds: 2000), () {
+          Loading.dismiss();
+        });
+      }, 0),
+      HomeListItem("Popover", _showPopover, -1),
+      HomeListItem("MenuBar", () => _openPage(MenuBarDemo()), 0),
+      HomeListItem("DropDownMenuDemo", () => _openPage(DropDownMenuDemo()), 0),
+    ];
+
     super.initState();
 
     EventBus.defaultBus.subscribe('onLogin', _onValueChange);
     EventBus.defaultBus.subscribe('onLogout', _onValueChange);
   }
-
-
 
   @override
   void dispose() {
@@ -124,6 +143,11 @@ class _MyHomePageState extends State<MyHomePage> with StatefulPageState {
   }
 
   @override
+  Widget build(BuildContext context) {
+    return buildInternal(context);
+  }
+
+  @override
   Widget getContentWidget(BuildContext context) {
     return FutureBuilder(
       future: _loadData(),
@@ -136,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> with StatefulPageState {
             {
               return ListView(
                 children: List.generate(
-                    7, (index) => _getListItem(index, context)),
+                    items.length, (index) => _getListItem(index, context)),
               );
             }
           case ConnectionState.waiting:
@@ -157,75 +181,21 @@ class _MyHomePageState extends State<MyHomePage> with StatefulPageState {
   }
 
   Widget _getListItem(int index, BuildContext context) {
-    String? title;
+    final item = items[index];
     Widget? trailing;
-    switch (index) {
-      case 0:
-        title = 'SectionListView';
-        trailing = BadgeValue(child: Text('1', style: TextStyle(color: Colors.white, fontSize: 12),),);
-        break;
-      case 1:
-        title = 'SectionGridView';
-        trailing = BadgeValue(child: Text('15', style: TextStyle(color: Colors.white, fontSize: 12),),);
-        break;
-      case 2:
-        title = 'Toast';
-        trailing = BadgeValue(child: Text('39', style: TextStyle(color: Colors.white, fontSize: 12),),);
-        break;
-      case 3:
-        title = "Popover";
-        trailing = BadgeValue();
-        break;
-      case 4:
-        title = "MenuBar";
-        break;
-      case 5:
-        title = "DropDownMenuDemo";
-        break;
-      case 6 :
-        title = "Loading";
-        break;
+    if (item.count > 0) {
+      trailing = BadgeValue(child: Text("${item.count}", style: TextStyle(color: Colors
+          .white, fontSize: 12),),);
+    } else if (item.count < 0) {
+      trailing = BadgeValue();
     }
 
     return Stack(
       children: <Widget>[
         GestureDetector(
+          behavior: HitTestBehavior.translucent,
           key: index == 3 ? key : null,
-          onTap: () {
-            if (index == 3) {
-              _showPopover();
-              return;
-            }
-
-            if(index == 6) {
-              Loading.show(context);
-              Timer(Duration(milliseconds: 2000), () {
-                Loading.dismiss();
-              });
-              return;
-            }
-
-            if (index != 2) {
-              Widget? child;
-              switch (index) {
-                case 0:
-                  child = SectionListDemo();
-                  break;
-                case 1:
-                  child = SectionGridViewDemo();
-                  break;
-                case 4:
-                  child = MenuBarDemo();
-                  break;
-                case 5:
-                  child = DropDownMenuDemo();
-                  break;
-              }
-              RouteUtils.push(context, child!);
-            } else {
-              Toast.showText(context, '这是一个 Toast这是一个');
-            }
-          },
+          onTap: item.onTap,
           child: Container(
             height: 50,
             alignment: Alignment.center,
@@ -233,7 +203,7 @@ class _MyHomePageState extends State<MyHomePage> with StatefulPageState {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(title!, style: TextStyle(fontSize: 16)),
+                Text(item.title, style: TextStyle(fontSize: 16)),
                 if(trailing != null)
                   trailing,
               ],
@@ -248,6 +218,10 @@ class _MyHomePageState extends State<MyHomePage> with StatefulPageState {
         )
       ],
     );
+  }
+
+  void _openPage(Widget page) {
+    RouteUtils.push(context, page);
   }
 
   void _showPopover() async {

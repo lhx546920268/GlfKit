@@ -241,12 +241,14 @@ class CustomPageMetrics extends FixedScrollMetrics {
     required double? viewportDimension,
     required AxisDirection axisDirection,
     required this.viewportFraction,
+    required double devicePixelRatio,
   }) : super(
     minScrollExtent: minScrollExtent,
     maxScrollExtent: maxScrollExtent,
     pixels: pixels,
     viewportDimension: viewportDimension,
     axisDirection: axisDirection,
+    devicePixelRatio: devicePixelRatio
   );
 
   @override
@@ -257,6 +259,7 @@ class CustomPageMetrics extends FixedScrollMetrics {
     double? viewportDimension,
     AxisDirection? axisDirection,
     double? viewportFraction,
+    double? devicePixelRatio,
   }) {
     return CustomPageMetrics(
       minScrollExtent: minScrollExtent ?? (hasContentDimensions ? this.minScrollExtent : null),
@@ -265,6 +268,7 @@ class CustomPageMetrics extends FixedScrollMetrics {
       viewportDimension: viewportDimension ?? (hasViewportDimension ? this.viewportDimension : null),
       axisDirection: axisDirection ?? this.axisDirection,
       viewportFraction: viewportFraction ?? this.viewportFraction,
+      devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio
     );
   }
 
@@ -368,13 +372,13 @@ class _CustomPagePosition extends ScrollPositionWithSingleContext implements Cus
 
   @override
   void saveScrollOffset() {
-    PageStorage.of(context.storageContext)?.writeState(context.storageContext, getPageFromPixels(pixels, viewportDimension));
+    PageStorage.of(context.storageContext).writeState(context.storageContext, getPageFromPixels(pixels, viewportDimension));
   }
 
   @override
   void restoreScrollOffset() {
     if (!hasPixels) {
-      final double? value = PageStorage.of(context.storageContext)?.readState(context.storageContext) as double?;
+      final double? value = PageStorage.of(context.storageContext).readState(context.storageContext) as double?;
       if (value != null)
         _pageToUseOnStartup = value;
     }
@@ -429,6 +433,7 @@ class _CustomPagePosition extends ScrollPositionWithSingleContext implements Cus
     double? viewportDimension,
     AxisDirection? axisDirection,
     double? viewportFraction,
+    double? devicePixelRatio,
   }) {
     return CustomPageMetrics(
       minScrollExtent: minScrollExtent ?? (hasContentDimensions ? this.minScrollExtent : null),
@@ -437,6 +442,7 @@ class _CustomPagePosition extends ScrollPositionWithSingleContext implements Cus
       viewportDimension: viewportDimension ?? (hasViewportDimension ? this.viewportDimension : null),
       axisDirection: axisDirection ?? this.axisDirection,
       viewportFraction: viewportFraction ?? this.viewportFraction,
+      devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio
     );
   }
 }
@@ -503,12 +509,14 @@ class CustomPageScrollPhysics extends ScrollPhysics {
     // If we're out of range and not headed back in range, defer to the parent
     // ballistics, which should put us back in range at a page boundary.
     if ((velocity <= 0.0 && position.pixels <= position.minScrollExtent) ||
-        (velocity >= 0.0 && position.pixels >= position.maxScrollExtent))
+        (velocity >= 0.0 && position.pixels >= position.maxScrollExtent)) {
       return super.createBallisticSimulation(position, velocity);
-    final Tolerance tolerance = this.tolerance;
+    }
+    final Tolerance tolerance = toleranceFor(position);
     final double target = _getTargetPixels(position, tolerance, velocity);
-    if (target != position.pixels)
+    if (target != position.pixels) {
       return ScrollSpringSimulation(spring, position.pixels, target, velocity, tolerance: tolerance);
+    }
     return null;
   }
 

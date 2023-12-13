@@ -4,7 +4,6 @@ import 'dart:async';
 import 'package:GlfKit/widget/page_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:GlfKit/widget/custom_page_view.dart';
 
 const Duration _defaultAnimationInterval = Duration(seconds: 5);
 
@@ -37,7 +36,7 @@ class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
 
   ///计时器
   Timer? _timer;
-  CustomPageController? _pageController;
+  PageController? _pageController;
   PageIndicatorController? _indicatorController;
 
   @override
@@ -68,7 +67,7 @@ class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
 
     int realCount = widget.count;
     bool isInfinite = realCount > 1;
-    _pageController = CustomPageController(
+    _pageController = PageController(
       initialPage: isInfinite ? 1 : 0
     );
 
@@ -90,7 +89,7 @@ class _AppBanner extends State<AppBanner> with SingleTickerProviderStateMixin{
     }
 
     List<Widget> children = [];
-    children.add(CustomPageView(
+    children.add(PageView(
       controller: _pageController!,
       onPageChanged: onPageChanged,
       children: List.generate(count, (index){

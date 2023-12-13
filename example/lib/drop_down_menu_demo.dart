@@ -2,7 +2,7 @@ import 'package:GlfKit/menu/drop_down_menu.dart';
 import 'package:GlfKit/event/event_bus.dart';
 import 'package:GlfKit/theme/app_theme.dart';
 import 'package:GlfKit/theme/color_theme.dart';
-import 'package:GlfKit/widget/navigation_bar.dart';
+import 'package:GlfKit/widget/custom_navigation_bar.dart';
 import 'package:GlfKit/widget/page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +35,6 @@ mixin PageState<T extends StatefulWidget> on State<T>{
 
 class DropDownMenuDemoState extends State<DropDownMenuDemo> with PageState implements DropDownMenuDelegate {
 
-  @override
   NavigationBarController configNavigationBar(BuildContext context){
     return NavigationBarController(title: 'DropDownMenu');
   }
@@ -45,7 +44,6 @@ class DropDownMenuDemoState extends State<DropDownMenuDemo> with PageState imple
     return super.build(context);
   }
 
-  @override
   Widget getTopWidget(BuildContext context) {
     return Container(
       decoration: BoxDecoration(border: Border(bottom: BorderSide(color: ColorTheme.dividerColor, width: AppTheme.dividerHeight))),

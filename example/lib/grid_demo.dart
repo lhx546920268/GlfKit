@@ -1,5 +1,4 @@
 
-import 'package:GlfKit/widget/navigation_bar.dart';
 import 'package:GlfKit/widget/page.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
@@ -27,6 +26,11 @@ class _SectionGridViewState extends State<SectionGridViewDemo> with StatefulPage
   @override
   Widget getContentWidget(BuildContext context) {
     return SectionGridView.builder(adapter: this);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return buildInternal(context);
   }
 
   void _changeCount(){

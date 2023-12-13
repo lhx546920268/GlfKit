@@ -1,7 +1,7 @@
 
-import 'package:GlfKit/menu/menu_bar.dart';
+import 'package:GlfKit/menu/tab_menu_bar.dart';
 import 'package:GlfKit/theme/color_theme.dart';
-import 'package:GlfKit/widget/navigation_bar.dart';
+import 'package:GlfKit/widget/custom_page_view.dart';
 import 'package:GlfKit/widget/page.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +21,11 @@ class _MenuBarDemoState extends State<MenuBarDemo> with StatefulPageState{
   PageController? pageController;
 
   @override
+  Widget build(BuildContext context) {
+    return buildInternal(context);
+  }
+
+  @override
   Widget getContentWidget(BuildContext context) {
     if(pageController == null){
       pageController = PageController();
@@ -29,7 +34,7 @@ class _MenuBarDemoState extends State<MenuBarDemo> with StatefulPageState{
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        MenuBar(
+        TabMenuBar(
           titles: titles,
           indicatorWidth: 20,
           scrollNotification: scrollNotification,
@@ -41,6 +46,7 @@ class _MenuBarDemoState extends State<MenuBarDemo> with StatefulPageState{
           child: NotificationListener<ScrollNotification>(
             onNotification: _onPageNotification,
             child: PageView(
+              physics: ClampingScrollPhysics(),
               controller: pageController,
               children: List.generate(titles.length, (page) => ListView(
                 children: List.generate(30, (index) => Container(
