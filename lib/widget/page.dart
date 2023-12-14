@@ -1,21 +1,22 @@
 
-
 import 'package:GlfKit/loading/page_fail.dart';
 import 'package:GlfKit/widget/custom_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:GlfKit/loading/page_loading.dart';
+import 'package:get/get.dart';
 
 export 'custom_navigation_bar.dart';
 
 ///页面状态
 enum PageStatus {normal, loading, fail, empty}
 
-mixin StateSafe<T extends StatefulWidget> on State<T> {
+extension StateSafe on State {
 
   setStateSafe(VoidCallback fn){
     if(mounted){
+      // ignore: invalid_use_of_protected_member
       setState(fn);
     }else{
       fn();
@@ -23,71 +24,95 @@ mixin StateSafe<T extends StatefulWidget> on State<T> {
   }
 }
 
-mixin StatefulPageState<T extends StatefulWidget> on State<T> {
-
-  ///页面状态
-  PageStatus pageStatus = PageStatus.normal;
-
-  ///背景颜色
-  Color backgroundColor = Colors.white;
+class BaseController extends GetxController {
 
   ///导航栏控制器
-  NavigationBarController? get navigationBarController => _navigationBarController;
-  NavigationBarController? _navigationBarController;
+  late final navigationBarController = NavigationBarController();
+
+  //页面状态
+  var pageStatus = PageStatus.normal.obs;
+
+  //背景颜色
+  var backgroundColor = Colors.white.obs;
+
+  //是否有导航栏
+  var hasNavigationBar = true.obs;
+
+  void onReloadData(){}
+}
+
+class BaseView<T extends BaseController> extends GetView<T> with BasePage {
+
+  @override
+  Widget build(BuildContext context) {
+    return buildInternal(context);
+  }
+}
+
+mixin BasePage<T extends BaseController> on GetView<T> {
+
+  ///导航栏控制器
+  NavigationBarController get navigationBarController => controller.navigationBarController;
+  bool get hasNavigationBar => controller.hasNavigationBar.value;
+
+  PageStatus get pageStatus => controller.pageStatus.value;
+  Color get backgroundColor => controller.backgroundColor.value;
+
 
   Widget buildInternal(BuildContext context) {
+    return Obx(() {
+      var topWidget = getTopWidget(context);
+      var bottomWidget = getBottomWidget(context);
 
-    var topWidget = getTopWidget(context);
-    var bottomWidget = getBottomWidget(context);
+      List<Widget> children = [];
+      if (topWidget != null) {
+        children.add(topWidget);
+      }
 
-    List<Widget> children = [];
-    if (topWidget != null) {
-      children.add(topWidget);
-    }
+      Widget? contentWidget;
+      switch(pageStatus){
+        case PageStatus.normal :
+          contentWidget = getContentWidget(context);
+          break;
+        case PageStatus.loading :
+          contentWidget = getPageLoadingWidget(context);
+          break;
+        case PageStatus.fail :
+          contentWidget = getPageFailWidget(context);
+          break;
+        case PageStatus.empty :
+          contentWidget = getEmptyWidget(context);
+          break;
+      }
 
-    Widget? contentWidget;
-    switch(pageStatus){
-      case PageStatus.normal :
-        contentWidget = getContentWidget(context);
-        break;
-      case PageStatus.loading :
-        contentWidget = getPageLoadingWidget(context);
-        break;
-      case PageStatus.fail :
-        contentWidget = getPageFailWidget(context);
-        break;
-      case PageStatus.empty :
-        contentWidget = getEmptyWidget(context);
-        break;
-    }
+      if (contentWidget != null) {
+        contentWidget = wrapContentWidget(context, contentWidget);
+        children.add(Expanded(
+          child: contentWidget,
+        ));
+      }
 
-    if (contentWidget != null) {
-      contentWidget = wrapContentWidget(context, contentWidget);
-      children.add(Expanded(
-        child: contentWidget,
-      ));
-    }
+      if (bottomWidget != null) {
+        children.add(bottomWidget);
+      }
 
-    if (bottomWidget != null) {
-      children.add(bottomWidget);
-    }
+      var navigationBar = getNavigationBar(context);
+      var child = wrapContainer(context, Column(children: children));
 
-    var navigationBar = getNavigationBar(context);
-    var child = wrapContainer(context, Column(children: children));
-
-    if (navigationBar != null) {
-      return CupertinoPageScaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: backgroundColor,
-        navigationBar: getNavigationBar(context),
-        child: child,
-      );
-    } else {
-      return Container(
+      if (navigationBar != null) {
+        return CupertinoPageScaffold(
+          resizeToAvoidBottomInset: false,
+          backgroundColor: backgroundColor,
+          navigationBar: getNavigationBar(context),
+          child: child,
+        );
+      } else {
+        return Container(
           color: backgroundColor,
           child: child,
-      );
-    }
+        );
+      }
+    });
   }
 
   Widget? getTopWidget(BuildContext context) {
@@ -140,83 +165,41 @@ mixin StatefulPageState<T extends StatefulWidget> on State<T> {
   }
 
   void onReloadData(){
-
-  }
-
-  NavigationBarController? configNavigationBar(BuildContext context){
-    return null;
+    controller.onReloadData();
   }
 
   CustomNavigationBar? getNavigationBar(BuildContext context) {
-
-    NavigationBarController? controller = configNavigationBar(context);
-    if(controller == null){
-      return null;
-    }
-
-    _navigationBarController = controller;
-    return CustomNavigationBar(controller: controller, goBack: goBack);
+    if (!hasNavigationBar) return null;
+    return CustomNavigationBar(controller: navigationBarController, goBack: goBack);
   }
 
   //返回
   void goBack(){
-    Navigator.of(context).pop();
-  }
-
-  setStateSafe(VoidCallback fn){
-    if(mounted){
-      setState(fn);
-    }else{
-      fn();
-    }
+    Get.back();
   }
 }
 
-///可加载更多和下拉刷新的
-mixin RefreshPageState<T extends StatefulWidget> on StatefulPageState<T> {
+class BaseRefreshController extends BaseController {
 
   ///是否可以刷新
-  bool refreshEnable = false;
+  var refreshEnable = false.obs;
 
   ///是否正在下拉刷新
   bool get isRefreshing => _isRefreshing;
-  bool _isRefreshing = false;
+  var _isRefreshing = false;
 
   ///是否可以加载更多
-  bool loadMoreEnable = false;
+  var loadMoreEnable = false.obs;
 
   ///是否正在加载更多
   bool get isLoadingMore => _isLoadingMore;
-  bool _isLoadingMore = false;
+  var _isLoadingMore = false;
 
   ///刷新控制器
-  EasyRefreshController? easyRefreshController;
+  late final easyRefreshController = EasyRefreshController();
 
   ///分页当前页码
   int curPage = 1;
-
-  @override
-  Widget wrapContentWidget(BuildContext context, Widget content){
-    var child = super.wrapContentWidget(context, content);
-    if ((refreshEnable || loadMoreEnable) && pageStatus == PageStatus.normal) {
-
-      if(easyRefreshController == null){
-        easyRefreshController = EasyRefreshController();
-      }
-      return getEasyRefresh(child);
-    }
-
-    return child;
-  }
-
-  EasyRefresh getEasyRefresh(Widget child){
-    return EasyRefresh(
-      child: child,
-      controller: easyRefreshController,
-      onRefresh: refreshEnable ? willRefresh : null,
-      onLoad: loadMoreEnable ? willLoadMore : null,
-    );
-  }
 
   Future<void> willRefresh() async {
     _isRefreshing = true;
@@ -225,11 +208,11 @@ mixin RefreshPageState<T extends StatefulWidget> on StatefulPageState<T> {
   Future<void> onRefresh() async {}
 
   void startRefresh(){
-    easyRefreshController?.callRefresh();
+    easyRefreshController.callRefresh();
   }
 
   void stopRefresh(){
-    easyRefreshController?.finishRefresh();
+    easyRefreshController.finishRefresh();
     _isRefreshing = false;
   }
 
@@ -240,16 +223,50 @@ mixin RefreshPageState<T extends StatefulWidget> on StatefulPageState<T> {
   Future<void> onLoadMore() async {}
 
   void startLoadMore(){
-    easyRefreshController?.callLoad();
+    easyRefreshController.callLoad();
   }
 
   void stopLoadMore(bool hasMore){
-    easyRefreshController?.finishLoad(hasMore ? IndicatorResult.success : IndicatorResult.noMore);
+    easyRefreshController.finishLoad(hasMore ? IndicatorResult.success : IndicatorResult.noMore);
     _isLoadingMore = false;
   }
 }
 
-mixin ProviderPageState<T extends StatefulWidget> on StatefulPageState<T> {
+class BaseRefreshView<T extends BaseRefreshController> extends BaseView<T> with RefreshPage {
+
+}
+
+///可加载更多和下拉刷新的
+mixin RefreshPage<T extends BaseRefreshController> on BasePage<T> {
+
+  bool get refreshEnable => controller.refreshEnable.value;
+  bool get isRefreshing => controller.isRefreshing;
+  bool get loadMoreEnable => controller.loadMoreEnable.value;
+  bool get isLoadingMore => controller.isLoadingMore;
+  EasyRefreshController get easyRefreshController => controller
+      .easyRefreshController;
+
+  @override
+  Widget wrapContentWidget(BuildContext context, Widget content){
+    var child = super.wrapContentWidget(context, content);
+    if ((refreshEnable || loadMoreEnable) && pageStatus == PageStatus.normal) {
+      return getEasyRefresh(child);
+    }
+
+    return child;
+  }
+
+  EasyRefresh getEasyRefresh(Widget child){
+    return EasyRefresh(
+      child: child,
+      controller: easyRefreshController,
+      onRefresh: refreshEnable ? controller.willRefresh : null,
+      onLoad: loadMoreEnable ? controller.willLoadMore : null,
+    );
+  }
+}
+
+mixin ProviderPage on BasePage {
 
   @override
   Widget wrapContainer(BuildContext context, Widget container) {
@@ -265,7 +282,7 @@ mixin ProviderPageState<T extends StatefulWidget> on StatefulPageState<T> {
   Widget? wrapProviderIfNeeded(BuildContext context, Widget child);
 }
 
-mixin WillScrollKeyboardDismiss <T extends StatefulWidget> on StatefulPageState<T>{
+mixin WillScrollKeyboardDismiss on BasePage{
 
   @override
   Widget wrapContentWidget(BuildContext context, Widget content) {
@@ -281,8 +298,11 @@ mixin WillScrollKeyboardDismiss <T extends StatefulWidget> on StatefulPageState<
   }
 
   bool _willScroll(ScrollStartNotification notification){
-    if(notification.dragDetails != null){
-      FocusScope.of(context).requestFocus(new FocusNode());
+    if(notification.dragDetails != null) {
+      final context = Get.context;
+      if (context != null) {
+        FocusScope.of(context).requestFocus(FocusNode());
+      }
     }
     return true;
   }

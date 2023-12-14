@@ -20,7 +20,7 @@ class AppUtils {
   }
 
   ///关闭键盘
-  static void unfocus(BuildContext context) {
+  static void unFocus(BuildContext context) {
     FocusScope.of(context).requestFocus(FocusNode());
   }
 

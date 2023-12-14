@@ -19,7 +19,8 @@ mixin PageState<T extends StatefulWidget> on State<T>{
 
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(middle: Text("Demo"), backgroundColor: Colors.blue,),
+      navigationBar: CupertinoNavigationBar(middle: Text("Demo"),
+        backgroundColor: Colors.blue,),
       child: Container(
         color: Colors.white,
         child: Column(

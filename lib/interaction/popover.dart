@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -177,7 +176,7 @@ class _PopoverPosition {
 
   @override
   int get hashCode =>
-      hashValues(relatedRect, arrowDirection, arrowMargin, arrowMinPadding, margin);
+      Object.hash(relatedRect, arrowDirection, arrowMargin, arrowMinPadding, margin);
 }
 
 ///弹窗样式
@@ -215,7 +214,7 @@ class _PopoverStyle{
   }
 
   @override
-  int get hashCode => hashValues(backgroundColor, shadow, cornerRadius, arrowSize);
+  int get hashCode => Object.hash(backgroundColor, shadow, cornerRadius, arrowSize);
 }
 
 ///弹窗位置

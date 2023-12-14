@@ -110,9 +110,9 @@ mixin BaseHttpTask {
       Options options = this.options ?? Options();
       options.method = method;
       _response = await dio.request(path, queryParameters: params, options: options, cancelToken: _cancelToken);
-    } on DioError catch (error) {
-      if(error.type != DioErrorType.cancel){
-        print('${dio.options.baseUrl}$path request error $error');
+    } on DioException catch (exception) {
+      if(exception.type != DioExceptionType.cancel){
+        print('${dio.options.baseUrl}$path request exception $exception');
       }
       code = null;
     }

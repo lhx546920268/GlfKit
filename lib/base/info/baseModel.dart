@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 export '../collection/safe_map.dart';
 
 ///基础数据模型
-mixin BaseModel {
+mixin BaseInfo {
 
   ///解析json
   T? fromJson<T>(Map? map){

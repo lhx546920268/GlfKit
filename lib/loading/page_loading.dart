@@ -1,6 +1,5 @@
 
 import 'package:GlfKit/loading/activity_indicator.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class PageLoadingWidget extends StatelessWidget{

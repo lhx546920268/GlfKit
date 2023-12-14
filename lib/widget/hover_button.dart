@@ -1,7 +1,6 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 
 // Measured against iOS 12 in Xcode.
 const EdgeInsets _kButtonPadding = EdgeInsets.all(0.0);

@@ -1,7 +1,6 @@
 
 import 'package:GlfKit/menu/tab_menu_bar.dart';
 import 'package:GlfKit/theme/color_theme.dart';
-import 'package:GlfKit/widget/custom_page_view.dart';
 import 'package:GlfKit/widget/page.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +13,8 @@ class MenuBarDemo extends StatefulWidget{
   }
 }
 
-class _MenuBarDemoState extends State<MenuBarDemo> with StatefulPageState{
+class _MenuBarDemoState extends State<MenuBarDemo> with
+    BasePage{
 
   PageScrollNotification scrollNotification = PageScrollNotification(null);
   List<String> titles = ['零食', '粮油', '生活用品', '家具', '家电', '移动设备', '五金', '生鲜', '衣服', '百货'];

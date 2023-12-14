@@ -2,10 +2,11 @@
 import 'collection_utils.dart' as collection_utils;
 import 'dart:math' as math;
 
+//字典工具类
 extension MapUtils on Map {
 
   T? get<T>(dynamic key){
-    dynamic? value = this[key];
+    dynamic value = this[key];
     if(value != null){
       if(value is T){
         return value;

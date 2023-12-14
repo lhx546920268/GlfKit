@@ -14,7 +14,7 @@ class SectionGridViewDemo extends StatefulWidget{
   }
 }
 
-class _SectionGridViewState extends State<SectionGridViewDemo> with StatefulPageState, SectionAdapterMixin, SectionGridAdapterMixin {
+class _SectionGridViewState extends State<SectionGridViewDemo> with BasePage, SectionAdapterMixin, SectionGridAdapterMixin {
 
   final List<Color> colors = [Colors.red, Colors.orange, Colors.yellow, Colors.green, Colors.cyan, Colors.blue, Colors.purple,];
 

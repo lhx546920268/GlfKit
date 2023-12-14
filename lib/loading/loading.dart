@@ -2,7 +2,6 @@
 import 'dart:async';
 
 import 'package:GlfKit/loading/activity_indicator.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 ///默认文字样式
@@ -54,22 +53,20 @@ class Loading{
 
     _statusNotifier = _StatusNotifier(delay != null ? _Status.willShow : _Status.show);
 
-    OverlayState? overlayState = Overlay.of(context);
-    if(overlayState != null){
-      _entry = OverlayEntry(builder: (BuildContext context){
+    OverlayState overlayState = Overlay.of(context);
+    _entry = OverlayEntry(builder: (BuildContext context){
 
-        return _LoadingWidget(
-          child: child,
-          backgroundColor: backgroundColor ?? _kDefaultBackgroundColor,
-          borderRadius: borderRadius ?? _kDefaultBorderRadius,
-          delay: delay,
-          onDismiss: _onDismiss,
-          statusNotifier: _statusNotifier,
-          size: size ?? _kDefaultSize,
-        );
-      }, opaque: false);
-      overlayState.insert(_entry!);
-    }
+      return _LoadingWidget(
+        child: child,
+        backgroundColor: backgroundColor ?? _kDefaultBackgroundColor,
+        borderRadius: borderRadius ?? _kDefaultBorderRadius,
+        delay: delay,
+        onDismiss: _onDismiss,
+        statusNotifier: _statusNotifier,
+        size: size ?? _kDefaultSize,
+      );
+    }, opaque: false);
+    overlayState.insert(_entry!);
   }
 
   static void dismiss({bool animate = true}) {

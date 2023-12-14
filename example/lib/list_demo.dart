@@ -13,7 +13,7 @@ class SectionListDemo extends StatefulWidget {
   }
 }
 
-class _SectionListDemoState extends State<SectionListDemo> with StatefulPageState, SectionAdapterMixin{
+class _SectionListDemoState extends State<SectionListDemo> with BasePage, SectionAdapterMixin{
 
   @override
   NavigationBarController configNavigationBar(BuildContext context){
@@ -141,7 +141,7 @@ class RouteDemo extends StatefulWidget {
   }
 }
 
-class _RouteDemo extends State<RouteDemo> with StatefulPageState  {
+class _RouteDemo extends State<RouteDemo> with BasePage  {
 
   @override
   NavigationBarController configNavigationBar(BuildContext context){

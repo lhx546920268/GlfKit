@@ -175,29 +175,27 @@ class _DropDownMenuState extends State<DropDownMenu> {
 
     _animationController?.dispose();
 
-    OverlayState? overlayState = Overlay.of(context);
-    if(overlayState != null){
-      _animationController = AnimationController(
-          duration: Duration(milliseconds: 200), vsync: overlayState);
-      _entry = OverlayEntry(builder: (BuildContext context) {
-        return DropDownMenuList(
-          item: item,
-          relatedRect: relatedRect!,
-          onSelect: (){
-            widget.delegate?.onDropDownMenuSelectCondition(widget.items[_selectedPosition!]);
-          },
-          onDismiss: (bool animate) {
-            _dismissList(animate);
-          },
-          listenable: Tween(begin: 0.0, end: 1.0).animate(_animationController!),
-          selectedColor: widget.selectedColor,
-          normalColor: widget.normalColor,
-        );
-      });
+    OverlayState overlayState = Overlay.of(context);
+    _animationController = AnimationController(
+        duration: Duration(milliseconds: 200), vsync: overlayState);
+    _entry = OverlayEntry(builder: (BuildContext context) {
+      return DropDownMenuList(
+        item: item,
+        relatedRect: relatedRect!,
+        onSelect: (){
+          widget.delegate?.onDropDownMenuSelectCondition(widget.items[_selectedPosition!]);
+        },
+        onDismiss: (bool animate) {
+          _dismissList(animate);
+        },
+        listenable: Tween(begin: 0.0, end: 1.0).animate(_animationController!),
+        selectedColor: widget.selectedColor,
+        normalColor: widget.normalColor,
+      );
+    });
 
-      overlayState.insert(_entry!);
-      _animationController!.forward();
-    }
+    overlayState.insert(_entry!);
+    _animationController!.forward();
   }
 
   ///隐藏下拉菜单

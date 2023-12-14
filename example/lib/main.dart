@@ -16,6 +16,7 @@ import 'package:example/list_demo.dart';
 import 'package:example/menu_bar_demo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 double kStatusBarHeight = 0;
 
@@ -31,11 +32,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     kStatusBarHeight = AppUtils.getStatusBarHeight(context);
-
-    return CupertinoApp(
-        title: 'GliKitDemo',
-        theme: CupertinoThemeData(brightness: Brightness.light),
-        home: TabBarScaffold(items: _tabBarItems(), tabBuilder: _tabBuilder, controller: controller,));
+    return GetMaterialApp(
+      home: Home(),
+    );
+    // return GetCupertinoApp(
+    //     title: 'GliKitDemo',
+    //     theme: CupertinoThemeData(brightness: Brightness.light),
+    //     home: TabBarScaffold(items: _tabBarItems(), tabBuilder: _tabBuilder, controller: controller,));
   }
 
   final List<Widget> tabs = [
@@ -44,7 +47,7 @@ class MyApp extends StatelessWidget {
       navigationBar: CupertinoNavigationBar(middle: Text('发现'),),
       child: Container(
         child: Center(
-          child: Text('发现啦'),
+          child: Text("发现"),
         ),
       ),
     ),
@@ -81,12 +84,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
 class HomeListItem {
 
   final String title;
@@ -96,12 +93,14 @@ class HomeListItem {
   HomeListItem(this.title, this.onTap, this.count);
 }
 
-class _MyHomePageState extends State<MyHomePage> with StatefulPageState {
-  GlobalKey key = GlobalKey();
+class MyHomeController extends GetxController {
+
   late final List<HomeListItem> items;
 
   @override
-  void initState() {
+  void onInit() {
+    debugPrint("MyHomeController onInit");
+
     items = [
       HomeListItem("SectionListView", () => _openPage(SectionListDemo()), 1),
       HomeListItem("SectionGridView", () => _openPage(SectionGridViewDemo()),
@@ -119,28 +118,24 @@ class _MyHomePageState extends State<MyHomePage> with StatefulPageState {
       HomeListItem("DropDownMenuDemo", () => _openPage(DropDownMenuDemo()), 0),
     ];
 
-    super.initState();
-
-    EventBus.defaultBus.subscribe('onLogin', _onValueChange);
-    EventBus.defaultBus.subscribe('onLogout', _onValueChange);
+    super.onInit();
   }
 
-  @override
-  void dispose() {
-    EventBus.defaultBus.unsubscribe('onLogin', _onValueChange);
-    EventBus.defaultBus.unsubscribe('onLogout', _onValueChange);
-    super.dispose();
-  }
-
-  void _onValueChange(dynamic name) {
-    print('value $name');
-  }
-
-  Future<String> _loadData() {
-    return Future.delayed(Duration(seconds: 1), () {
+  Future<void> _loadData() async {
+    await Future.delayed(Duration(seconds: 1), () {
       return "first";
     });
+    setStateSafe(() {
+      pageStatus = PageStatus.normal;
+    });
   }
+}
+
+class MyHomePage extends StatelessWidget with BasePage {
+  final GlobalKey key = GlobalKey();
+
+  final MyHomeController controller = Get.find();
+  List<HomeListItem> get items => controller.items;
 
   @override
   Widget build(BuildContext context) {
@@ -149,29 +144,10 @@ class _MyHomePageState extends State<MyHomePage> with StatefulPageState {
 
   @override
   Widget getContentWidget(BuildContext context) {
-    return FutureBuilder(
-      future: _loadData(),
-      initialData: 'init',
-      // ignore: missing_return
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-          case ConnectionState.done:
-            {
-              return ListView(
-                children: List.generate(
-                    items.length, (index) => _getListItem(index, context)),
-              );
-            }
-          case ConnectionState.waiting:
-          case ConnectionState.active:
-            {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-        }
-      },
+
+    return ListView(
+      children: List.generate(
+          items.length, (index) => _getListItem(index, context)),
     );
   }
 

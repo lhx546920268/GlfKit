@@ -29,7 +29,6 @@ dependencies:
   cupertino_icons: ^1.0.2
   uuid: ^4.2.1
   encrypt: ^5.0.3
-  get: ^4.6.6
   GlfKit:
     path: ../
   flutter_section_list:
